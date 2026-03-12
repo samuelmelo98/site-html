@@ -45,4 +45,4 @@ jobs:
         run: |
           kubectl get ns $NAMESPACE || kubectl create ns $NAMESPACE
 
-          kubectl apply -k k8s/overlays/$OVERLAY -n $NAMESPACE
+          kubectl apply -k /opt/github-runner/_work/app-cluster/app-cluster/k8s/overlays/$OVERLAY -n $NAMESPACE
