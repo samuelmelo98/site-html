@@ -1,0 +1,48 @@
+name: Deploy Kubernetes
+
+on:
+  push:
+    branches:
+      - dev
+      - homolog
+      - main
+
+jobs:
+
+  deploy:
+
+    runs-on: self-hosted
+
+    env:
+      KUBECONFIG: /home/samuel-admin/.kube/config
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect environment
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+
+          if [ "$BRANCH" = "dev" ]; then
+            echo "NAMESPACE=dev" >> $GITHUB_ENV
+            echo "OVERLAY=dev" >> $GITHUB_ENV
+          elif [ "$BRANCH" = "homolog" ]; then
+            echo "NAMESPACE=homolog" >> $GITHUB_ENV
+            echo "OVERLAY=homolog" >> $GITHUB_ENV
+          else
+            echo "NAMESPACE=prod" >> $GITHUB_ENV
+            echo "OVERLAY=prod" >> $GITHUB_ENV
+          fi
+
+      - name: Build image
+        run: |
+          docker build -t site-html:${BRANCH} .
+
+      - name: Deploy Kubernetes
+        run: |
+          kubectl get ns $NAMESPACE || kubectl create ns $NAMESPACE
+
+          kubectl apply -k k8s/overlays/$OVERLAY -n $NAMESPACE
