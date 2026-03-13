@@ -3,14 +3,11 @@ name: Deploy Kubernetes
 on:
   push:
     branches:
-      - dev
-      - homolog
       - main
 
 jobs:
 
   deploy:
-
     runs-on: self-hosted
 
     env:
@@ -21,28 +18,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Detect environment
-        run: |
-          BRANCH=${GITHUB_REF##*/}
-          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
-
-          if [ "$BRANCH" = "dev" ]; then
-            echo "NAMESPACE=dev" >> $GITHUB_ENV
-            echo "OVERLAY=dev" >> $GITHUB_ENV
-          elif [ "$BRANCH" = "homolog" ]; then
-            echo "NAMESPACE=homolog" >> $GITHUB_ENV
-            echo "OVERLAY=homolog" >> $GITHUB_ENV
-          else
-            echo "NAMESPACE=prod" >> $GITHUB_ENV
-            echo "OVERLAY=prod" >> $GITHUB_ENV
-          fi
-
       - name: Build image
         run: |
-          docker build -t site-html:${BRANCH} .
+          docker build -t ghcr.io/${{ github.repository }}:latest .
 
-      - name: Deploy Kubernetes
+      - name: Push image
         run: |
-          kubectl get ns $NAMESPACE || kubectl create ns $NAMESPACE
+          docker push ghcr.io/${{ github.repository }}:latest
 
-          kubectl apply -k /opt/github-runner/_work/app-cluster/app-cluster/k8s/overlays/$OVERLAY -n $NAMESPACE
+      - name: Clone infra repo
+        run: |
+          git clone https://github.com/samuelmelo98/app-cluster.git
+
+      - name: Prepare manifests
+        run: |
+          APP_NAME=site-html
+          IMAGE=ghcr.io/${{ github.repository }}:latest
+
+          sed -i "s|IMAGE_PLACEHOLDER|${IMAGE}|g" app-cluster/k8s/base/deployment.yml
+
+      - name: Deploy
+        run: |
+          kubectl apply -k app-cluster/k8s/overlays/prod -n prod
