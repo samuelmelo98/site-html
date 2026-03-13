@@ -1,0 +1,31 @@
+<aside
+  class="w-64 h-full bg-gov-primary text-white flex flex-col transition-all duration-300"
+  [class.-ml-64]="!open"
+>
+
+ <!-- PAINEL DO USUÁRIO -->
+ <app-user-panel
+ [perfilSelecionado]= "onProfileInfo()"
+ [vinculoSelecionado]="'teste'"
+ (logout)="onLogout()"
+ (changeVinculo)="onChangeVinculo()"
+ (openSettings)="onOpenSettings()"
+ ></app-user-panel>
+
+  <div class="h-14 flex items-center px-4 border-b border-slate-700">
+    <span class="font-semibold">Menu</span>
+  </div>
+
+  <nav class="p-4 space-y-3">
+    <a routerLink="/home" class="block px-3 py-2 rounded hover:bg-slate-700">
+      Home
+    </a>
+    <a routerLink="/usuarios" class="block px-3 py-2 rounded hover:bg-slate-700">
+      Usuários
+    </a>
+    <a routerLink="/config" class="block px-3 py-2 rounded hover:bg-slate-700">
+      Configurações
+    </a>
+  </nav>
+
+</aside>

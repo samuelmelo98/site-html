@@ -1,0 +1,78 @@
+<div class="bg-gov-primary text-white px-4 py-6 border-b border-gov-divider">
+
+  <!-- LOGOS -->
+  <div class="flex items-center justify-between mb-6">
+    <span class="font-semibold">SEPLAG</span>
+    <span class="font-semibold">MT</span>
+  </div>
+
+  <!-- AVATAR -->
+  <div class="flex justify-center mb-4">
+    <div
+      class="w-20 h-20 rounded-full
+             bg-teal-300
+             flex items-center justify-center
+             shadow-md"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-10 h-10 text-white"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 12c2.7 0 4.5-2.1 4.5-4.5S14.7 3 12 3
+             7.5 5.1 7.5 7.5 9.3 12 12 12zm0 2.25
+             c-3 0-9 1.5-9 4.5V21h18v-2.25
+             c0-3-6-4.5-9-4.5z"
+        />
+      </svg>
+    </div>
+  </div>
+
+
+  <!-- PERFIL + CONFIG -->
+  <div class="bg-gov-primary text-white px-4 py-6 border-b border-gov-dark">
+    <button
+    class="flex items-center justify-center gap-2 text-sm font-semibold uppercase
+    px-3 py-1 rounded border border-white/70
+    hover:bg-gov-secondary transition"
+      [class.border-white]="configOpen"
+      [class.border-transparent]="!configOpen"
+      (click)="toggleConfig()"
+    >
+      {{ perfilSelecionado() }}
+      ⚙
+    </button>
+
+    <div class="text-sm opacity-90 mt-1">
+      {{ vinculoSelecionado() }}
+    </div>
+  </div>
+
+  <!-- AÇÕES (abre/fecha) -->
+  <div
+    class="mt-4 overflow-hidden transition-all duration-300"
+    [class.max-h-0]="!configOpen"
+    [class.max-h-40]="configOpen"
+  >
+    <div class="space-y-2 text-sm">
+
+      <button
+        class="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-gov-secondary"
+        (click)="logout.emit()"
+      >
+        ⏻ Sair
+      </button>
+
+      <button
+        class="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-gov-secondary"
+        (click)="changeVinculo.emit()"
+      >
+        🔄 Alterar Vínculo
+      </button>
+
+    </div>
+  </div>
+
+</div>

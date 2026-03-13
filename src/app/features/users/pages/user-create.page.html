@@ -1,0 +1,42 @@
+<div class="max-w-md mx-auto p-6 bg-white shadow rounded">
+
+  <h2 class="text-xl font-bold mb-4">
+    Cadastrar Usuário
+  </h2>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="salvar()"
+    class="space-y-4"
+  >
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Nome</label>
+      <input
+        type="text"
+        formControlName="name"
+        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Email</label>
+      <input
+        type="email"
+        formControlName="email"
+        class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+      />
+    </div>
+
+    <div class="flex justify-end">
+      <button
+        type="submit"
+        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+      >
+        Salvar
+      </button>
+    </div>
+
+  </form>
+
+</div>
