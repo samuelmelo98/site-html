@@ -8,6 +8,7 @@ on:
 jobs:
 
   deploy:
+
     runs-on: self-hosted
 
     env:
@@ -22,21 +23,15 @@ jobs:
         run: |
           docker build -t ghcr.io/${{ github.repository }}:latest .
 
+      - name: Login GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Push image
         run: |
           docker push ghcr.io/${{ github.repository }}:latest
 
-      - name: Clone infra repo
+      - name: Update deployment
         run: |
-          git clone https://github.com/samuelmelo98/app-cluster.git
-
-      - name: Prepare manifests
-        run: |
-          APP_NAME=site-html
-          IMAGE=ghcr.io/${{ github.repository }}:latest
-
-          sed -i "s|IMAGE_PLACEHOLDER|${IMAGE}|g" app-cluster/k8s/base/deployment.yml
-
-      - name: Deploy
-        run: |
-          kubectl apply -k app-cluster/k8s/overlays/prod -n prod
+          kubectl set image deployment/app app=ghcr.io/${{ github.repository }}:latest -n prod
+          kubectl rollout status deployment app -n prod
