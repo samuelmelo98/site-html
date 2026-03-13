@@ -1,4 +1,3 @@
-# Build Angular
 FROM node:20 AS build
 
 WORKDIR /app
@@ -10,8 +9,7 @@ COPY . .
 
 RUN npm run build
 
-# Servir com nginx
 FROM nginx:alpine
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist/frontend-angular /usr/share/nginx/html
+COPY --from=build /app/dist/frontend-angular/browser /usr/share/nginx/html
