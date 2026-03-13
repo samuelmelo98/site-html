@@ -17,6 +17,7 @@ jobs:
 
     env:
       KUBECONFIG: /home/samuel-admin/.kube/config
+      IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
 
     steps:
 
@@ -25,7 +26,7 @@ jobs:
 
       - name: Build image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}:latest .
+          docker build -t $IMAGE .
 
       - name: Login GHCR
         run: |
@@ -33,9 +34,9 @@ jobs:
 
       - name: Push image
         run: |
-          docker push ghcr.io/${{ github.repository }}:latest
+          docker push $IMAGE
 
       - name: Update deployment
         run: |
-          kubectl set image deployment/app app=ghcr.io/${{ github.repository }}:latest -n prod
-          kubectl rollout status deployment app -n prod
+          kubectl set image deployment/app app=$IMAGE -n prod
+          kubectl rollout status deployment/app -n prod
