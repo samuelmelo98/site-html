@@ -19,7 +19,7 @@ import { SideBar } from "../side-bar/side-bar";
 })
 
 export class ShellComponent {
-  menuOpen = true;
+  menuOpen = false;
 
   toggleMenu(){
     this.menuOpen = !this.menuOpen;
