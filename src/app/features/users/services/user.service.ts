@@ -6,8 +6,8 @@ import { User } from '../models/user.model';
 @Injectable({ providedIn: 'root' })
 export class UserService {
 
-  // ajuste depois para environment
-  private readonly API = '/api/users';
+// Agora ele usa a URL completa: https://api.cluster.stringtecnologiadf.org/users
+  private readonly API = `${environment.apiUrl}/users`;
 
   constructor(private http: HttpClient) {}
 
