@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import { initializeKeycloak } from './core/auth/app-init.factory';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { authInterceptor } from './core/auth/auth.interceptor';
+import { loaderInterceptor } from './core/auth/loader.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,7 +17,11 @@ export const appConfig: ApplicationConfig = {
     },
     // ✅ ISSO RESOLVE DEFINITIVAMENTE O ERRO
     provideHttpClient(
-      withInterceptors([authInterceptor])
+      withInterceptors([
+        authInterceptor,
+        loaderInterceptor,
+
+      ])
     ),
      provideAnimationsAsync()
   ]

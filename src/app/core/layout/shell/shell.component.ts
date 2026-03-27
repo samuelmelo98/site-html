@@ -4,6 +4,8 @@ import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { MenuComponent } from "../menu/menu.component";
 import { SideBar } from "../side-bar/side-bar";
+import { GlobalLoaderComponent } from '../ui/components/global-loader/global-loader.component';
+
 
 @Component({
   selector: 'app-shell',
@@ -13,7 +15,9 @@ import { SideBar } from "../side-bar/side-bar";
     HeaderComponent,
     FooterComponent,
     MenuComponent,
-     SideBar],
+     SideBar,
+     GlobalLoaderComponent
+    ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.css'
 })
