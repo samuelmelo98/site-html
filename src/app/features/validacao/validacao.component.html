@@ -1,0 +1,29 @@
+<div class="container">
+
+  <div *ngIf="loading" class="loading">
+    🔄 Validando documento...
+  </div>
+
+  <div *ngIf="!loading">
+
+    <!-- ✅ SUCESSO -->
+    <div *ngIf="resultado?.valido" class="card success">
+      <h2>✔ Documento Válido</h2>
+
+      <p><b>Usuário:</b> {{ resultado.usuario }}</p>
+      <p><b>Data:</b> {{ resultado.data }}</p>
+
+      <span class="badge ok">Autenticado</span>
+    </div>
+
+    <!-- ❌ ERRO -->
+    <div *ngIf="!resultado?.valido" class="card error">
+      <h2>❌ Documento Inválido</h2>
+      <p>Este documento não foi encontrado ou não é válido.</p>
+
+      <span class="badge error">Não confiável</span>
+    </div>
+
+  </div>
+
+</div>

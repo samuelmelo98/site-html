@@ -20,5 +20,12 @@ export const routes: Routes = [
     path: '',
     redirectTo: 'home',
     pathMatch: 'full'
-  }
+  },
+
+  {
+  path: 'validacao/:codigo',
+  loadComponent: () =>
+    import('./features/validacao/validacao-component')
+      .then(m => m.ValidacaoComponent)
+}
 ];
