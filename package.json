@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --configuration development",
+    "start": "ng serve --ssl true --ssl-cert ./certs/stringtecnologiadf.org+1.pem --ssl-key ./certs/stringtecnologiadf.org+1-key.pem --host stringtecnologiadf.org --public-host stringtecnologiadf.org:4200 --port 4200",
     "build": "ng build --configuration production",
     "build:dev": "ng build --configuration development",
     "watch": "ng build --watch --configuration development",
