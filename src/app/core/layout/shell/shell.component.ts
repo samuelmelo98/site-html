@@ -23,7 +23,7 @@ import { GlobalLoaderComponent } from '../ui/components/global-loader/global-loa
 })
 
 export class ShellComponent {
-  menuOpen = true;
+  menuOpen = false;
 
   toggleMenu(){
     this.menuOpen = !this.menuOpen;

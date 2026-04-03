@@ -2,12 +2,13 @@ import { Component, OnInit, EventEmitter,Input,Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KeycloakService } from '../../auth/keycloak.service';
 import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
