@@ -20,9 +20,11 @@ jobs:
       KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
     steps:
-      - name: Checkout
+      # 🔹 pega código do app
+      - name: Checkout app
         uses: actions/checkout@v4
 
+      # 🔹 define variáveis dinâmicas
       - name: Definir variáveis
         run: |
           APP_NAME=$(basename $GITHUB_REPOSITORY)
@@ -31,19 +33,27 @@ jobs:
           echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
+      # 🔹 build imagem
       - name: Build
         run: docker build -t $IMAGE .
 
+      # 🔐 login registry
       - name: Login GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      # 📦 push imagem
       - name: Push
         run: docker push $IMAGE
 
-      # 🔥 AQUI É O CORAÇÃO DECLARATIVO
+      # 🔥 pega infra (k8s)
+      - name: Checkout infra
+        run: |
+          git clone https://github.com/samuelmelo98/app-cluster.git
+
+      # 🚀 deploy declarativo REAL
       - name: Deploy declarativo
         run: |
-          cd k8s/overlays/prod
+          cd app-cluster/k8s/overlays/prod
 
           # nome dinâmico
           kustomize edit set nameprefix ${APP_NAME}-
@@ -54,4 +64,8 @@ jobs:
           # domínio dinâmico
           sed -i "s/app.cluster/${APP_NAME}.cluster/g" ingress.yml
 
+          # aplica estado
           kubectl apply -k .
+
+          # acompanha rollout
+          kubectl rollout status deployment/${APP_NAME}-app -n prod
