@@ -42,13 +42,24 @@ jobs:
 
       - name: Deploy
         run: |
+          echo "Deployando $APP_NAME"
+
           if kubectl get deployment ${APP_NAME}-app -n prod > /dev/null 2>&1; then
+            echo "Atualizando deployment existente"
             kubectl set image deployment/${APP_NAME}-app app=$IMAGE -n prod
           else
-            kubectl create deployment ${APP_NAME}-app --image=$IMAGE -n prod
-            kubectl expose deployment ${APP_NAME}-app --port=80 --target-port=80 -n prod
+            echo "Criando novo deployment"
 
-            kubectl apply -f - <<EOF
+            kubectl create deployment ${APP_NAME}-app \
+              --image=$IMAGE \
+              -n prod
+
+            kubectl expose deployment ${APP_NAME}-app \
+              --port=80 \
+              --target-port=80 \
+              -n prod
+
+            cat <<EOF | kubectl apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
