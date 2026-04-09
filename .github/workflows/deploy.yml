@@ -1,28 +1,36 @@
 name: Deploy Kubernetes
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão da imagem (ex: v1.0.0)'
+        required: true
+        default: 'latest'
 
 permissions:
   contents: read
   packages: write
 
 jobs:
-
   deploy:
-
     runs-on: self-hosted
 
     env:
       KUBECONFIG: /home/samuel-admin/.kube/config
-      IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
 
     steps:
 
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Definir variáveis
+        run: |
+          APP_NAME=$(basename $GITHUB_REPOSITORY)
+          IMAGE=ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
+
+          echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
       - name: Build image
         run: |
@@ -36,7 +44,7 @@ jobs:
         run: |
           docker push $IMAGE
 
-      - name: Update deployment
+      - name: Deploy no Kubernetes
         run: |
-          kubectl set image deployment/app app=$IMAGE -n prod
-          kubectl rollout status deployment/app -n prod
+          kubectl set image deployment/${APP_NAME}-app app=$IMAGE -n prod
+          kubectl rollout status deployment/${APP_NAME}-app -n prod
