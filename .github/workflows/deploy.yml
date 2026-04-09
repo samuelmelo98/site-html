@@ -20,11 +20,11 @@ jobs:
       KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
     steps:
-      # 🔹 pega código do app
+      # 🔹 checkout código da aplicação
       - name: Checkout app
         uses: actions/checkout@v4
 
-      # 🔹 define variáveis dinâmicas
+      # 🔹 definir variáveis dinâmicas
       - name: Definir variáveis
         run: |
           APP_NAME=$(basename $GITHUB_REPOSITORY)
@@ -33,27 +33,33 @@ jobs:
           echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
-      # 🔹 build imagem
+      # 🔹 build da imagem
       - name: Build
         run: docker build -t $IMAGE .
 
-      # 🔐 login registry
+      # 🔐 login no GHCR
       - name: Login GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      # 📦 push imagem
+      # 📦 push da imagem
       - name: Push
         run: docker push $IMAGE
 
-      # 🔥 pega infra (k8s)
+      # 🔥 checkout infra (idempotente)
       - name: Checkout infra
         run: |
+          rm -rf app-cluster
           git clone https://github.com/samuelmelo98/app-cluster.git
 
-      # 🚀 deploy declarativo REAL
+      # 🚀 deploy declarativo
       - name: Deploy declarativo
         run: |
+          set -e
+
           cd app-cluster/k8s/overlays/prod
+
+          echo "🚀 Deployando app: $APP_NAME"
+          echo "📦 Imagem: $IMAGE"
 
           # nome dinâmico
           kustomize edit set nameprefix ${APP_NAME}-
@@ -61,11 +67,11 @@ jobs:
           # imagem dinâmica
           kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
 
-          # domínio dinâmico
-          sed -i "s/app.cluster/${APP_NAME}.cluster/g" ingress.yml
+          # domínio dinâmico (protege múltiplas execuções)
+          sed -i "s/\bapp\.cluster\b/${APP_NAME}.cluster/g" ingress.yml
 
-          # aplica estado
-          kubectl apply -k .
+          # aplica estado declarativo
+          kubectl apply -k . -n prod
 
           # acompanha rollout
           kubectl rollout status deployment/${APP_NAME}-app -n prod
