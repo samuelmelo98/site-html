@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versão da imagem'
+        description: 'Versão'
         required: true
         default: 'latest'
 
@@ -31,47 +31,27 @@ jobs:
           echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
-      - name: Build image
+      - name: Build
         run: docker build -t $IMAGE .
 
       - name: Login GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Push image
+      - name: Push
         run: docker push $IMAGE
 
-      - name: Deploy
+      # 🔥 AQUI É O CORAÇÃO DECLARATIVO
+      - name: Deploy declarativo
         run: |
-          echo "Deployando $APP_NAME"
+          cd k8s/overlays/prod
 
-          if kubectl get deployment ${APP_NAME}-app -n prod > /dev/null 2>&1; then
-            echo "Atualizando deployment"
-            kubectl set image deployment/${APP_NAME}-app app=$IMAGE -n prod
-          else
-            echo "Criando deployment"
+          # nome dinâmico
+          kustomize edit set nameprefix ${APP_NAME}-
 
-            kubectl create deployment ${APP_NAME}-app --image=$IMAGE -n prod
-            kubectl expose deployment ${APP_NAME}-app --port=80 --target-port=80 -n prod
+          # imagem dinâmica
+          kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
 
-            echo "apiVersion: networking.k8s.io/v1" > ingress.yaml
-            echo "kind: Ingress" >> ingress.yaml
-            echo "metadata:" >> ingress.yaml
-            echo "  name: ${APP_NAME}-app" >> ingress.yaml
-            echo "  namespace: prod" >> ingress.yaml
-            echo "spec:" >> ingress.yaml
-            echo "  rules:" >> ingress.yaml
-            echo "    - host: ${APP_NAME}.cluster.stringtecnologiadf.org" >> ingress.yaml
-            echo "      http:" >> ingress.yaml
-            echo "        paths:" >> ingress.yaml
-            echo "          - path: /" >> ingress.yaml
-            echo "            pathType: Prefix" >> ingress.yaml
-            echo "            backend:" >> ingress.yaml
-            echo "              service:" >> ingress.yaml
-            echo "                name: ${APP_NAME}-app" >> ingress.yaml
-            echo "                port:" >> ingress.yaml
-            echo "                  number: 80" >> ingress.yaml
+          # domínio dinâmico
+          sed -i "s/app.cluster/${APP_NAME}.cluster/g" ingress.yml
 
-            kubectl apply -f ingress.yaml
-          fi
-
-          kubectl rollout status deployment/${APP_NAME}-app -n prod
+          kubectl apply -k .
