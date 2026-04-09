@@ -24,6 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 🔥 Define nome e imagem dinamicamente
       - name: Definir variáveis
         run: |
           APP_NAME=$(basename $GITHUB_REPOSITORY)
@@ -32,19 +33,62 @@ jobs:
           echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
+      # 🔥 Build da imagem
       - name: Build image
         run: |
           docker build -t $IMAGE .
 
+      # 🔐 Login no registry
       - name: Login GHCR
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      # 📦 Push da imagem
       - name: Push image
         run: |
           docker push $IMAGE
 
+      # 🔥 Deploy inteligente (cria OU atualiza)
       - name: Deploy no Kubernetes
         run: |
-          kubectl set image deployment/${APP_NAME}-app app=$IMAGE -n prod
+          echo "Deployando $APP_NAME com imagem $IMAGE"
+
+          # verifica se deployment existe
+          if kubectl get deployment ${APP_NAME}-app -n prod > /dev/null 2>&1; then
+            echo "Deployment existe → atualizando imagem"
+            kubectl set image deployment/${APP_NAME}-app app=$IMAGE -n prod
+          else
+            echo "Deployment não existe → criando do zero"
+
+            kubectl create deployment ${APP_NAME}-app \
+              --image=$IMAGE \
+              -n prod
+
+            kubectl expose deployment ${APP_NAME}-app \
+              --port=80 \
+              --target-port=80 \
+              -n prod
+
+            kubectl apply -f - <<EOF
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${APP_NAME}-app
+  namespace: prod
+spec:
+  rules:
+    - host: ${APP_NAME}.cluster.stringtecnologiadf.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${APP_NAME}-app
+                port:
+                  number: 80
+EOF
+          fi
+
+          # aguarda rollout
           kubectl rollout status deployment/${APP_NAME}-app -n prod
