@@ -17,7 +17,7 @@ jobs:
     runs-on: self-hosted
 
     env:
-      KUBECONFIG: /home/samuel-admin/.kube/config
+      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
     steps:
 
