@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versão da imagem (ex: v1.0.0)'
+        description: 'Versão da imagem'
         required: true
         default: 'latest'
 
@@ -20,7 +20,6 @@ jobs:
       KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -33,18 +32,41 @@ jobs:
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
       - name: Build image
-        run: |
-          docker build -t $IMAGE .
+        run: docker build -t $IMAGE .
 
       - name: Login GHCR
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push image
-        run: |
-          docker push $IMAGE
+        run: docker push $IMAGE
 
-      - name: Deploy no Kubernetes
+      - name: Deploy
         run: |
-          kubectl set image deployment/${APP_NAME}-app app=$IMAGE -n prod
+          if kubectl get deployment ${APP_NAME}-app -n prod > /dev/null 2>&1; then
+            kubectl set image deployment/${APP_NAME}-app app=$IMAGE -n prod
+          else
+            kubectl create deployment ${APP_NAME}-app --image=$IMAGE -n prod
+            kubectl expose deployment ${APP_NAME}-app --port=80 --target-port=80 -n prod
+
+            kubectl apply -f - <<EOF
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${APP_NAME}-app
+  namespace: prod
+spec:
+  rules:
+    - host: ${APP_NAME}.cluster.stringtecnologiadf.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${APP_NAME}-app
+                port:
+                  number: 80
+EOF
+          fi
+
           kubectl rollout status deployment/${APP_NAME}-app -n prod
