@@ -45,39 +45,33 @@ jobs:
           echo "Deployando $APP_NAME"
 
           if kubectl get deployment ${APP_NAME}-app -n prod > /dev/null 2>&1; then
-            echo "Atualizando deployment existente"
+            echo "Atualizando deployment"
             kubectl set image deployment/${APP_NAME}-app app=$IMAGE -n prod
           else
-            echo "Criando novo deployment"
+            echo "Criando deployment"
 
-            kubectl create deployment ${APP_NAME}-app \
-              --image=$IMAGE \
-              -n prod
+            kubectl create deployment ${APP_NAME}-app --image=$IMAGE -n prod
+            kubectl expose deployment ${APP_NAME}-app --port=80 --target-port=80 -n prod
 
-            kubectl expose deployment ${APP_NAME}-app \
-              --port=80 \
-              --target-port=80 \
-              -n prod
+            echo "apiVersion: networking.k8s.io/v1" > ingress.yaml
+            echo "kind: Ingress" >> ingress.yaml
+            echo "metadata:" >> ingress.yaml
+            echo "  name: ${APP_NAME}-app" >> ingress.yaml
+            echo "  namespace: prod" >> ingress.yaml
+            echo "spec:" >> ingress.yaml
+            echo "  rules:" >> ingress.yaml
+            echo "    - host: ${APP_NAME}.cluster.stringtecnologiadf.org" >> ingress.yaml
+            echo "      http:" >> ingress.yaml
+            echo "        paths:" >> ingress.yaml
+            echo "          - path: /" >> ingress.yaml
+            echo "            pathType: Prefix" >> ingress.yaml
+            echo "            backend:" >> ingress.yaml
+            echo "              service:" >> ingress.yaml
+            echo "                name: ${APP_NAME}-app" >> ingress.yaml
+            echo "                port:" >> ingress.yaml
+            echo "                  number: 80" >> ingress.yaml
 
-            cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ${APP_NAME}-app
-  namespace: prod
-spec:
-  rules:
-    - host: ${APP_NAME}.cluster.stringtecnologiadf.org
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: ${APP_NAME}-app
-                port:
-                  number: 80
-EOF
+            kubectl apply -f ingress.yaml
           fi
 
           kubectl rollout status deployment/${APP_NAME}-app -n prod
