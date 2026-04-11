@@ -20,11 +20,11 @@ jobs:
       KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
     steps:
-      # 🔹 checkout código da aplicação
+      # 🔹 checkout app
       - name: Checkout app
         uses: actions/checkout@v4
 
-      # 🔹 definir variáveis dinâmicas
+      # 🔹 variáveis
       - name: Definir variáveis
         run: |
           APP_NAME=$(basename $GITHUB_REPOSITORY)
@@ -33,45 +33,41 @@ jobs:
           echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
-      # 🔹 build da imagem
+      # 🔹 build imagem
       - name: Build
         run: docker build -t $IMAGE .
 
-      # 🔐 login no GHCR
+      # 🔐 login GHCR
       - name: Login GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      # 📦 push da imagem
+      # 📦 push
       - name: Push
         run: docker push $IMAGE
 
-      # 🔥 checkout infra (idempotente)
+      # 🔥 checkout infra
       - name: Checkout infra
         run: |
           rm -rf app-cluster
           git clone https://github.com/samuelmelo98/app-cluster.git
 
-      # 🚀 deploy declarativo
+      # 🚀 deploy (CORRIGIDO)
       - name: Deploy declarativo
         run: |
           set -e
 
-          cd app-cluster/k8s/overlays/prod
+          APP_NAME=$(basename $GITHUB_REPOSITORY)
 
-          echo "🚀 Deployando app: $APP_NAME"
+          cd app-cluster/k8s/overlays/prod/$APP_NAME
+
+          echo "🚀 Deployando: $APP_NAME"
           echo "📦 Imagem: $IMAGE"
 
-          # nome dinâmico
-          kustomize edit set nameprefix ${APP_NAME}-
-
-          # imagem dinâmica
+          # atualiza apenas imagem (única mutação permitida)
           kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
 
-          # domínio dinâmico (protege múltiplas execuções)
-          sed -i "s/\bapp\.cluster\b/${APP_NAME}.cluster/g" ingress.yml
-
-          # aplica estado declarativo
+          # aplica
           kubectl apply -k . -n prod
 
-          # acompanha rollout
+          # rollout
           kubectl rollout status deployment/${APP_NAME}-app -n prod
