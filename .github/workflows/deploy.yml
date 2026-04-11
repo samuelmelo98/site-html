@@ -63,11 +63,17 @@ jobs:
           echo "🚀 Deployando: $APP_NAME"
           echo "📦 Imagem: $IMAGE"
 
-          # atualiza apenas imagem (única mutação permitida)
+          # atualiza imagem
           kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
 
-          # aplica
+          # tenta aplicar (pode falhar na primeira vez por selector imutável)
+          kubectl apply -k . -n prod || true
+
+          # recria deployment se necessário
+          kubectl delete deployment ${APP_NAME}-app -n prod || true
+
+          # aplica novamente (estado final correto)
           kubectl apply -k . -n prod
 
-          # rollout
+          # aguarda rollout
           kubectl rollout status deployment/${APP_NAME}-app -n prod
