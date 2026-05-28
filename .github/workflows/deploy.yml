@@ -1,91 +1,99 @@
+
 name: Deploy Kubernetes
 
 on:
-workflow_dispatch:
-inputs:
-version:
-description: 'Versão'
-required: true
-default: 'latest'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão'
+        required: true
+        default: 'latest'
 
 permissions:
-contents: write
-packages: write
+  contents: write
+  packages: write
 
 jobs:
-deploy:
-runs-on: self-hosted
+  deploy:
+    runs-on: self-hosted
 
-steps:
+    steps:
 
-  # 🔹 checkout código
-  - name: Checkout app
-    uses: actions/checkout@v4
+      # 🔹 checkout código
+      - name: Checkout app
+        uses: actions/checkout@v4
 
-  # 🔹 variáveis
-  - name: Definir variáveis
-    run: |
-      APP_NAME=$(basename $GITHUB_REPOSITORY)
-      IMAGE=ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
+      # 🔹 variáveis
+      - name: Definir variáveis
+        run: |
+          APP_NAME=$(basename $GITHUB_REPOSITORY)
+          IMAGE=ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
 
-      echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
-      echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
-  # 🔹 build imagem docker
-  - name: Build Docker
-    run: |
-      docker build -t $IMAGE .
+      # 🔹 build imagem docker
+      - name: Build Docker
+        run: |
+          docker build -t $IMAGE .
 
-  # 🔐 login GHCR
-  - name: Login GHCR
-    run: |
-      echo "${{ secrets.GITHUB_TOKEN }}" \
-      | docker login ghcr.io \
-      -u ${{ github.actor }} \
-      --password-stdin
+      # 🔐 login GHCR
+      - name: Login GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+          | docker login ghcr.io \
+          -u ${{ github.actor }} \
+          --password-stdin
 
-  # 📦 push imagem
-  - name: Push Docker Image
-    run: |
-      docker push $IMAGE
+      # 📦 push imagem
+      - name: Push Docker Image
+        run: |
+          docker push $IMAGE
 
-  # 🔥 checkout repositório GitOps
-  - name: Checkout app-cluster
-    run: |
-      rm -rf app-cluster
+      # 🔥 checkout repositório GitOps
+      - name: Checkout app-cluster
+        run: |
+          rm -rf app-cluster
 
-      git clone \
-      https://x-access-token:${{ secrets.GH_PAT }}@github.com/samuelmelo98/app-cluster.git
+          git clone \
+          https://x-access-token:${{ secrets.GH_PAT }}@github.com/samuelmelo98/app-cluster.git
 
-  # 🚀 atualiza GitOps
-  - name: Atualizar GitOps
-    run: |
-      set -e
+      # 🚀 atualiza GitOps
+      - name: Atualizar GitOps
+        run: |
+          set -e
 
-      echo "🚀 Aplicação: $APP_NAME"
-      echo "📦 Imagem: $IMAGE"
+          echo "🚀 Aplicação: $APP_NAME"
+          echo "📦 Imagem: $IMAGE"
 
-      cd app-cluster/k8s/overlays/prod/$APP_NAME
+          cd app-cluster/k8s/overlays/prod/$APP_NAME
 
-      # atualiza imagem
-      kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
+          # atualiza imagem
+          kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
 
-      # git config
-      git config --global user.email "github-actions@github.com"
-      git config --global user.name "github-actions"
+          # git config
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
 
-      # commit
-      git add .
+          # remove credencial automática do github-actions
+          git config --global --unset-all http.https://github.com/.extraheader || true
 
-      git commit -m "deploy ${APP_NAME}:${{ github.event.inputs.version }}" \
-      || echo "Sem alterações"
+          # commit
+          git add .
 
-      # push
-      git push
+          git commit -m "deploy ${APP_NAME}:${{ github.event.inputs.version }}" \
+          || echo "Sem alterações"
 
-  # ✅ final
-  - name: Finalizado
-    run: |
-      echo "✅ GitOps atualizado"
-      echo "🤖 ArgoCD fará o deploy automaticamente"
+          # força remote autenticado
+          git remote set-url origin \
+          https://x-access-token:${{ secrets.GH_PAT }}@github.com/samuelmelo98/app-cluster.git
+
+          # push
+          git push
+
+      # ✅ final
+      - name: Finalizado
+        run: |
+          echo "✅ GitOps atualizado"
+          echo "🤖 ArgoCD fará o deploy automaticamente"
 
