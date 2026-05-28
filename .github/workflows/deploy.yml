@@ -1,79 +1,91 @@
 name: Deploy Kubernetes
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Versão'
-        required: true
-        default: 'latest'
+workflow_dispatch:
+inputs:
+version:
+description: 'Versão'
+required: true
+default: 'latest'
 
 permissions:
-  contents: read
-  packages: write
+contents: write
+packages: write
 
 jobs:
-  deploy:
-    runs-on: self-hosted
+deploy:
+runs-on: self-hosted
 
-    env:
-      KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+steps:
 
-    steps:
-      # 🔹 checkout app
-      - name: Checkout app
-        uses: actions/checkout@v4
+  # 🔹 checkout código
+  - name: Checkout app
+    uses: actions/checkout@v4
 
-      # 🔹 variáveis
-      - name: Definir variáveis
-        run: |
-          APP_NAME=$(basename $GITHUB_REPOSITORY)
-          IMAGE=ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
+  # 🔹 variáveis
+  - name: Definir variáveis
+    run: |
+      APP_NAME=$(basename $GITHUB_REPOSITORY)
+      IMAGE=ghcr.io/${{ github.repository }}:${{ github.event.inputs.version }}
 
-          echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
-          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+      echo "APP_NAME=$APP_NAME" >> $GITHUB_ENV
+      echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
-      # 🔹 build imagem
-      - name: Build
-        run: docker build -t $IMAGE .
+  # 🔹 build imagem docker
+  - name: Build Docker
+    run: |
+      docker build -t $IMAGE .
 
-      # 🔐 login GHCR
-      - name: Login GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+  # 🔐 login GHCR
+  - name: Login GHCR
+    run: |
+      echo "${{ secrets.GITHUB_TOKEN }}" \
+      | docker login ghcr.io \
+      -u ${{ github.actor }} \
+      --password-stdin
 
-      # 📦 push
-      - name: Push
-        run: docker push $IMAGE
+  # 📦 push imagem
+  - name: Push Docker Image
+    run: |
+      docker push $IMAGE
 
-      # 🔥 checkout infra
-      - name: Checkout infra
-        run: |
-          rm -rf app-cluster
-          git clone https://github.com/samuelmelo98/app-cluster.git
+  # 🔥 checkout repositório GitOps
+  - name: Checkout app-cluster
+    run: |
+      rm -rf app-cluster
 
-      # 🚀 deploy (CORRIGIDO)
-      - name: Deploy declarativo
-        run: |
-          set -e
+      git clone \
+      https://x-access-token:${{ secrets.GH_PAT }}@github.com/samuelmelo98/app-cluster.git
 
-          APP_NAME=$(basename $GITHUB_REPOSITORY)
+  # 🚀 atualiza GitOps
+  - name: Atualizar GitOps
+    run: |
+      set -e
 
-          cd app-cluster/k8s/overlays/prod/$APP_NAME
+      echo "🚀 Aplicação: $APP_NAME"
+      echo "📦 Imagem: $IMAGE"
 
-          echo "🚀 Deployando: $APP_NAME"
-          echo "📦 Imagem: $IMAGE"
+      cd app-cluster/k8s/overlays/prod/$APP_NAME
 
-          # atualiza imagem
-          kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
+      # atualiza imagem
+      kustomize edit set image IMAGE_PLACEHOLDER=$IMAGE
 
-          # tenta aplicar (pode falhar na primeira vez por selector imutável)
-          kubectl apply -k . -n prod || true
+      # git config
+      git config --global user.email "github-actions@github.com"
+      git config --global user.name "github-actions"
 
-          # recria deployment se necessário
-          kubectl delete deployment ${APP_NAME}-app -n prod || true
+      # commit
+      git add .
 
-          # aplica novamente (estado final correto)
-          kubectl apply -k . -n prod
+      git commit -m "deploy ${APP_NAME}:${{ github.event.inputs.version }}" \
+      || echo "Sem alterações"
 
-          # aguarda rollout
-          kubectl rollout status deployment/${APP_NAME}-app -n prod
+      # push
+      git push
+
+  # ✅ final
+  - name: Finalizado
+    run: |
+      echo "✅ GitOps atualizado"
+      echo "🤖 ArgoCD fará o deploy automaticamente"
+
