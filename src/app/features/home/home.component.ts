@@ -31,6 +31,21 @@ export class HomeComponent {
       window.URL.revokeObjectURL(fileURL);
     });
   }
+
+  gerarPdfTeste() {
+    this.pdfService.downloadPdfTeste().subscribe((blob) => {
+
+      const fileURL = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = fileURL;
+      a.download = 'relatorio.pdf';
+      a.click();
+
+      window.URL.revokeObjectURL(fileURL);
+    });
+  }
+  
   
 
 }

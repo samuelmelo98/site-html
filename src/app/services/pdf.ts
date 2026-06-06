@@ -14,4 +14,10 @@ export class PdfService {
       responseType: 'blob' // 🔥 essencial
     });
   }
+
+  downloadPdfTeste() {
+    return this.http.get(`${this.API}/teste`, {
+      responseType: 'blob' // 🔥 essencial
+    });
+  }
 }
