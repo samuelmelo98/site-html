@@ -78,7 +78,7 @@ private readonly API_BASE = environment.apiUrl;
 
         if (user) {
           user.avatar =
-            `${this.API_BASE}/api/usuarios/${user.id}/avatar`;
+            `${this.API_BASE}/api/usuarios/${user.id}/avatar?t=${Date.now()}`;
         }
 
       },
