@@ -1,4 +1,4 @@
-import { Component, EventEmitter, input, output } from '@angular/core';
+import { Component, EventEmitter, input, output,signal  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserProfile } from '../../auth/models/user-profile';
 import { AvatarModule } from 'primeng/avatar';
@@ -10,61 +10,83 @@ import { inject } from '@angular/core';
 @Component({
   standalone: true,
   selector: 'app-user-panel',
-  imports: [CommonModule, AvatarModule, ButtonModule, MenuModule],
+  imports: [
+    CommonModule,
+    AvatarModule,
+    ButtonModule
+  ],
   templateUrl: './user-panel.html',
   styleUrl: './user-panel.css',
 })
 export class UserPanel {
-  perfilSelecionado = input<UserProfile | null>();
+
+  perfilSelecionado = input<UserProfile | null>(null);
+
   vinculoSelecionado = input<string>();
-  avatarUrl?: string;
+
   logout = output<void>();
+
   changeVinculo = output<void>();
+
   configOpen = false;
 
-    private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  toggleConfig() {
+  toggleConfig(): void {
     this.configOpen = !this.configOpen;
   }
 
   get iniciais(): string {
-  const nome = this.perfilSelecionado()?.name ?? '';
 
-  return nome
-    .split(' ')
-    .filter(Boolean)
-    .map(p => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
+    const nome = this.perfilSelecionado()?.name ?? '';
 
-onAvatarSelecionado(event: Event) {
-
-  const input = event.target as HTMLInputElement;
-
-  if (!input.files?.length) {
-    return;
+    return nome
+      .split(' ')
+      .filter(Boolean)
+      .map(p => p[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
   }
 
-  const arquivo = input.files[0];
+  onAvatarSelecionado(event: Event): void {
 
-  const formData = new FormData();
+    const input = event.target as HTMLInputElement;
 
-  formData.append('arquivo', arquivo);
+    if (!input.files?.length) {
+      return;
+    }
 
-this.http.post<any>(
-  '/api/usuarios/avatar',
-  formData
-).subscribe(resp => {
+    const arquivo = input.files[0];
 
-  const user = this.perfilSelecionado();
+    const formData = new FormData();
 
-  if (user) {
-    user.avatar = 'http://localhost:8080' + resp.url;
+    formData.append('arquivo', arquivo);
+
+    this.http.post<any>(
+      '/api/usuarios/avatar',
+      formData
+    ).subscribe({
+
+      next: (resp) => {
+
+        const user = this.perfilSelecionado();
+
+        if (user) {
+
+          user.avatar =
+            '/api/usuarios/' + user.id + '/avatar';
+
+        }
+
+      },
+
+      error: (err) => {
+        console.error('Erro ao enviar avatar', err);
+      }
+
+    });
+
   }
 
-});
-}
 }

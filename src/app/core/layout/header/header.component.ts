@@ -21,6 +21,12 @@ export class HeaderComponent implements OnInit {
   @Input() menuOpen = true;
   @Output() toggleMenu = new EventEmitter<void>();
   private keycloak = inject(KeycloakService);
+  
+   @Input() open = true;
+
+  documentosOpen = true;
+
+  adminOpen = false;
 
   constructor(private router: Router) {}
 

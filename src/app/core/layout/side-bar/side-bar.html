@@ -1,31 +1,149 @@
 <aside
-  class="w-64 h-full bg-gov-primary text-white flex flex-col transition-all duration-300"
+  class="w-64 h-full flex flex-col bg-gradient-to-b from-sky-900 to-blue-950 text-white transition-all duration-300"
   [class.-ml-64]="!open"
 >
 
- <!-- PAINEL DO USUÁRIO -->
- <app-user-panel
- [perfilSelecionado]= "onProfileInfo()"
- [vinculoSelecionado]="'teste'"
- (logout)="onLogout()"
- (changeVinculo)="onChangeVinculo()"
- (openSettings)="onOpenSettings()"
- ></app-user-panel>
+  <!-- USER PANEL -->
+  <app-user-panel
+    [perfilSelecionado]="userProfile()"
+    [vinculoSelecionado]="'teste'"
+    (logout)="onLogout()"
+    (changeVinculo)="onChangeVinculo()">
+  </app-user-panel>
 
-  <div class="h-14 flex items-center px-4 border-b border-slate-700">
-    <span class="font-semibold">Menu</span>
-  </div>
+  <!-- DIVISOR -->
+  <div class="mx-4 border-t border-white/10"></div>
 
-  <nav class="p-4 space-y-3">
-    <a routerLink="/home" class="block px-3 py-2 rounded hover:bg-slate-700">
-      Home
+  <!-- MENU -->
+<nav class="flex-1 overflow-y-auto px-3 py-3 custom-scroll">
+
+    <div class="text-xs uppercase tracking-wider text-white/50 mb-3 px-2">
+      Navegação
+    </div>
+
+    <!-- DASHBOARD -->
+    <a
+      routerLink="/home"
+      routerLinkActive="bg-white/10 text-cyan-300"
+      class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
+
+      <i class="pi pi-home"></i>
+      <span>Dashboard</span>
+
     </a>
-    <a routerLink="/usuarios" class="block px-3 py-2 rounded hover:bg-slate-700">
-      Usuários
+
+    <!-- DOCUMENTOS -->
+    <button
+      class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition"
+      (click)="documentosOpen = !documentosOpen">
+
+      <div class="flex items-center gap-3">
+        <i class="pi pi-file"></i>
+        <span>Documentos</span>
+      </div>
+
+      <i
+        class="pi"
+        [ngClass]="documentosOpen ? 'pi-chevron-down' : 'pi-chevron-right'">
+      </i>
+
+    </button>
+
+    @if(documentosOpen){
+
+      <div class="ml-9 mt-1 space-y-1">
+
+        <a
+          routerLink="/documentos"
+          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+          Consultar
+        </a>
+
+        <a
+          routerLink="/templates"
+          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+          Templates
+        </a>
+
+      </div>
+
+    }
+
+    <!-- USUÁRIOS -->
+    <a
+      routerLink="/usuarios"
+      routerLinkActive="bg-white/10 text-cyan-300"
+      class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
+
+      <i class="pi pi-users"></i>
+      <span>Usuários</span>
+
     </a>
-    <a routerLink="/config" class="block px-3 py-2 rounded hover:bg-slate-700">
-      Configurações
+
+    <!-- RELATÓRIOS -->
+    <a
+      routerLink="/relatorios"
+      routerLinkActive="bg-white/10 text-cyan-300"
+      class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
+
+      <i class="pi pi-chart-bar"></i>
+      <span>Relatórios</span>
+
     </a>
+
+    <!-- ADMIN -->
+    <button
+      class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition"
+      (click)="adminOpen = !adminOpen">
+
+      <div class="flex items-center gap-3">
+        <i class="pi pi-cog"></i>
+        <span>Administração</span>
+      </div>
+
+      <i
+        class="pi"
+        [ngClass]="adminOpen ? 'pi-chevron-down' : 'pi-chevron-right'">
+      </i>
+
+    </button>
+
+    @if(adminOpen){
+
+      <div class="ml-9 mt-1 space-y-1">
+
+        <a
+          routerLink="/config"
+          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+          Configurações
+        </a>
+
+        <a
+          routerLink="/integracoes"
+          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+          Integrações
+        </a>
+
+        <a
+          routerLink="/logs"
+          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+          Logs
+        </a>
+
+      </div>
+
+    }
+
   </nav>
+
+  <!-- FOOTER -->
+  <div
+    class="border-t border-white/10 p-3 text-center text-xs text-white/50">
+
+    String Tecnologia
+    <br>
+    v1.0.0
+
+  </div>
 
 </aside>

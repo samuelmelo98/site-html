@@ -1,47 +1,84 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { HttpClient  } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+
 import { UserPanel } from '../user-panel/user-panel';
-import { KeycloakService } from '../../auth/keycloak.service';
-import { signal } from '@angular/core';
-import { UserProfile } from '../../auth/models/user-profile';
 import { MenuComponent } from '../menu/menu.component';
+
+import { KeycloakService } from '../../auth/keycloak.service';
+import { UserProfile } from '../../auth/models/user-profile';
 
 @Component({
   selector: 'app-side-bar',
   standalone: true,
-  imports: [RouterModule, UserPanel, MenuComponent],
+  imports: [
+    RouterModule,
+    UserPanel,
+    MenuComponent,
+	CommonModule 
+  ],
   templateUrl: './side-bar.html',
   styleUrl: './side-bar.css',
 })
 export class SideBar implements OnInit {
+
   @Input() open = true;
 
-  private keycloak = inject(KeycloakService);
+  private readonly http = inject(HttpClient);
+
+  private readonly keycloak = inject(KeycloakService);
 
   userProfile = signal<UserProfile | null>(null);
 
-  ngOnInit() {
-    this.userProfile.set(this.keycloak.getUserProfile());
+  documentosOpen = true;
+
+  adminOpen = false;
+
+  ngOnInit(): void {
+
+    this.carregarPerfil();
+
   }
 
-  onLogout() {
-    // depois você liga no KeycloakService
-    console.log('Logout');
+  carregarPerfil(): void {
+
+    this.http.get<UserProfile>(
+      '/api/usuarios/me'
+    ).subscribe({
+
+      next: (user) => {
+
+        this.userProfile.set(user);
+
+      },
+
+      error: (err) => {
+
+        console.error('Erro ao carregar perfil', err);
+
+      }
+
+    });
+
+  }
+
+  onLogout(): void {
+
     this.keycloak.logout();
+
   }
 
-  onChangeVinculo() {
+  onChangeVinculo(): void {
+
     console.log('Alterar vínculo');
-    // this.router.navigate(['/alterar-vinculo']);
+
   }
 
-  onOpenSettings() {
+  onOpenSettings(): void {
+
     console.log('Abrir configurações');
-    // abrir modal ou rota
+
   }
 
-  onProfileInfo() {
-    console.log('onProfileInfo');
-    return this.keycloak.getUserProfile();
-  }
 }

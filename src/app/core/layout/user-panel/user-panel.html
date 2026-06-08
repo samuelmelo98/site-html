@@ -1,115 +1,108 @@
-<div
-  class="bg-gov-primary text-white px-4 py-5 border-b border-gov-divider relative group antialiased"
->
-  <!-- HEADER -->
-  <div class="flex justify-center mb-4">
-    <a href="/sicad/home">
+<div class="bg-transparent text-white">
+
+  <!-- LOGO -->
+  <div class="flex justify-center pt-1 pb-0">
+    <a href="/home">
       <img
-        src="/sicad/assets/images/string.svg"
-        alt="String tecnologia"
-        class="max-w-[170px] h-auto cursor-pointer"
+        src="/assets/images/string2.png"
+        alt="String Tecnologia"
+        class="w-40 h-auto"
       />
     </a>
   </div>
 
- <!-- AVATAR -->
-<div class="flex justify-center mb-2">
-
-  <div
-    class="relative cursor-pointer group"
-    (click)="selecionarAvatar.click()"
-  >
-
-    @if (perfilSelecionado()?.avatar) {
-
-      <p-avatar
-        [image]="perfilSelecionado()?.avatar"
-        shape="circle"
-        size="large"
-        styleClass="shadow-md !w-16 !h-16"
-      />
-
-    } @else {
-
-      <p-avatar
-        [label]="iniciais"
-        shape="circle"
-        size="large"
-        styleClass="bg-teal-500 text-white shadow-md !w-16 !h-16"
-      />
-
-    }
+  <!-- AVATAR -->
+  <div class="flex justify-center -mt-2 mb-3">
 
     <div
-      class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+      class="relative cursor-pointer group"
+      (click)="selecionarAvatar.click()"
     >
-      <i class="pi pi-camera text-white"></i>
+
+      @if (perfilSelecionado()?.avatar) {
+
+        <p-avatar
+          [image]="perfilSelecionado()?.avatar"
+          shape="circle"
+          size="large"
+          styleClass="
+            !w-20
+            !h-20
+            border-2
+            border-cyan-400/30
+            shadow-[0_0_20px_rgba(56,189,248,0.25)]
+          "
+        />
+
+      } @else {
+
+        <p-avatar
+          [label]="iniciais"
+          shape="circle"
+          size="large"
+          styleClass="
+            bg-cyan-600
+            text-white
+            !w-20
+            !h-20
+            border-2
+            border-cyan-400/30
+            shadow-[0_0_20px_rgba(56,189,248,0.25)]
+          "
+        />
+
+      }
+
+      <div
+        class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+      >
+        <i class="pi pi-camera text-white text-lg"></i>
+      </div>
+
+      <input
+        #selecionarAvatar
+        type="file"
+        accept="image/*"
+        class="hidden"
+        (change)="onAvatarSelecionado($event)"
+      />
+
     </div>
 
-    <input
-      #selecionarAvatar
-      type="file"
-      accept="image/*"
-      class="hidden"
-      (change)="onAvatarSelecionado($event)"
-    />
-
   </div>
-
-</div>
 
   <!-- PERFIL -->
   @if (perfilSelecionado(); as user) {
-  <div class="text-center mb-2 leading-tight">
-    <p class="text-sm font-semibold">{{ user.name }}</p>
 
-    <p class="text-xs text-white/80">{{ user.username }}</p>
+    <div class="text-center px-4">
 
-    <p class="text-xs text-white/60 truncate">{{ user.email }}</p>
+      <p class="text-2xl font-bold tracking-wide">
+        {{ user.name }}
+      </p>
 
-    <p class="text-xs text-white/60 truncate">{{ user.avatar}}</p>
-  </div>
+      <p class="text-xs text-white/60 mt-3">
+        {{ user.email }}
+      </p>
+
+    </div>
+
   }
 
-  <!-- BOTÃO CONFIG (aparece no hover) -->
-  <div class="flex justify-center h-6 mb-1">
-    <p-button
-      icon="pi pi-cog"
-      rounded
-      text
-      size="small"
-      severity="secondary"
-      styleClass="invisible group-hover:visible"
-      (onClick)="toggleConfig()"
-    />
-  </div>
+  <!-- SEPARADOR -->
+  <div class="mx-5 my-5 border-t border-white/10"></div>
 
   <!-- AÇÕES -->
-  <div
-    class="overflow-hidden transition-all duration-300"
-    [class.max-h-0]="!configOpen"
-    [class.max-h-28]="configOpen"
-  >
-    <div class="space-y-1 text-xs">
-      <p-button
-        label="Sair"
-        icon="pi pi-sign-out"
-        styleClass="w-full justify-start"
-        severity="secondary"
-        text
-        size="small"
-        (onClick)="logout.emit()"
-      />
+ <div class="mt-4 px-4">
 
-      <p-button
-        label="Alterar Vínculo"
-        icon="pi pi-refresh"
-        styleClass="w-full justify-start"
-        severity="secondary"
-        text
-        size="small"
-        (onClick)="changeVinculo.emit()"
-      />
-    </div>
-  </div>
+<p-button
+  label="Sair"
+  icon="pi pi-sign-out"
+  severity="danger"
+  outlined
+  styleClass="w-full"
+  (click)="logout.emit()"
+/>
+
+</div>
+
 </div>

@@ -1,16 +1,24 @@
-<header class="h-14 bg-gov-primary text-white flex items-center px-4 shadow">
-
+<header
+  class="h-14 bg-gradient-to-r from-sky-900 to-blue-950 text-white flex items-center px-4 shadow-lg border-b border-white/10"
+>
 
   <button
     (click)="toggleMenu.emit()"
-    class="text-2xl mr-4 hover:text-blue-400 transition"
+    class="text-2xl mr-4 hover:text-cyan-300 transition-colors"
   >
     <span *ngIf="!menuOpen">☰</span>
     <span *ngIf="menuOpen">✖</span>
   </button>
 
-  <h1 class="text-lg font-semibold">
-    <a routerLink="/home" routerLinkActive="active">STRING TECNOLOGIA & SOLUÇÕES TEST ARGO_CD</a>
-  </h1>  
+  <h1
+    class="text-lg font-semibold tracking-wide text-white/95"
+  >
+    <a
+      routerLink="/home"
+      routerLinkActive="active"
+      class="hover:text-cyan-300 transition-colors"
+    >
+    </a>
+  </h1>
 
 </header>
