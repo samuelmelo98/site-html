@@ -1,20 +1,27 @@
-import { Component, OnInit, EventEmitter,Input,Output } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  EventEmitter,
+  Input,
+  Output,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KeycloakService } from '../../auth/keycloak.service';
 import { Router } from '@angular/router';
-import { RouterModule } from '@angular/router';
-
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
-@Input() menuOpen = true;
-@Output() toggleMenu = new EventEmitter<void>();
+  @Input() menuOpen = true;
+  @Output() toggleMenu = new EventEmitter<void>();
+  private keycloak = inject(KeycloakService);
+
   constructor(private router: Router) {}
 
   user: {
@@ -24,20 +31,16 @@ export class HeaderComponent implements OnInit {
   } | null = null;
 
   ngOnInit() {
-    if (KeycloakService.isLoggedIn()) {
-      this.user = KeycloakService.getUserProfile();
+    if (this.keycloak.isLoggedIn()) {
+      this.user = this.keycloak.getUserProfile();
     }
   }
 
   login() {
-    KeycloakService.login();
+    this.keycloak.login();
   }
-
 
   logout() {
-    KeycloakService.logout();
+    this.keycloak.logout();
   }
-
-
-
 }

@@ -1,4 +1,4 @@
-import { ApplicationConfig, APP_INITIALIZER } from '@angular/core';
+import { ApplicationConfig, provideAppInitializer } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
@@ -10,11 +10,9 @@ import { loaderInterceptor } from './core/auth/loader.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeKeycloak,
-      multi: true
-    },
+        /* ✅ Angular 19 - Keycloak */
+    provideAppInitializer(() => initializeKeycloak()),
+   
     // ✅ ISSO RESOLVE DEFINITIVAMENTE O ERRO
     provideHttpClient(
       withInterceptors([

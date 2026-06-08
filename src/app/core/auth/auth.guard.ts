@@ -1,17 +1,14 @@
-import { Injectable } from '@angular/core';
-import { CanActivate } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn } from '@angular/router';
 import { KeycloakService } from './keycloak.service';
 
-@Injectable({ providedIn: 'root' })
-export class AuthGuard implements CanActivate {
-   async canActivate(): Promise<boolean> {
+export const authGuard: CanActivateFn = async () => {
+  const keycloak = inject(KeycloakService);
 
-    // Se não estiver autenticado, redireciona para login
-    if (!KeycloakService.isLoggedIn()) {
-      await KeycloakService.login();
-      return false;
-    }
-
-    return true;
+  if (!keycloak.isLoggedIn()) {
+    await keycloak.login();
+    return false;
   }
-}
+
+  return true;
+};

@@ -1,78 +1,115 @@
-<div class="bg-gov-primary text-white px-4 py-6 border-b border-gov-divider">
-
-  <!-- LOGOS -->
-  <div class="flex items-center justify-between mb-6">
-    <span class="font-semibold">String</span>
-    <span class="font-semibold">Tecnologia 61 981812830</span>
-  </div>
-
-  <!-- AVATAR -->
+<div
+  class="bg-gov-primary text-white px-4 py-5 border-b border-gov-divider relative group antialiased"
+>
+  <!-- HEADER -->
   <div class="flex justify-center mb-4">
-    <div
-      class="w-20 h-20 rounded-full
-             bg-teal-300
-             flex items-center justify-center
-             shadow-md"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="w-10 h-10 text-white"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M12 12c2.7 0 4.5-2.1 4.5-4.5S14.7 3 12 3
-             7.5 5.1 7.5 7.5 9.3 12 12 12zm0 2.25
-             c-3 0-9 1.5-9 4.5V21h18v-2.25
-             c0-3-6-4.5-9-4.5z"
-        />
-      </svg>
-    </div>
+    <a href="/sicad/home">
+      <img
+        src="/sicad/assets/images/string.svg"
+        alt="String tecnologia"
+        class="max-w-[170px] h-auto cursor-pointer"
+      />
+    </a>
   </div>
 
+ <!-- AVATAR -->
+<div class="flex justify-center mb-2">
 
-  <!-- PERFIL + CONFIG -->
-  <div class="bg-gov-primary text-white px-4 py-6 border-b border-gov-dark">
-    <button
-    class="flex items-center justify-center gap-2 text-sm font-semibold uppercase
-    px-3 py-1 rounded border border-white/70
-    hover:bg-gov-secondary transition"
-      [class.border-white]="configOpen"
-      [class.border-transparent]="!configOpen"
-      (click)="toggleConfig()"
-    >
-      {{ perfilSelecionado() }}
-      ⚙
-    </button>
-
-    <div class="text-sm opacity-90 mt-1">
-      {{ vinculoSelecionado() }}
-    </div>
-  </div>
-
-  <!-- AÇÕES (abre/fecha) -->
   <div
-    class="mt-4 overflow-hidden transition-all duration-300"
-    [class.max-h-0]="!configOpen"
-    [class.max-h-40]="configOpen"
+    class="relative cursor-pointer group"
+    (click)="selecionarAvatar.click()"
   >
-    <div class="space-y-2 text-sm">
 
-      <button
-        class="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-gov-secondary"
-        (click)="logout.emit()"
-      >
-        ⏻ Sair
-      </button>
+    @if (perfilSelecionado()?.avatar) {
 
-      <button
-        class="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-gov-secondary"
-        (click)="changeVinculo.emit()"
-      >
-        🔄 Alterar Vínculo
-      </button>
+      <p-avatar
+        [image]="perfilSelecionado()?.avatar"
+        shape="circle"
+        size="large"
+        styleClass="shadow-md !w-16 !h-16"
+      />
 
+    } @else {
+
+      <p-avatar
+        [label]="iniciais"
+        shape="circle"
+        size="large"
+        styleClass="bg-teal-500 text-white shadow-md !w-16 !h-16"
+      />
+
+    }
+
+    <div
+      class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+    >
+      <i class="pi pi-camera text-white"></i>
     </div>
+
+    <input
+      #selecionarAvatar
+      type="file"
+      accept="image/*"
+      class="hidden"
+      (change)="onAvatarSelecionado($event)"
+    />
+
   </div>
 
+</div>
+
+  <!-- PERFIL -->
+  @if (perfilSelecionado(); as user) {
+  <div class="text-center mb-2 leading-tight">
+    <p class="text-sm font-semibold">{{ user.name }}</p>
+
+    <p class="text-xs text-white/80">{{ user.username }}</p>
+
+    <p class="text-xs text-white/60 truncate">{{ user.email }}</p>
+
+    <p class="text-xs text-white/60 truncate">{{ user.avatar}}</p>
+  </div>
+  }
+
+  <!-- BOTÃO CONFIG (aparece no hover) -->
+  <div class="flex justify-center h-6 mb-1">
+    <p-button
+      icon="pi pi-cog"
+      rounded
+      text
+      size="small"
+      severity="secondary"
+      styleClass="invisible group-hover:visible"
+      (onClick)="toggleConfig()"
+    />
+  </div>
+
+  <!-- AÇÕES -->
+  <div
+    class="overflow-hidden transition-all duration-300"
+    [class.max-h-0]="!configOpen"
+    [class.max-h-28]="configOpen"
+  >
+    <div class="space-y-1 text-xs">
+      <p-button
+        label="Sair"
+        icon="pi pi-sign-out"
+        styleClass="w-full justify-start"
+        severity="secondary"
+        text
+        size="small"
+        (onClick)="logout.emit()"
+      />
+
+      <p-button
+        label="Alterar Vínculo"
+        icon="pi pi-refresh"
+        styleClass="w-full justify-start"
+        severity="secondary"
+        text
+        size="small"
+        (onClick)="changeVinculo.emit()"
+      />
+    </div>
+  </div>
 </div>

@@ -1,97 +1,109 @@
+import { Injectable } from '@angular/core';
 import Keycloak, { KeycloakInitOptions } from 'keycloak-js';
 import { environment } from '../../../environments/environment';
 
+@Injectable({ providedIn: 'root' })
 export class KeycloakService {
+  private keycloak!: Keycloak;
+  private refreshInterval: ReturnType<typeof setInterval> | null = null;
+  private initialized = false;
+  private apiToken: string | null = null;
 
-  private static keycloak: Keycloak;
-  private static refreshInterval: ReturnType<typeof setInterval> | null = null;
+  init(): Promise<boolean> {
+    if (this.initialized) {
+      return Promise.resolve(true);
+    }
 
-
-   static init(): Promise<boolean> {
     if (!this.keycloak) {
       this.keycloak = new Keycloak({
         url: environment.keycloak.url,
         realm: environment.keycloak.realm,
-        clientId: environment.keycloak.clientId
+        clientId: environment.keycloak.clientId,
       });
     }
 
-      const initOptions: KeycloakInitOptions = {
-      ...environment.keycloak.initOptions,
-      silentCheckSsoRedirectUri:
-        window.location.origin + '/assets/silent-check-sso.html'
-    };
+    return this.keycloak
+      .init(environment.keycloak.initOptions)
+      .then((authenticated) => {
+        this.initialized = true;
 
-    return this.keycloak.init(initOptions).then(authenticated => {
-      if (authenticated) {
-        this.startTokenRefresh();
-      }
-      return authenticated;
-    });
+        if (authenticated) {
+          this.startTokenRefresh();
+        }
+
+        return authenticated;
+      })
+      .catch((error) => {
+        console.error('[Keycloak] Init error:', error);
+        return false;
+      });
   }
-  
 
-  static login() {
-    if (!this.keycloak) {
-      console.warn('⚠️ Keycloak ainda não inicializado');
-      return;
-    }
+  login() {
     this.keycloak.login();
   }
 
-  static logout() {
-    this.keycloak?.logout();
+  logout() {
+    this.stopTokenRefresh();
+    this.keycloak.logout({
+      redirectUri: window.location.origin,
+    });
   }
 
-  static isLoggedIn(): boolean {
-    return !!this.keycloak?.authenticated;
+  isLoggedIn(): boolean {
+    return !!this.keycloak.authenticated;
   }
 
-  static getToken(): string | undefined {
-    return this.keycloak?.token;
+  getToken(): string | null {
+    return this.keycloak?.token ?? null;
   }
 
-    // 👉 NOVO: dados do usuário
-    static getUserProfile() {
-      if (!this.keycloak?.tokenParsed) {
-        return null;
-      }
+  getUserProfile() {
+    if (!this.keycloak?.tokenParsed) return null;
 
-      const token: any = this.keycloak.tokenParsed;
+    const token: any = this.keycloak.tokenParsed;
 
-      return {
-        username: token.preferred_username,
-        email: token.email,
-        name: token.name
-      };
-    }
+    console.log(this.keycloak.tokenParsed);
 
-    private static stopTokenRefresh() {
+    return {
+      username: token.preferred_username,
+      email: token.email,
+      name: token.name,
+      avatar:token.avatarUrl?? '',
+    };
+  }
+
+  private startTokenRefresh() {
+    this.stopTokenRefresh();
+
+    this.refreshInterval = setInterval(() => {
+      this.keycloak
+        .updateToken(30)
+        .then((refreshed) => {
+          if (refreshed) {
+            console.log('🔄 Token renovado');
+          }
+        })
+        .catch(() => {
+          console.warn('❌ Token expirado. Redirecionando...');
+          this.stopTokenRefresh();
+          this.login();
+        });
+    }, 10_000);
+  }
+
+  private stopTokenRefresh() {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
       this.refreshInterval = null;
     }
   }
 
-    private static startTokenRefresh() {
-    // Limpa se já existir
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-    }
-
-    this.refreshInterval = setInterval(() => {
-      this.keycloak.updateToken(30) // tenta renovar se faltar < 30s
-        .then(refreshed => {
-          if (refreshed) {
-            console.log('🔄 Token renovado');
-          }
-        })
-        .catch(() => {
-          console.warn('❌ Token expirado. Redirecionando para login...');
-          this.stopTokenRefresh();
-          this.login();
-        });
-    }, 10_000); // verifica a cada 10s
+  setApiToken(token: string) {
+    this.apiToken = token;
   }
 
+  getApiToken(): string | null {
+    return this.apiToken;
+  }
 }
