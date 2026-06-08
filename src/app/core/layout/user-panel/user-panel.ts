@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   standalone: true,
@@ -29,6 +30,9 @@ export class UserPanel {
   changeVinculo = output<void>();
 
   configOpen = false;
+
+  private readonly API = `${environment.apiUrl}/api/usuarios`;
+private readonly API_BASE = environment.apiUrl;
 
   private readonly http = inject(HttpClient);
 
@@ -64,7 +68,7 @@ export class UserPanel {
     formData.append('arquivo', arquivo);
 
     this.http.post<any>(
-      '/api/usuarios/avatar',
+      `${this.API}/avatar`,
       formData
     ).subscribe({
 
@@ -73,10 +77,8 @@ export class UserPanel {
         const user = this.perfilSelecionado();
 
         if (user) {
-
           user.avatar =
-            '/api/usuarios/' + user.id + '/avatar';
-
+            `${this.API_BASE}/api/usuarios/${user.id}/avatar`;
         }
 
       },
