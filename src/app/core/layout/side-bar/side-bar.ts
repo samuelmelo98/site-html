@@ -9,6 +9,8 @@ import { MenuComponent } from '../menu/menu.component';
 import { KeycloakService } from '../../auth/keycloak.service';
 import { UserProfile } from '../../auth/models/user-profile';
 
+import { environment } from '../../../../environments/environment';
+
 @Component({
   selector: 'app-side-bar',
   standalone: true,
@@ -16,7 +18,7 @@ import { UserProfile } from '../../auth/models/user-profile';
     RouterModule,
     UserPanel,
     MenuComponent,
-	CommonModule 
+	CommonModule
   ],
   templateUrl: './side-bar.html',
   styleUrl: './side-bar.css',
@@ -35,6 +37,10 @@ export class SideBar implements OnInit {
 
   adminOpen = false;
 
+
+private readonly API =
+`${environment.apiUrl}/api/usuarios`;
+
   ngOnInit(): void {
 
     this.carregarPerfil();
@@ -44,10 +50,12 @@ export class SideBar implements OnInit {
   carregarPerfil(): void {
 
     this.http.get<UserProfile>(
-      '/api/usuarios/me'
+      `${this.API}/me`
     ).subscribe({
 
       next: (user) => {
+
+        console.log('Perfil recebido', user);
 
         this.userProfile.set(user);
 
