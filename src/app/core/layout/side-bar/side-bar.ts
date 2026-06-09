@@ -55,6 +55,11 @@ private readonly API =
 
       next: (user) => {
 
+        if (user.avatar?.startsWith('/')) {
+          user.avatar =
+            `${environment.apiUrl}${user.avatar}`;
+        }
+
         console.log('Perfil recebido', user);
 
         this.userProfile.set(user);
