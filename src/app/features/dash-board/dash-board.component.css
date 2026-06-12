@@ -1,0 +1,14 @@
+.grafico-container {
+  width: 100%;
+  max-width: 500px;
+  height: 350px;
+}
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.grafico-container {
+  height: 300px;
+}

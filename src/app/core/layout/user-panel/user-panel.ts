@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { RouterLink, RouterModule } from "@angular/router";
 
 @Component({
   standalone: true,
@@ -13,8 +14,10 @@ import { inject } from '@angular/core';
   imports: [
     CommonModule,
     AvatarModule,
-    ButtonModule
-  ],
+    ButtonModule,
+    RouterLink,
+    RouterModule
+],
   templateUrl: './user-panel.html',
   styleUrl: './user-panel.css',
 })
