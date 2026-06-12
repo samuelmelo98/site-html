@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { RouterLink, RouterModule } from "@angular/router";
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -14,8 +15,10 @@ import { environment } from '../../../../environments/environment';
   imports: [
     CommonModule,
     AvatarModule,
-    ButtonModule
-  ],
+    ButtonModule,
+    RouterLink,
+    RouterModule
+],
   templateUrl: './user-panel.html',
   styleUrl: './user-panel.css',
 })

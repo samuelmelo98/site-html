@@ -1,13 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { PdfService } from '../../services/pdf';
+import { DashboardComponent } from '../dash-board/dash-board.component';
 
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
-    RouterModule
+    RouterModule,
+    DashboardComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
