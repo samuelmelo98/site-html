@@ -13,5 +13,6 @@ export const environment: AppEnvironment = {
       pkceMethod: 'S256',
       checkLoginIframe: false
     }
-  }
+  },
+  url_api_endpoint: '/string-api',
 };

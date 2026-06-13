@@ -8,7 +8,7 @@ import { environment } from '../../../../environments/environment';
 export class UserService {
 
 // Agora ele usa a URL completa: https://api.cluster.stringtecnologiadf.org/users
-  private readonly API = `${environment.apiUrl}/api/users`;
+  private readonly API = `${environment.apiUrl}/users`;
 
   constructor(private http: HttpClient) {
     console.log(`API ${this.API}`);

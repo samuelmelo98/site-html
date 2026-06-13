@@ -1,0 +1,46 @@
+import {
+  HttpClient,
+  HttpParams
+} from '@angular/common/http';
+
+import { Observable } from 'rxjs';
+
+import { Page } from '../models/page.model';
+import { SearchRequest } from '../models/search-request.model';
+
+export abstract class GenericSearchService<T> {
+
+  protected abstract readonly baseUrl: string;
+
+  constructor(
+    protected http: HttpClient
+  ) { }
+
+  buscar(
+    request: SearchRequest
+  ): Observable<Page<T>> {
+
+    let params = new HttpParams()
+      .set('page', request.page)
+      .set('size', request.size);
+
+    if (request.termo?.trim()) {
+      params = params.set(
+        'termo',
+        request.termo.trim()
+      );
+    }
+
+    if (request.sort?.trim()) {
+      params = params.set(
+        'sort',
+        request.sort
+      );
+    }
+
+    return this.http.get<Page<T>>(
+      this.baseUrl,
+      { params }
+    );
+  }
+}

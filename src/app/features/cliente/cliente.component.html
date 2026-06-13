@@ -1,0 +1,29 @@
+<p-panel>
+  <div class="p-4 md:p-6 space-y-4 md:space-y-6">
+    <div
+      class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <h1 class="text-xl md:text-2xl font-semibold text-gray-800">
+        Conta Bancária
+      </h1>
+
+      <p-button
+        label="Cadastrar Conta Servidor"
+        icon="pi pi-plus"
+        severity="primary"
+        class="w-full sm:w-auto"
+      >
+      </p-button>
+    </div>
+
+    <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+      <app-search-generic (search)="onSearch($event)"> </app-search-generic>
+    </div>
+  </div>
+
+  <div>
+    <app-list #lista></app-list>
+  </div>
+
+
+</p-panel>

@@ -13,4 +13,6 @@ export interface AppEnvironment {
       checkLoginIframe: boolean;
     };
   };
+  url_api_endpoint : string;
+
 }

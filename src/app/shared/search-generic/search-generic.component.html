@@ -1,0 +1,25 @@
+<form
+  [formGroup]="form"
+  class="flex items-center gap-2 w-full max-w-md"
+  (ngSubmit)="buscar()">
+
+  <input
+    pInputText
+    type="text"
+    formControlName="valor"
+    [placeholder]="placeholder"
+    class="flex-1" />
+
+  <p-button
+    icon="pi pi-search"
+    type="submit">
+  </p-button>
+
+  <p-button
+    icon="pi pi-times"
+    severity="secondary"
+    type="button"
+    (onClick)="limpar()">
+  </p-button>
+
+</form>
