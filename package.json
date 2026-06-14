@@ -4,11 +4,9 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy.conf.json --ssl true --ssl-cert ./certs/stringtecnologiadf.org+1.pem --ssl-key ./certs/stringtecnologiadf.org+1-key.pem --host stringtecnologiadf.org --public-host stringtecnologiadf.org:4200 --port 4200",
+    "start": "ng serve --configuration development --proxy-config proxy.conf.json --ssl true --ssl-cert ./certs/stringtecnologiadf.org+1.pem --ssl-key ./certs/stringtecnologiadf.org+1-key.pem --host stringtecnologiadf.org --public-host stringtecnologiadf.org:4200 --port 4200",
     "build": "ng build --configuration production",
-    "build:dev": "ng build --configuration development",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "build:dev": "ng build --configuration development"
   },
   "dependencies": {
     "@angular/animations": "20.3.16",
@@ -21,6 +19,7 @@
     "@angular/platform-browser": "20.3.16",
     "@angular/platform-browser-dynamic": "20.3.16",
     "@angular/router": "20.3.16",
+    "@primeng/themes": "^20.4.0",
     "chart.js": "^4.4.9",
     "keycloak-js": "^26.2.2",
     "primeicons": "^7.0.0",

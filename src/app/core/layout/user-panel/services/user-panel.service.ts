@@ -46,7 +46,7 @@ obterAvatar(usuario: UserProfile): Observable<UserProfile> {
 
         if (user) {
           user.avatar =
-            `${this.API_BASE}/api/usuarios/${user.id}/avatar?t=${Date.now()}`;
+            `${this.API}/usuarios/${user.id}/avatar?t=${Date.now()}`;
         }
 
       },

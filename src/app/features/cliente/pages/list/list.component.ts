@@ -1,25 +1,19 @@
 // 🔹 Angular core
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  EventEmitter,
-  Output,
-  inject,
-} from '@angular/core';
-
-// 🔹 Angular modules
+import { Component, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-// 🔹 PrimeNG
+// 🔹 PrimeNG v20 Modules
 import { TableModule, Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ButtonModule } from 'primeng/button';
+
+// 🔹 Services
 import { ClienteService } from '../../services/cliente.service';
 
 @Component({
   selector: 'app-list',
+  standalone: true, // Adicionado explicitamente para garantir o escopo no Angular 20
   imports: [
     CommonModule,
     TableModule,
@@ -32,19 +26,17 @@ import { ClienteService } from '../../services/cliente.service';
 })
 export class ListComponent {
   dados2: any[] = [];
-  private clienteService = inject(ClienteService);
   total = 0;
   loading = false;
   termoBusca = '';
 
+  private clienteService = inject(ClienteService);
   @ViewChild('tabela') tabela!: Table;
 
   buscar(valor: string): void {
     this.termoBusca = valor;
     this.tabela.reset();
   }
-
-
 
   carregar(event: any): void {
     this.loading = true;
@@ -69,6 +61,4 @@ export class ListComponent {
   recarregar(): void {
     this.tabela.reset();
   }
-
-
 }

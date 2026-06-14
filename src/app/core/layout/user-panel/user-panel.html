@@ -1,6 +1,5 @@
 <div class="bg-transparent text-white">
 
-  <!-- LOGO -->
   <div class="flex justify-center pt-1 pb-0">
     <a routerLink="/home">
       <img
@@ -11,7 +10,6 @@
     </a>
   </div>
 
-  <!-- AVATAR -->
   <div class="flex justify-center -mt-2 mb-3">
 
     <div
@@ -19,10 +17,10 @@
       (click)="selecionarAvatar.click()"
     >
 
-      @if (perfilSelecionado()?.avatar) {
+      @if (avatarUrlAutenticada()) {
 
         <p-avatar
-          [image]="perfilSelecionado()?.avatar"
+          [image]="avatarUrlAutenticada()!"
           shape="circle"
           size="large"
           styleClass="
@@ -71,7 +69,6 @@
 
   </div>
 
-  <!-- PERFIL -->
   @if (perfilSelecionado(); as user) {
 
     <div class="text-center px-4">
@@ -88,21 +85,19 @@
 
   }
 
-  <!-- SEPARADOR -->
   <div class="mx-5 my-5 border-t border-white/10"></div>
 
-  <!-- AÇÕES -->
- <div class="mt-4 px-4">
+  <div class="mt-4 px-4">
 
-<p-button
-  label="Sair"
-  icon="pi pi-sign-out"
-  severity="danger"
-  outlined
-  styleClass="w-full"
-  (click)="logout.emit()"
-/>
+    <p-button
+      label="Sair"
+      icon="pi pi-sign-out"
+      severity="danger"
+      outlined
+      styleClass="w-full"
+      (click)="logout.emit()"
+    />
 
-</div>
+  </div>
 
 </div>

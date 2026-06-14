@@ -39,7 +39,7 @@ export class SideBar implements OnInit {
 
 
 private readonly API =
-`${environment.apiUrl}/api/usuarios`;
+`${environment.apiUrl}/usuarios`;
 
   ngOnInit(): void {
 

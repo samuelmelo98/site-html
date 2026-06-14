@@ -3,7 +3,7 @@ import { AppEnvironment } from './environment.model';
 export const environment: AppEnvironment = {
   production: false,
  // apiUrl: 'https://api.cluster.stringtecnologiadf.org',// O host definido no ingress.yml
-  apiUrl: 'api',
+  apiUrl: '/api',
   keycloak: {
     url: 'https://auth.stringtecnologiadf.org',
     realm: 'stringtecnologia',

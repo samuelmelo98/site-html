@@ -5,7 +5,7 @@ import { environment } from '../../../src/environments/environment';
 @Injectable({ providedIn: 'root' })
 export class PdfService {
 
-  private readonly API = `${environment.apiUrl}/api/relatorios/pdf`;
+  private readonly API = `${environment.apiUrl}/relatorios/pdf`;
 
   constructor(private http: HttpClient) {}
 
