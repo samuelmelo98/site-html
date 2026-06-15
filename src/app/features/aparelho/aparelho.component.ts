@@ -1,6 +1,6 @@
 // 🔹 Angular
 import { Component, inject, ViewChild } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule,ActivatedRoute  } from '@angular/router';
 
 // 🔹 Third-party (PrimeNG)
 import { Button } from 'primeng/button';
@@ -11,6 +11,8 @@ import { Panel } from 'primeng/panel';
 import { SearchGenericComponent } from '../../shared/search-generic/search-generic.component';
 import { SearchEvent } from '../../shared/search-generic/models/search-event.model';
 
+import { NavigationService } from '../../shared/services/navegation-service'; 
+
 // 🔹 Feature components (mesmo módulo)
 import { CreateComponent } from './pages/create/create.component';
 import { ListComponent } from './pages/list/list.component';
@@ -18,7 +20,7 @@ import { EditComponent } from './pages/edit/edit.component';
 
 
 @Component({
-  selector: 'app-cliente',
+  selector: 'app-aparelho',
   imports: [
     SearchGenericComponent,
     Button,
@@ -27,12 +29,20 @@ import { EditComponent } from './pages/edit/edit.component';
     Panel,
     ListComponent,
     RouterModule,
+
   ],
-  templateUrl: './cliente.component.html',
-  styleUrl: './cliente.component.css',
+  templateUrl: './aparelho.component.html',
+  styleUrl: './aparelho.component.css',
 })
-export class ClienteComponent {
+export class AparelhoComponent {
   private router = inject(Router);
+
+    private navegationService = inject(NavigationService);
+
+  private readonly route =
+  inject(ActivatedRoute);
+
+  clienteId!: number;
 
   visible = false;
   @ViewChild('lista')
@@ -41,6 +51,19 @@ export class ClienteComponent {
 
   @ViewChild('modalEditar')
   modalEditar!: EditComponent;
+
+
+ngOnInit(): void {
+
+  this.clienteId = Number(
+    this.route.snapshot.paramMap.get(
+      'clienteId'
+    )
+  );
+
+  console.log(this.clienteId);
+}
+
 
   onSearch(event: SearchEvent): void {
 
@@ -63,4 +86,14 @@ export class ClienteComponent {
       });
   }
 
+  
+public adicionarAparelho(): void {
+
+  this.navegationService.irPara([
+    'aparelho',
+    'create',
+    this.clienteId.toString()
+  ]);
+
+}
 }

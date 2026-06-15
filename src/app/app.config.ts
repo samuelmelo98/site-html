@@ -4,17 +4,14 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { providePrimeNG, PrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';
-import Nora from '@primeng/themes/nora';
 import Lara from '@primeng/themes/lara';
-import Material from '@primeng/themes/material';
-
-
 
 import { routes } from './app.routes';
 import { initializeKeycloak } from './core/auth/app-init.factory';
 import { authInterceptor } from './core/auth/auth.interceptor';
 import { loaderInterceptor } from './core/auth/loader.interceptor';
+
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -53,6 +50,10 @@ export const appConfig: ApplicationConfig = {
           darkModeSelector: '.my-app-dark'
         }
       }
-    })
+    }),
+
+    // PrimeNG Services
+    MessageService,
+    ConfirmationService
   ]
 };

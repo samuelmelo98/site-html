@@ -8,12 +8,8 @@ import { TagModule } from 'primeng/tag';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ButtonModule } from 'primeng/button';
 
-import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
-
 // 🔹 Services
-import { ClienteService } from '../../services/cliente.service';
-
-import { NavigationService } from '../../../../shared/services/navegation-service';
+import { ClienteApiService } from '../../services/cliente-api.service';
 
 @Component({
   selector: 'app-list',
@@ -24,7 +20,6 @@ import { NavigationService } from '../../../../shared/services/navegation-servic
     TagModule,
     ProgressSpinnerModule,
     ButtonModule,
-    CpfPipe,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
@@ -35,12 +30,7 @@ export class ListComponent {
   loading = false;
   termoBusca = '';
 
-  clienteSelecionado: any | null = null;
-
-  private clienteService = inject(ClienteService);
-
-  private navegationService = inject(NavigationService);
-
+  private clienteService = inject(ClienteApiService);
   @ViewChild('tabela') tabela!: Table;
 
   buscar(valor: string): void {
@@ -71,23 +61,4 @@ export class ListComponent {
   recarregar(): void {
     this.tabela.reset();
   }
-
-formatCpf(cpf: string): string {
-  return cpf.replace(
-    /(\d{3})(\d{3})(\d{3})(\d{2})/,
-    '$1.$2.$3-$4'
-  );
-}
-
-
-public adicionarAparelho(cliente: any){
-  this.clienteSelecionado = cliente;
-  console.log(this.clienteSelecionado);
-    this.navegationService.irPara([
-    'aparelho',
-    cliente.clienteId.toString()
-  ]);
-  
-
-}
 }

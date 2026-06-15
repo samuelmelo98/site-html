@@ -1,5 +1,5 @@
 // 🔹 Angular core
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, ViewChild, inject, input  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // 🔹 PrimeNG v20 Modules
@@ -13,7 +13,7 @@ import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
 // 🔹 Services
 import { ClienteService } from '../../services/cliente.service';
 
-import { NavigationService } from '../../../../shared/services/navegation-service';
+import { AparelhoService } from '../../services/aparelho.service';
 
 @Component({
   selector: 'app-list',
@@ -35,13 +35,19 @@ export class ListComponent {
   loading = false;
   termoBusca = '';
 
+  clienteId = input.required<number>();
+
   clienteSelecionado: any | null = null;
 
   private clienteService = inject(ClienteService);
 
-  private navegationService = inject(NavigationService);
-
+   private aparelhoService = inject(AparelhoService);
   @ViewChild('tabela') tabela!: Table;
+
+ngInit(){
+  console.log(this.clienteId);
+}
+
 
   buscar(valor: string): void {
     this.termoBusca = valor;
@@ -53,11 +59,11 @@ export class ListComponent {
 
     const page = event.first / event.rows;
     const size = event.rows;
-    const sortField = event.sortField ?? 'clienteId';
+    const sortField = event.sortField ?? 'aparelhoId';
     const sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
 
-    this.clienteService
-      .listarPaginado(page, size, sortField, sortOrder, this.termoBusca)
+    this.aparelhoService
+      .listarPaginado(page, size, sortField, sortOrder, this.termoBusca,this.clienteId())
       .subscribe({
         next: (res) => {
           this.dados2 = res.content;
@@ -80,14 +86,9 @@ formatCpf(cpf: string): string {
 }
 
 
-public adicionarAparelho(cliente: any){
-  this.clienteSelecionado = cliente;
+public adicionarAparelho(pessoa: any){
+  this.clienteSelecionado = pessoa;
   console.log(this.clienteSelecionado);
-    this.navegationService.irPara([
-    'aparelho',
-    cliente.clienteId.toString()
-  ]);
-  
 
 }
 }

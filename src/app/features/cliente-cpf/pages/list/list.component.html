@@ -11,40 +11,38 @@
   responsiveLayout="scroll"
   [showCurrentPageReport]="true"
   currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
-  
 >
   <!-- HEADER -->
   <ng-template pTemplate="header">
     <tr>
       <th pSortableColumn="contaBancariaId">
-        ID <p-sortIcon field="clienteId"></p-sortIcon>
+        ID <p-sortIcon field="contaBancariaId"></p-sortIcon>
       </th>
 
       <th pSortableColumn="descricao">
         Nome <p-sortIcon field="descricao"></p-sortIcon>
       </th>
 
-      <th>CPF</th>
-      <th>Data Nascimento</th>
+      <th>Status</th>
+      <th>Cadastro</th>
       <th>Ações</th>
     </tr>
   </ng-template>
 
   <!-- BODY -->
   <ng-template pTemplate="body" let-item>
-   <tr
-  (click)="adicionarAparelho(item)"
-  class="cursor-pointer hover:bg-red-50"
-  [class.bg-red-100]="clienteSelecionado?.clienteId === item.clienteId">
+    <tr>
       <td>{{ item.clienteId }}</td>
       <td>{{ item.nome }}</td>
 
       <td>
-        <!-- {{this.formatCpf(item.cpf)}}  função ou pipe ??-->
-           {{item.cpf | cpf }}
+        <p-tag
+          [value]="item.ativo === 'ATIVO' ? 'Ativo' : 'Inativo'"
+          [severity]="item.ativo === 'ATIVO' ? 'success' : 'danger'"
+        />
       </td>
 
-      <td>{{ item.dataNascimento | date: "dd/MM/yyyy" }}</td>
+      <td>{{ item.dataCadastro | date: "dd/MM/yyyy HH:mm" }}</td>
       <td class="flex gap-2">
         <p-button
           icon="pi pi-pencil"

@@ -1,0 +1,114 @@
+<p-panel>
+  <h2>Cadastro de Cliente</h2>
+
+  <p-divider align="left"></p-divider>
+
+  <br />
+
+  <form [formGroup]="form" class="flex flex-col gap-4">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div class="flex flex-col gap-2">
+        <label>CPF <span class="text-red-500">*</span></label>
+
+        <input
+          pInputText
+          formControlName="cpf"
+          class="w-full"
+          placeholder="Digite o CPF" />
+
+        @if (form.controls.cpf.invalid && form.controls.cpf.touched) {
+          <small class="text-red-500">
+            Campo obrigatório
+          </small>
+        }
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label>Data Nascimento <span class="text-red-500">*</span></label>
+
+        <p-inputMask
+  formControlName="dataNascimento"
+  mask="99/99/9999"
+  placeholder="dd/mm/aaaa"
+  class="w-full">
+</p-inputMask>
+
+        @if (form.controls.dataNascimento.invalid && form.controls.dataNascimento.touched) {
+          <small class="text-red-500">
+            Data Nascimento obrigatório
+          </small>
+        }
+      </div>
+
+     
+
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-3">
+
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary">
+      </p-button>
+
+      <p-button
+        label="Buscar por CPF"
+        icon="pi pi-check"
+        (onClick)="buscarCpf()"
+        [disabled]="form.invalid || salvando">
+      </p-button>
+
+    </div>
+
+  </form>
+
+  @if (resultadoConsulta; as cliente) {
+
+  <p-panel header="Resultado da Consulta">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+      <div>
+        <strong>Nome:</strong>
+        {{ cliente.nome }}
+      </div>
+
+      <div>
+        <strong>CPF:</strong>
+        {{ cliente.matricula }}
+      </div>
+
+      @if (cliente.nascimento) {
+        <div>
+          <strong>Nascimento:</strong>
+          {{ cliente.nascimento }}
+        </div>
+      }
+
+      @if (cliente.situacao) {
+        <div>
+          <strong>Situação:</strong>
+          {{ cliente.situacao }}
+        </div>
+      }
+
+    </div>
+
+    <div class="mt-4">
+
+      <p-button
+        label="Adicionar à Base"
+        icon="pi pi-plus"
+        severity="success"
+        (onClick)="irPara(['/','cliente'])">
+      </p-button>
+
+    </div>
+
+  </p-panel>
+}
+
+</p-panel>

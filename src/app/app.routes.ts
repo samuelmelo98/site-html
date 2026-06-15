@@ -16,6 +16,20 @@ export const routes: Routes = [
       import('./features/cliente/cliente.routes')
         .then(m => m.CLIENTE_ROUTES)
   },
+   {
+    path: 'cliente-cpf',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/cliente-cpf/cliente.routes')
+        .then(m => m.CLIENTE_ROUTES_CPF)
+  },
+   {
+    path: 'aparelho',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/aparelho/aparelho.routes')
+        .then(m => m.APARELHO_ROUTES)
+  },
   {
     path: 'users',
     canActivate: [authGuard ],

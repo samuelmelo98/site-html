@@ -4,15 +4,15 @@
       class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
     >
       <h1 class="text-xl md:text-2xl font-semibold text-gray-800">
-        Cadastro Cliente
+       Histórico de Aparelhos 
       </h1>
 
       <p-button
-        label="Cadastrar novo Cliente"
+        label="Adicionar Novo Equipamento "
         icon="pi pi-plus"
         severity="primary"
         class="w-full sm:w-auto"
-        (onClick)="irPara(['cliente', 'create'])"
+        (onClick)="adicionarAparelho()"
       >
       </p-button>
     </div>
@@ -23,7 +23,9 @@
   </div>
 
   <div>
-    <app-list #lista></app-list>
+    <app-list #lista
+    [clienteId]="clienteId"
+    ></app-list>
   </div>
 
 

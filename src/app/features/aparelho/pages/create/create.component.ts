@@ -28,10 +28,7 @@ import { Panel } from 'primeng/panel';
 
 import { ClienteService } from '../../services/cliente.service';
 
-import {
-  ClienteForm,
-  ClienteFormFactoryService,
-} from '../../services/cliente-form-factory-service';
+import { ClienteForm, ClienteFormFactoryService } from '../../services/cliente-form-factory-service';
 
 @Component({
   selector: 'app-create',
