@@ -1,0 +1,90 @@
+<p-toolbar>
+    <ng-template pTemplate="start">
+        <span class="text-xl font-semibold">
+            Editor de Templates
+        </span>
+    </ng-template>
+
+    <ng-template pTemplate="end">
+
+        <p-button
+            label="Preview"
+            icon="pi pi-eye"
+           (onClick)="visualizarBack()"
+           >
+        </p-button>
+
+         <p-button
+            label="Preview-pdf"
+            icon="pi pi-eye"
+           (onClick)="visualizarPdf()"
+           >
+        </p-button>
+
+
+        <p-button
+            label="Salvar"
+            icon="pi pi-save"
+            severity="success"
+            (onClick)="salvar()">
+        </p-button>
+
+    </ng-template>
+</p-toolbar>
+
+<p-splitter [style]="{height:'calc(100vh - 180px)'}">
+
+    <!-- Variáveis -->
+    <ng-template pTemplate>
+
+        <p-tree
+            [value]="variaveis"
+            selectionMode="single"
+            (onNodeSelect)="inserirVariavel($event)">
+        </p-tree>
+
+    </ng-template>
+
+    <!-- Monaco -->
+    <ng-template pTemplate>
+
+        <div
+            #editor
+            style="height:100%">
+        </div>
+
+    </ng-template>
+
+
+     <ng-template pTemplate>
+
+
+  <!-- Preview -->
+@if (modoPreview === 'html') {
+
+  <iframe
+    [srcdoc]="htmlPreview"
+    style="
+      width:100%;
+      height:100%;
+      border:none;">
+  </iframe>
+
+}
+
+@if (modoPreview === 'pdf') {
+
+  <iframe
+    [src]="pdfUrl"
+    style="
+      width:100%;
+      height:100%;
+      border:none;">
+  </iframe>
+
+}
+
+
+    </ng-template>
+
+</p-splitter>

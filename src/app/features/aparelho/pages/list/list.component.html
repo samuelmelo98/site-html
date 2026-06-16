@@ -39,6 +39,8 @@
 
       <th>Status</th>
 
+       <th>Data Entrada</th>
+
       <th>Ações</th>
     </tr>
   </ng-template>
@@ -70,21 +72,43 @@
         {{ item.statusAparelho }}
       </td>
 
+      <td>
+        {{ item.dataEntradaAparelho | date: 'dd/MM/yyyy  HH:mm:ss' }}
+      </td>
+
       <td class="flex gap-2">
 
-        <p-button
-          icon="pi pi-pencil"
-          severity="secondary"
-          rounded
-        />
+  <!-- Orçamento -->
+  <p-button
+      icon="pi pi-dollar"
+      severity="success"
+      rounded
+      pTooltip="Orçamento">
+  </p-button>
 
-        <p-button
-          icon="pi pi-trash"
-          severity="danger"
-          rounded
-        />
+  <!-- Ordem Serviço -->
+  <p-button
+      icon="pi pi-file-edit"
+      severity="info"
+      rounded
+      pTooltip="Ordem de Serviço">
+  </p-button>
 
-      </td>
+  <!-- Editar -->
+  <p-button
+      icon="pi pi-pencil"
+      severity="secondary"
+      rounded>
+  </p-button>
+
+  <!-- Excluir -->
+  <p-button
+      icon="pi pi-trash"
+      severity="danger"
+      rounded>
+  </p-button>
+
+</td>
 
     </tr>
   </ng-template>

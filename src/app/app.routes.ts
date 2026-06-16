@@ -16,6 +16,13 @@ export const routes: Routes = [
       import('./features/cliente/cliente.routes')
         .then(m => m.CLIENTE_ROUTES)
   },
+  {
+    path: 'editor',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/editor/editor.routes')
+        .then(m => m.EDITOR_ROUTES)
+  },
    {
     path: 'cliente-cpf',
     canActivate: [authGuard],
