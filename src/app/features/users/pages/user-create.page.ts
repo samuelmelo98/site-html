@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../services/user.service';
-
+import { EmailTestService } from '../services/email-test.service';
 @Component({
   selector: 'app-user-create',
   standalone: true,
@@ -13,6 +13,8 @@ import { UserService } from '../services/user.service';
 })
 export class UserCreatePage {
 
+    testandoEmail = false;
+
   form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]]
@@ -21,7 +23,8 @@ export class UserCreatePage {
 
   constructor(
     private fb: FormBuilder,
-    private service: UserService
+    private service: UserService,
+    private emailTestService: EmailTestService
   ) {}
 
   salvar(): void {
@@ -35,6 +38,34 @@ export class UserCreatePage {
       error: err => {
         console.error(err);
         alert('Erro ao salvar usuário');
+      }
+    });
+  }
+
+  testarEmail(): void {
+    this.testandoEmail = true;
+
+    this.emailTestService.testar().subscribe({
+      next: response => {
+        this.testandoEmail = false;
+
+        console.log('Resposta string-emails:', response);
+
+        alert(
+          `E-mail enviado!\n\n` +
+          `Status: ${response.status}\n` +
+          `Request ID: ${response.requestId}`
+        );
+      },
+      error: err => {
+        this.testandoEmail = false;
+
+        console.error('Erro no teste de e-mail:', err);
+
+        alert(
+          `Erro ao testar envio de e-mail.\n` +
+          `HTTP: ${err.status}`
+        );
       }
     });
   }
