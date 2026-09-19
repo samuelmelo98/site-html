@@ -1,177 +1,225 @@
-<p-panel>
-  <h2>Novo equipamento</h2>
-
-  <p-divider align="left"></p-divider>
-
-  <br />
-
-  <form [formGroup]="form" class="flex flex-col gap-4">
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-      <div class="flex flex-col gap-2">
-        <label>Nome <span class="text-red-500">*</span></label>
-
-        <input
-          pInputText
-          formControlName="nome"
-          class="w-full"
-          placeholder="Digite o nome completo" />
-
-        @if (form.controls.nome.invalid && form.controls.nome.touched) {
-          <small class="text-red-500">
-            Campo obrigatório
-          </small>
-        }
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label>CPF <span class="text-red-500">*</span></label>
-
-        <input
-          pInputText
-          formControlName="cpf"
-          class="w-full"
-          placeholder="000.000.000-00" />
-
-        @if (form.controls.cpf.invalid && form.controls.cpf.touched) {
-          <small class="text-red-500">
-            CPF obrigatório
-          </small>
-        }
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label>E-mail</label>
-
-        <input
-          pInputText
-          formControlName="email"
-          class="w-full"
-          placeholder="email@empresa.com.br" />
-
-        @if (
-          form.controls.email.errors?.['email'] &&
-          form.controls.email.touched
-        ) {
-          <small class="text-red-500">
-            E-mail inválido
-          </small>
-        }
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label>Telefone</label>
-
-        <input
-          pInputText
-          formControlName="telefone"
-          class="w-full"
-          placeholder="(61) 99999-9999" />
-      </div>
-
-    </div>
-
-    <p-divider align="left">
-      <span class="text-blue-800 font-bold text-lg">
-        Endereço
+<p-panel header="Novo equipamento">
+  <form
+    [formGroup]="form"
+    (ngSubmit)="salvar()"
+    class="p-4 md:p-6 space-y-6"
+  >
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <span class="block text-sm text-gray-500">
+        Cliente selecionado
       </span>
-    </p-divider>
 
-    <div class="flex flex-col gap-2">
-      <label>Endereço</label>
+      @if (clienteId(); as id) {
+        <strong class="text-gray-800">
+          {{ clienteNome() || 'Cliente' }}
+        </strong>
 
-      <input
-        pInputText
-        formControlName="endereco"
-        class="w-full"
-        placeholder="Rua, Avenida, Quadra..." />
+        <span class="ml-2 text-sm text-gray-500">
+          ID: {{ id }}
+        </span>
+      } @else {
+        <p role="alert" class="mt-2 text-sm text-red-600">
+          Cliente ausente ou inválido. Volte à lista e selecione um cliente.
+        </p>
+      }
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <p class="text-sm text-gray-500">
+      Campos com <span class="text-red-500">*</span> são obrigatórios.
+    </p>
 
-      <div class="flex flex-col gap-2">
-        <label>Cidade</label>
+    <fieldset
+      [disabled]="salvando() || clienteId() === null"
+      class="m-0 min-w-0 border-0 p-0"
+    >
+      <legend class="sr-only">Dados do aparelho</legend>
 
-        <input
-          pInputText
-          formControlName="cidade"
-          class="w-full"
-          placeholder="Cidade" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="flex flex-col gap-2">
+          <label for="marca">
+            Marca <span class="text-red-500">*</span>
+          </label>
+
+          <select
+            id="marca"
+            formControlName="marca"
+            required
+            class="w-full rounded-md border border-gray-300 bg-white p-2"
+            [class.border-red-500]="invalido('marca')"
+            [attr.aria-invalid]="invalido('marca')"
+            [attr.aria-describedby]="invalido('marca') ? 'marca-erro' : null"
+          >
+            <option value="" disabled>Selecione a marca</option>
+
+            @for (marca of marcas(); track marca.value) {
+              <option [value]="marca.value">
+                {{ marca.label }}
+              </option>
+            }
+          </select>
+
+          @if (invalido('marca')) {
+            <small id="marca-erro" class="text-red-600">
+              Selecione a marca.
+            </small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="modelo">
+            Modelo <span class="text-red-500">*</span>
+          </label>
+
+          <input
+            pInputText
+            id="modelo"
+            formControlName="modelo"
+            placeholder="Ex.: SM-A156M"
+            required
+            class="w-full"
+            [class.ng-invalid]="invalido('modelo')"
+            [class.ng-dirty]="invalido('modelo')"
+            [attr.aria-invalid]="invalido('modelo')"
+            [attr.aria-describedby]="invalido('modelo') ? 'modelo-erro' : null"
+          />
+
+          @if (invalido('modelo')) {
+            <small id="modelo-erro" class="text-red-600">
+              Informe o modelo.
+            </small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="modeloComercial">Modelo comercial</label>
+
+          <input
+            pInputText
+            id="modeloComercial"
+            formControlName="modeloComercial"
+            placeholder="Ex.: Galaxy A15 5G"
+            class="w-full"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="numeroSerie">
+            Número de série <span class="text-red-500">*</span>
+          </label>
+
+          <input
+            pInputText
+            id="numeroSerie"
+            formControlName="numeroSerie"
+            placeholder="Informe o número de série"
+            required
+            class="w-full"
+            [class.ng-invalid]="invalido('numeroSerie')"
+            [class.ng-dirty]="invalido('numeroSerie')"
+            [attr.aria-invalid]="invalido('numeroSerie')"
+            [attr.aria-describedby]="
+              invalido('numeroSerie') ? 'serie-erro' : null
+            "
+          />
+
+          @if (invalido('numeroSerie')) {
+            <small id="serie-erro" class="text-red-600">
+              Informe o número de série.
+            </small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="tipo">Tipo de aparelho</label>
+
+          <select
+            id="tipo"
+            formControlName="tipo"
+            class="w-full rounded-md border border-gray-300 bg-white p-2"
+          >
+            <option [ngValue]="null">Selecione o tipo</option>
+
+            @for (tipo of tipos(); track tipo.value) {
+              <option [value]="tipo.value">
+                {{ tipo.label }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="descricao">Descrição</label>
+
+          <input
+            pInputText
+            id="descricao"
+            formControlName="descricao"
+            placeholder="Cor, capacidade e outras características"
+            class="w-full"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2 md:col-span-2">
+          <label for="defeito">
+            Defeito relatado <span class="text-red-500">*</span>
+          </label>
+
+          <textarea
+            id="defeito"
+            formControlName="defeito"
+            rows="4"
+            required
+            placeholder="Descreva o problema informado pelo cliente"
+            class="w-full rounded-md border border-gray-300 p-3"
+            [class.border-red-500]="invalido('defeito')"
+            [attr.aria-invalid]="invalido('defeito')"
+            [attr.aria-describedby]="invalido('defeito') ? 'defeito-erro' : null"
+          ></textarea>
+
+          @if (invalido('defeito')) {
+            <small id="defeito-erro" class="text-red-600">
+              Informe o defeito relatado.
+            </small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-2 md:col-span-2">
+          <label for="observacao">Observações</label>
+
+          <textarea
+            id="observacao"
+            formControlName="observacao"
+            rows="3"
+            placeholder="Estado de conservação, acessórios entregues etc."
+            class="w-full rounded-md border border-gray-300 p-3"
+          ></textarea>
+        </div>
       </div>
+    </fieldset>
 
-      <div class="flex flex-col gap-2">
-        <label>Estado</label>
+    @if (erroSalvar()) {
+      <p role="alert" class="text-sm text-red-600">
+        {{ erroSalvar() }}
+      </p>
+    }
 
-        <input
-          pInputText
-          formControlName="estado"
-          class="w-full"
-          placeholder="UF" />
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label>CEP</label>
-
-        <input
-          pInputText
-          formControlName="cep"
-          class="w-full"
-          placeholder="00000-000" />
-      </div>
-
-    </div>
-
-    <!-- <p-divider align="left">
-      <span class="text-blue-800 font-bold text-lg">
-        Aparelhos
-      </span>
-    </p-divider>
-
-    <app-aparelho-list
-      formControlName="aparelhos">
-    </app-aparelho-list> -->
-
-    <div
-      class="p-3 bg-yellow-100 border-left-4 border-yellow-500 text-sm">
-
-      <strong>Campos Inválidos:</strong>
-
-      <ul>
-
-        @if (form.controls.nome.invalid) {
-          <li>Nome</li>
-        }
-
-        @if (form.controls.cpf.invalid) {
-          <li>CPF</li>
-        }
-
-        @if (form.controls.email.invalid) {
-          <li>E-mail</li>
-        }
-
-      </ul>
-
-    </div>
-
-    <div class="flex justify-content-end gap-2 mt-3">
-
+    <div class="flex justify-end gap-3 border-t border-gray-200 pt-4">
       <p-button
+        type="button"
         label="Cancelar"
         icon="pi pi-times"
-        severity="secondary">
-      </p-button>
+        severity="secondary"
+        [disabled]="salvando()"
+        [routerLink]="voltarPara()"
+      ></p-button>
 
       <p-button
-        label="Salvar"
+        type="submit"
+        label="Salvar aparelho"
         icon="pi pi-check"
-        (onClick)="salvar()"
-        [disabled]="form.invalid || salvando">
-      </p-button>
-
+        [loading]="salvando()"
+        [disabled]="salvando() || clienteId() === null"
+      ></p-button>
     </div>
-
   </form>
-
 </p-panel>

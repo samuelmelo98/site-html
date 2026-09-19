@@ -1,94 +1,156 @@
-// 🔹 Angular core
-import { Component, ViewChild, inject, input  } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnChanges,
+  SimpleChanges,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-// 🔹 PrimeNG v20 Modules
-import { TableModule, Table } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { Subscription, finalize } from 'rxjs';
+
 import { ButtonModule } from 'primeng/button';
-
-import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
-
-// 🔹 Services
-import { ClienteService } from '../../services/cliente.service';
+import {
+  Table,
+  TableLazyLoadEvent,
+  TableModule,
+} from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { AparelhoService } from '../../services/aparelho.service';
 
-@Component({
-  selector: 'app-list',
-  standalone: true, // Adicionado explicitamente para garantir o escopo no Angular 20
-  imports: [
-    CommonModule,
-    TableModule,
-    TagModule,
-    ProgressSpinnerModule,
-    ButtonModule,
-    CpfPipe,
-  ],
-  templateUrl: './list.component.html',
-  styleUrl: './list.component.css',
-})
-export class ListComponent {
-  dados2: any[] = [];
-  total = 0;
-  loading = false;
-  termoBusca = '';
-
-  clienteId = input.required<number>();
-
-  clienteSelecionado: any | null = null;
-
-  private clienteService = inject(ClienteService);
-
-   private aparelhoService = inject(AparelhoService);
-  @ViewChild('tabela') tabela!: Table;
-
-ngInit(){
-  console.log(this.clienteId);
+interface AparelhoLinha {
+  aparelhoId: number;
+  marca: string;
+  modelo: string | null;
+  modeloComercial: string | null;
+  numeroSerie: string | null;
+  statusAparelho?: unknown;
+  dataEntradaAparelho?: string | null;
+  dataCadastro?: string | null;
 }
 
+@Component({
+  selector: 'app-aparelho-list',
+  standalone: true,
+  imports: [
+    DatePipe,
+    TableModule,
+    ButtonModule,
+    TooltipModule,
+  ],
+  templateUrl: './list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ListComponent implements OnChanges {
+  readonly clienteId = input.required<number>();
 
-  buscar(valor: string): void {
-    this.termoBusca = valor;
-    this.tabela.reset();
+  readonly dados2 = signal<AparelhoLinha[]>([]);
+  readonly total = signal(0);
+  readonly loading = signal(false);
+  readonly erro = signal('');
+
+  private readonly aparelhoService = inject(AparelhoService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly tabela = viewChild<Table>('tabela');
+
+  private requisicao?: Subscription;
+  private termoBusca = '';
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const alteracao = changes['clienteId'];
+
+    // A primeira consulta é disparada pelo lazy load da tabela.
+    if (alteracao && !alteracao.firstChange) {
+      this.dados2.set([]);
+      this.total.set(0);
+      this.recarregar();
+    }
   }
 
-  carregar(event: any): void {
-    this.loading = true;
-
-    const page = event.first / event.rows;
-    const size = event.rows;
-    const sortField = event.sortField ?? 'aparelhoId';
-    const sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
-
-    this.aparelhoService
-      .listarPaginado(page, size, sortField, sortOrder, this.termoBusca,this.clienteId())
-      .subscribe({
-        next: (res) => {
-          this.dados2 = res.content;
-          this.total = res.totalElements;
-          this.loading = false;
-        },
-        error: () => (this.loading = false),
-      });
+  buscar(valor: string): void {
+    this.termoBusca = valor.trim();
+    this.recarregar();
   }
 
   recarregar(): void {
-    this.tabela.reset();
+    this.tabela()?.reset();
   }
 
-formatCpf(cpf: string): string {
-  return cpf.replace(
-    /(\d{3})(\d{3})(\d{3})(\d{2})/,
-    '$1.$2.$3-$4'
-  );
-}
+  carregar(event: TableLazyLoadEvent): void {
+    this.requisicao?.unsubscribe();
 
+    const clienteId = this.clienteId();
 
-public adicionarAparelho(pessoa: any){
-  this.clienteSelecionado = pessoa;
-  console.log(this.clienteSelecionado);
+    if (!Number.isSafeInteger(clienteId) || clienteId <= 0) {
+      this.dados2.set([]);
+      this.total.set(0);
+      this.erro.set('Identificador do cliente inválido.');
+      return;
+    }
 
-}
+    const size = Math.max(1, event.rows ?? 10);
+    const first = Math.max(0, event.first ?? 0);
+    const page = Math.floor(first / size);
+
+    const sortField = Array.isArray(event.sortField)
+      ? event.sortField[0] || 'aparelhoId'
+      : event.sortField || 'aparelhoId';
+
+    const sortOrder = event.sortOrder === -1 ? 'desc' : 'asc';
+
+    this.loading.set(true);
+    this.erro.set('');
+
+    this.requisicao = this.aparelhoService
+      .listarPaginado(
+        page,
+        size,
+        sortField,
+        sortOrder,
+        this.termoBusca,
+        clienteId,
+      )
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: resposta => {
+          this.dados2.set(resposta.content);
+          this.total.set(resposta.totalElements);
+        },
+        error: () => {
+          this.dados2.set([]);
+          this.total.set(0);
+          this.erro.set(
+            'Não foi possível carregar os aparelhos. Tente novamente.',
+          );
+        },
+      });
+  }
+
+  textoStatus(status: unknown): string {
+    if (typeof status === 'string') {
+      return status || '—';
+    }
+
+    if (typeof status === 'object' && status !== null) {
+      if ('descricao' in status && typeof status.descricao === 'string') {
+        return status.descricao;
+      }
+
+      if ('nome' in status && typeof status.nome === 'string') {
+        return status.nome;
+      }
+    }
+
+    return '—';
+  }
 }

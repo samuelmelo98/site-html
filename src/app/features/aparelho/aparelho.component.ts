@@ -1,99 +1,81 @@
-// 🔹 Angular
-import { Component, inject, ViewChild } from '@angular/core';
-import { Router, RouterModule,ActivatedRoute  } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  viewChild,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
-// 🔹 Third-party (PrimeNG)
-import { Button } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { Panel } from 'primeng/panel';
+import { ButtonModule } from 'primeng/button';
+import { PanelModule } from 'primeng/panel';
 
-// 🔹 Shared components
 import { SearchGenericComponent } from '../../shared/search-generic/search-generic.component';
 import { SearchEvent } from '../../shared/search-generic/models/search-event.model';
-
-import { NavigationService } from '../../shared/services/navegation-service'; 
-
-// 🔹 Feature components (mesmo módulo)
-import { CreateComponent } from './pages/create/create.component';
 import { ListComponent } from './pages/list/list.component';
-import { EditComponent } from './pages/edit/edit.component';
-
 
 @Component({
   selector: 'app-aparelho',
+  standalone: true,
   imports: [
-    SearchGenericComponent,
-    Button,
-    DialogModule,
-    EditComponent,
-    Panel,
-    ListComponent,
     RouterModule,
-
+    ButtonModule,
+    PanelModule,
+    SearchGenericComponent,
+    ListComponent,
   ],
   templateUrl: './aparelho.component.html',
   styleUrl: './aparelho.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AparelhoComponent {
-  private router = inject(Router);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-    private navegationService = inject(NavigationService);
+  private readonly lista = viewChild<ListComponent>('lista');
 
-  private readonly route =
-  inject(ActivatedRoute);
+  private readonly parametrosRota = toSignal(this.route.paramMap, {
+    initialValue: this.route.snapshot.paramMap,
+  });
 
-  clienteId!: number;
+  readonly clienteId = computed<number | null>(() => {
+    const parametro =
+      this.parametrosRota()?.get('clienteId') ?? null;
 
-  visible = false;
-  @ViewChild('lista')
-  lista!: ListComponent;
-  termoBusca = '';
+    if (parametro === null || !/^[1-9]\d*$/.test(parametro)) {
+      return null;
+    }
 
-  @ViewChild('modalEditar')
-  modalEditar!: EditComponent;
+    const id = Number(parametro);
 
-
-ngOnInit(): void {
-
-  this.clienteId = Number(
-    this.route.snapshot.paramMap.get(
-      'clienteId'
-    )
-  );
-
-  console.log(this.clienteId);
-}
-
+    return Number.isSafeInteger(id) ? id : null;
+  });
 
   onSearch(event: SearchEvent): void {
-
-    this.termoBusca = event.termo;
-
-    this.lista.buscar(event.termo);
-
+    this.lista()?.buscar(event.termo);
   }
 
-  public irPara(path: string[]): void {
+  adicionarAparelho(): void {
+    const clienteId = this.clienteId();
+
+    if (clienteId === null) {
+      return;
+    }
+
+    this.irPara(['/aparelho', 'create', String(clienteId)]);
+  }
+
+  irPara(path: string[]): void {
     this.router
       .navigate(path)
-      .then((sucesso) => {
+      .then(sucesso => {
         if (!sucesso) {
-          console.log('Erro ao navegar', path);
+          console.error('Navegação cancelada:', path);
         }
       })
-      .catch((err) => {
-        console.log('Erro na navegação', err);
+      .catch((erro: unknown) => {
+        console.error('Erro ao navegar:', erro);
       });
   }
-
-  
-public adicionarAparelho(): void {
-
-  this.navegationService.irPara([
-    'aparelho',
-    'create',
-    this.clienteId.toString()
-  ]);
-
-}
 }
