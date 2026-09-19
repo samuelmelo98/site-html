@@ -1,32 +1,50 @@
 <p-panel>
-  <div class="p-4 md:p-6 space-y-4 md:space-y-6">
-    <div
-      class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <h1 class="text-xl md:text-2xl font-semibold text-gray-800">
-       Histórico de Aparelhos 
-      </h1>
+  @if (clienteId(); as id) {
+    <div class="p-4 md:p-6 space-y-4 md:space-y-6">
+      <div
+        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <h1 class="text-xl md:text-2xl font-semibold text-gray-800">
+            Histórico de Aparelhos
+          </h1>
+
+          <p class="mt-1 text-sm text-gray-500">
+            Cliente ID: {{ id }}
+          </p>
+        </div>
+
+        <p-button
+          label="Adicionar Novo Equipamento"
+          icon="pi pi-plus"
+          severity="primary"
+          [routerLink]="['/aparelho', 'create', id]"
+        ></p-button>
+      </div>
+
+      <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm">
+        <app-search-generic
+          (search)="onSearch($event)"
+        ></app-search-generic>
+      </div>
+    </div>
+
+    <app-aparelho-list
+      #lista
+      [clienteId]="id"
+    ></app-aparelho-list>
+  } @else {
+    <div class="p-4 space-y-4">
+      <p role="alert" class="text-red-600">
+        Identificador do cliente ausente ou inválido.
+      </p>
 
       <p-button
-        label="Adicionar Novo Equipamento "
-        icon="pi pi-plus"
-        severity="primary"
-        class="w-full sm:w-auto"
-        (onClick)="adicionarAparelho()"
-      >
-      </p-button>
+        label="Voltar aos clientes"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [routerLink]="['/cliente']"
+      ></p-button>
     </div>
-
-    <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm">
-      <app-search-generic (search)="onSearch($event)"> </app-search-generic>
-    </div>
-  </div>
-
-  <div>
-    <app-list #lista
-    [clienteId]="clienteId"
-    ></app-list>
-  </div>
-
-
+  }
 </p-panel>

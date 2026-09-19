@@ -2,24 +2,31 @@ import { Routes } from '@angular/router';
 
 export const APARELHO_ROUTES: Routes = [
   {
-    path: ':clienteId',
+    path: 'create/:clienteId',
     loadComponent: () =>
-      import('./aparelho.component').then((m) => m.AparelhoComponent),
+      import('./pages/create/create.component').then(
+        m => m.CreateComponent,
+      ),
   },
-
+  {
+    path: 'list/:clienteId',
+    loadComponent: () =>
+      import('./aparelho.component').then(
+        m => m.AparelhoComponent,
+      ),
+  },
   {
     path: 'edit',
     loadComponent: () =>
-      import('./pages/edit/edit.component').then((m) => m.EditComponent),
+      import('./pages/edit/edit.component').then(
+        m => m.EditComponent,
+      ),
   },
   {
-    path: 'list',
+    path: ':clienteId',
     loadComponent: () =>
-      import('./pages/list/list.component').then((m) => m.ListComponent),
-  },
-  {
-    path: 'create/:clienteId',
-    loadComponent: () =>
-      import('./pages/create/create.component').then((m) => m.CreateComponent),
+      import('./aparelho.component').then(
+        m => m.AparelhoComponent,
+      ),
   },
 ];

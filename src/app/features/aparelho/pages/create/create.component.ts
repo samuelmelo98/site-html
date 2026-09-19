@@ -1,127 +1,156 @@
 import {
+  ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  EventEmitter,
-  Output,
+  computed,
   inject,
+  input,
+  output,
 } from '@angular/core';
-
-import { ReactiveFormsModule } from '@angular/forms';
-
-import { CommonModule } from '@angular/common';
-
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
-  EMPTY,
-  catchError,
-  finalize,
-  tap,
-} from 'rxjs';
-
-import { MessageService } from 'primeng/api';
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { ButtonModule } from 'primeng/button';
-import { DividerModule } from 'primeng/divider';
 import { InputTextModule } from 'primeng/inputtext';
-import { Panel } from 'primeng/panel';
+import { PanelModule } from 'primeng/panel';
 
-import { ClienteService } from '../../services/cliente.service';
+export interface OpcaoAparelho {
+  label: string;
+  value: string;
+}
 
-import { ClienteForm, ClienteFormFactoryService } from '../../services/cliente-form-factory-service';
+export interface CadastroAparelho {
+  clienteId: number;
+  marca: string;
+  modelo: string;
+  modeloComercial: string;
+  numeroSerie: string;
+  descricao: string;
+  tipo: string | null;
+  defeito: string;
+  observacao: string;
+}
 
 @Component({
-  selector: 'app-create',
-
+  selector: 'app-aparelho-create',
   standalone: true,
-
   imports: [
-    CommonModule,
+    RouterLink,
     ReactiveFormsModule,
     ButtonModule,
-    DividerModule,
     InputTextModule,
-    Panel,
+    PanelModule,
   ],
-
   templateUrl: './create.component.html',
-
-  styleUrl: './create.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateComponent {
+  readonly clienteNome = input('');
+  readonly salvando = input(false);
+  readonly erroSalvar = input('');
 
-  @Output()
-  readonly salvo = new EventEmitter<void>();
+  readonly marcas = input<readonly OpcaoAparelho[]>([]);
+  readonly tipos = input<readonly OpcaoAparelho[]>([]);
 
-  private readonly destroyRef = inject(DestroyRef);
+  readonly salvarAparelho = output<CadastroAparelho>();
 
-  private readonly clienteService = inject(ClienteService);
+  private readonly route = inject(ActivatedRoute);
 
-  private readonly messageService = inject(MessageService);
+  private readonly parametrosRota = toSignal(this.route.paramMap, {
+    initialValue: this.route.snapshot.paramMap,
+  });
 
-  private readonly formFactory = inject(
-    ClienteFormFactoryService,
-  );
+  readonly clienteId = computed<number | null>(() => {
+    const parametro =
+      this.parametrosRota()?.get('clienteId') ?? null;
 
-  readonly form: ClienteForm =
-    this.formFactory.create();
+    if (parametro === null || !/^[1-9]\d*$/.test(parametro)) {
+      return null;
+    }
 
-  salvando = false;
+    const id = Number(parametro);
+
+    return Number.isSafeInteger(id) ? id : null;
+  });
+
+  readonly voltarPara = computed<string[]>(() => {
+    const clienteId = this.clienteId();
+
+    return clienteId === null
+      ? ['/cliente']
+      : ['/aparelho', String(clienteId)];
+  });
+
+  private readonly textoObrigatorio = [
+    Validators.required,
+    Validators.pattern(/\S/),
+  ];
+
+  readonly form = new FormGroup({
+    marca: new FormControl('', {
+      nonNullable: true,
+      validators: this.textoObrigatorio,
+    }),
+    modelo: new FormControl('', {
+      nonNullable: true,
+      validators: this.textoObrigatorio,
+    }),
+    modeloComercial: new FormControl('', {
+      nonNullable: true,
+    }),
+    numeroSerie: new FormControl('', {
+      nonNullable: true,
+      validators: this.textoObrigatorio,
+    }),
+    descricao: new FormControl('', {
+      nonNullable: true,
+    }),
+    tipo: new FormControl<string | null>(null),
+    defeito: new FormControl('', {
+      nonNullable: true,
+      validators: this.textoObrigatorio,
+    }),
+    observacao: new FormControl('', {
+      nonNullable: true,
+    }),
+  });
+
+  invalido(campo: keyof typeof this.form.controls): boolean {
+    const controle = this.form.controls[campo];
+
+    return controle.invalid && controle.touched;
+  }
 
   salvar(): void {
-
-    if (this.form.invalid) {
-
-      this.form.markAllAsTouched();
-
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Atenção',
-        detail: 'Preencha os campos obrigatórios',
-      });
-
+    if (this.salvando()) {
       return;
     }
 
-    const payload =
-      this.formFactory.toPayload(this.form);
+    this.form.markAllAsTouched();
 
-    this.salvando = true;
+    const clienteId = this.clienteId();
 
-    this.clienteService
-      .salvar(payload)
-      .pipe(
+    if (this.form.invalid || clienteId === null) {
+      return;
+    }
 
-        tap(() => {
+    const dados = this.form.getRawValue();
 
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Cliente cadastrado com sucesso',
-          });
-
-          this.salvo.emit();
-        }),
-
-        catchError((err) => {
-
-          console.error(err);
-
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro ao salvar cliente',
-          });
-
-          return EMPTY;
-        }),
-
-        finalize(() => {
-          this.salvando = false;
-        }),
-
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe();
+    this.salvarAparelho.emit({
+      clienteId,
+      marca: dados.marca,
+      modelo: dados.modelo.trim(),
+      modeloComercial: dados.modeloComercial.trim(),
+      numeroSerie: dados.numeroSerie.trim(),
+      descricao: dados.descricao.trim(),
+      tipo: dados.tipo,
+      defeito: dados.defeito.trim(),
+      observacao: dados.observacao.trim(),
+    });
   }
 }
