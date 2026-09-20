@@ -12,6 +12,8 @@ import { environment } from '../../../../environments/environment';
 import { Page } from '../../../shared/search-generic/models/page.model';
 import { Cliente } from '../../cliente/model/cliente-listar.dto'; 
 
+import { CadastroAparelho } from '../model/aparelho-cadastro.dto';
+
 // 🔹 Feature (models / DTOs)
 
 
@@ -68,11 +70,9 @@ export class AparelhoService {
     return this.http.delete<void>(`${this.API}/${id}`);
   }
 
-  salvar(dto: any): Observable<void> {
-    console.log(this.API);
-    console.log(dto);
-    return this.http.post<void>(this.API, dto);
-  }
+ salvar(dto: CadastroAparelho): Observable<unknown> {
+  return this.http.post<unknown>(this.API, dto);
+}
   /*
   listarTipoDespesa(): Observable<TipoDespesa[]> {
   console.log('tipoDespesaService-listarParaDropdown.');
