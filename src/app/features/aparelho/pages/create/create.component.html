@@ -4,70 +4,167 @@
     (ngSubmit)="salvar()"
     class="p-4 md:p-6 space-y-6"
   >
-    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
-      <span class="block text-sm text-gray-500">
+    <!-- CLIENTE -->
+    <div
+      class="rounded-lg border border-gray-200 bg-gray-50 p-4"
+    >
+      <span class="block text-sm font-medium text-gray-500">
         Cliente selecionado
       </span>
 
-      @if (clienteId(); as id) {
-        <strong class="text-gray-800">
-          {{ clienteNome() || 'Cliente' }}
-        </strong>
+      @if (carregandoCliente()) {
+        <div class="mt-3 flex items-center gap-2 text-sm text-gray-500">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Carregando dados do cliente...</span>
+        </div>
+      } @else if (cliente(); as cliente) {
+        <div class="mt-3">
+          <div class="text-lg font-semibold text-gray-800">
+            {{ cliente.nome }}
+          </div>
 
-        <span class="ml-2 text-sm text-gray-500">
-          ID: {{ id }}
-        </span>
+          <div
+            class="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600"
+          >
+            <span>
+              <strong class="text-gray-700">CPF:</strong>
+              {{ cliente.cpf || '-' }}
+            </span>
+
+            <span>
+              <strong class="text-gray-700">Telefone:</strong>
+              {{ cliente.telefone || '-' }}
+            </span>
+
+            <span>
+              <strong class="text-gray-700">ID:</strong>
+              {{ cliente.clienteId }}
+            </span>
+          </div>
+        </div>
+      } @else if (erroCliente()) {
+        <div class="mt-3">
+          <p
+            role="alert"
+            class="text-sm text-red-600"
+          >
+            {{ erroCliente() }}
+          </p>
+
+          @if (clienteId() !== null) {
+            <p-button
+              type="button"
+              label="Tentar novamente"
+              icon="pi pi-refresh"
+              severity="secondary"
+              size="small"
+              class="mt-2"
+              [disabled]="carregandoCliente()"
+              (onClick)="carregarCliente()"
+            ></p-button>
+          }
+        </div>
       } @else {
-        <p role="alert" class="mt-2 text-sm text-red-600">
+        <p
+          role="alert"
+          class="mt-2 text-sm text-red-600"
+        >
           Cliente ausente ou inválido. Volte à lista e selecione um cliente.
         </p>
       }
     </div>
 
     <p class="text-sm text-gray-500">
-      Campos com <span class="text-red-500">*</span> são obrigatórios.
+      Campos com
+      <span class="text-red-500">*</span>
+      são obrigatórios.
     </p>
 
     <fieldset
-      [disabled]="salvando() || clienteId() === null"
+      [disabled]="
+        salvando() ||
+        salvo() ||
+        carregandoCliente() ||
+        clienteId() === null ||
+        cliente() === null
+      "
       class="m-0 min-w-0 border-0 p-0"
     >
-      <legend class="sr-only">Dados do aparelho</legend>
+      <legend class="sr-only">
+        Dados do aparelho
+      </legend>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div
+        class="grid grid-cols-1 gap-5 md:grid-cols-2"
+      >
+        <!-- MARCA -->
         <div class="flex flex-col gap-2">
-          <label for="marca">
-            Marca <span class="text-red-500">*</span>
+          <label for="marcaId">
+            Marca
+            <span class="text-red-500">*</span>
           </label>
 
-          <select
-            id="marca"
-            formControlName="marca"
-            required
-            class="w-full rounded-md border border-gray-300 bg-white p-2"
-            [class.border-red-500]="invalido('marca')"
-            [attr.aria-invalid]="invalido('marca')"
-            [attr.aria-describedby]="invalido('marca') ? 'marca-erro' : null"
-          >
-            <option value="" disabled>Selecione a marca</option>
+          <p-select
+            inputId="marcaId"
+            formControlName="marcaId"
+            [options]="marcas()"
+            optionLabel="nome"
+            optionValue="marcaId"
+            placeholder="Selecione a marca"
+            [filter]="true"
+            filterBy="nome"
+            [showClear]="true"
+            [loading]="carregandoMarcas()"
+            emptyMessage="Nenhuma marca disponível"
+            emptyFilterMessage="Nenhuma marca encontrada"
+            [style]="{ width: '100%' }"
+            [class.ng-invalid]="invalido('marcaId')"
+            [class.ng-dirty]="invalido('marcaId')"
+          ></p-select>
 
-            @for (marca of marcas(); track marca.value) {
-              <option [value]="marca.value">
-                {{ marca.label }}
-              </option>
-            }
-          </select>
-
-          @if (invalido('marca')) {
-            <small id="marca-erro" class="text-red-600">
+          @if (invalido('marcaId')) {
+            <small
+              id="marca-erro"
+              class="text-red-600"
+            >
               Selecione a marca.
+            </small>
+          }
+
+          @if (erroMarcas()) {
+            <div class="flex flex-wrap items-center gap-2">
+              <small
+                role="alert"
+                class="text-red-600"
+              >
+                {{ erroMarcas() }}
+              </small>
+
+              <p-button
+                type="button"
+                label="Tentar novamente"
+                icon="pi pi-refresh"
+                severity="secondary"
+                size="small"
+                [disabled]="salvando() || carregandoMarcas()"
+                (onClick)="carregarMarcas()"
+              ></p-button>
+            </div>
+          } @else if (
+            !carregandoMarcas() &&
+            marcas().length === 0
+          ) {
+            <small class="text-gray-500">
+              Nenhuma marca ativa cadastrada.
             </small>
           }
         </div>
 
+        <!-- MODELO -->
         <div class="flex flex-col gap-2">
           <label for="modelo">
-            Modelo <span class="text-red-500">*</span>
+            Modelo
+            <span class="text-red-500">*</span>
           </label>
 
           <input
@@ -80,18 +177,28 @@
             [class.ng-invalid]="invalido('modelo')"
             [class.ng-dirty]="invalido('modelo')"
             [attr.aria-invalid]="invalido('modelo')"
-            [attr.aria-describedby]="invalido('modelo') ? 'modelo-erro' : null"
+            [attr.aria-describedby]="
+              invalido('modelo')
+                ? 'modelo-erro'
+                : null
+            "
           />
 
           @if (invalido('modelo')) {
-            <small id="modelo-erro" class="text-red-600">
+            <small
+              id="modelo-erro"
+              class="text-red-600"
+            >
               Informe o modelo.
             </small>
           }
         </div>
 
+        <!-- MODELO COMERCIAL -->
         <div class="flex flex-col gap-2">
-          <label for="modeloComercial">Modelo comercial</label>
+          <label for="modeloComercial">
+            Modelo comercial
+          </label>
 
           <input
             pInputText
@@ -102,9 +209,11 @@
           />
         </div>
 
+        <!-- NÚMERO DE SÉRIE -->
         <div class="flex flex-col gap-2">
           <label for="numeroSerie">
-            Número de série <span class="text-red-500">*</span>
+            Número de série
+            <span class="text-red-500">*</span>
           </label>
 
           <input
@@ -118,37 +227,90 @@
             [class.ng-dirty]="invalido('numeroSerie')"
             [attr.aria-invalid]="invalido('numeroSerie')"
             [attr.aria-describedby]="
-              invalido('numeroSerie') ? 'serie-erro' : null
+              invalido('numeroSerie')
+                ? 'serie-erro'
+                : null
             "
           />
 
           @if (invalido('numeroSerie')) {
-            <small id="serie-erro" class="text-red-600">
+            <small
+              id="serie-erro"
+              class="text-red-600"
+            >
               Informe o número de série.
             </small>
           }
         </div>
 
+        <!-- TIPO DO APARELHO -->
         <div class="flex flex-col gap-2">
-          <label for="tipo">Tipo de aparelho</label>
+          <label for="tipoAparelhoId">
+            Tipo de aparelho
+            <span class="text-red-500">*</span>
+          </label>
 
-          <select
-            id="tipo"
-            formControlName="tipo"
-            class="w-full rounded-md border border-gray-300 bg-white p-2"
-          >
-            <option [ngValue]="null">Selecione o tipo</option>
+          <p-select
+            inputId="tipoAparelhoId"
+            formControlName="tipoAparelhoId"
+            [options]="tipos()"
+            optionLabel="nome"
+            optionValue="tipoAparelhoId"
+            placeholder="Selecione o tipo"
+            [filter]="true"
+            filterBy="nome"
+            [showClear]="true"
+            [loading]="carregandoTipos()"
+            emptyMessage="Nenhum tipo disponível"
+            emptyFilterMessage="Nenhum tipo encontrado"
+            [style]="{ width: '100%' }"
+            [class.ng-invalid]="invalido('tipoAparelhoId')"
+            [class.ng-dirty]="invalido('tipoAparelhoId')"
+          ></p-select>
 
-            @for (tipo of tipos(); track tipo.value) {
-              <option [value]="tipo.value">
-                {{ tipo.label }}
-              </option>
-            }
-          </select>
+          @if (invalido('tipoAparelhoId')) {
+            <small
+              id="tipo-erro"
+              class="text-red-600"
+            >
+              Selecione o tipo de aparelho.
+            </small>
+          }
+
+          @if (erroTipos()) {
+            <div class="flex flex-wrap items-center gap-2">
+              <small
+                role="alert"
+                class="text-red-600"
+              >
+                {{ erroTipos() }}
+              </small>
+
+              <p-button
+                type="button"
+                label="Tentar novamente"
+                icon="pi pi-refresh"
+                severity="secondary"
+                size="small"
+                [disabled]="salvando() || carregandoTipos()"
+                (onClick)="carregarTipos()"
+              ></p-button>
+            </div>
+          } @else if (
+            !carregandoTipos() &&
+            tipos().length === 0
+          ) {
+            <small class="text-gray-500">
+              Nenhum tipo de aparelho ativo cadastrado.
+            </small>
+          }
         </div>
 
+        <!-- DESCRIÇÃO -->
         <div class="flex flex-col gap-2">
-          <label for="descricao">Descrição</label>
+          <label for="descricao">
+            Descrição
+          </label>
 
           <input
             pInputText
@@ -159,9 +321,13 @@
           />
         </div>
 
-        <div class="flex flex-col gap-2 md:col-span-2">
+        <!-- DEFEITO -->
+        <div
+          class="flex flex-col gap-2 md:col-span-2"
+        >
           <label for="defeito">
-            Defeito relatado <span class="text-red-500">*</span>
+            Defeito relatado
+            <span class="text-red-500">*</span>
           </label>
 
           <textarea
@@ -173,18 +339,30 @@
             class="w-full rounded-md border border-gray-300 p-3"
             [class.border-red-500]="invalido('defeito')"
             [attr.aria-invalid]="invalido('defeito')"
-            [attr.aria-describedby]="invalido('defeito') ? 'defeito-erro' : null"
+            [attr.aria-describedby]="
+              invalido('defeito')
+                ? 'defeito-erro'
+                : null
+            "
           ></textarea>
 
           @if (invalido('defeito')) {
-            <small id="defeito-erro" class="text-red-600">
+            <small
+              id="defeito-erro"
+              class="text-red-600"
+            >
               Informe o defeito relatado.
             </small>
           }
         </div>
 
-        <div class="flex flex-col gap-2 md:col-span-2">
-          <label for="observacao">Observações</label>
+        <!-- OBSERVAÇÕES -->
+        <div
+          class="flex flex-col gap-2 md:col-span-2"
+        >
+          <label for="observacao">
+            Observações
+          </label>
 
           <textarea
             id="observacao"
@@ -197,17 +375,28 @@
       </div>
     </fieldset>
 
+    <!-- ERRO AO SALVAR -->
     @if (erroSalvar()) {
-      <p role="alert" class="text-sm text-red-600">
+      <p
+        role="alert"
+        class="text-sm text-red-600"
+      >
         {{ erroSalvar() }}
       </p>
     }
 
-    <div class="flex justify-end gap-3 border-t border-gray-200 pt-4">
+    <!-- AÇÕES -->
+    <div
+      class="flex justify-end gap-3 border-t border-gray-200 pt-4"
+    >
       <p-button
         type="button"
-        label="Cancelar"
-        icon="pi pi-times"
+        [label]="
+          salvo()
+            ? 'Voltar ao histórico'
+            : 'Cancelar'
+        "
+        icon="pi pi-arrow-left"
         severity="secondary"
         [disabled]="salvando()"
         [routerLink]="voltarPara()"
@@ -215,10 +404,22 @@
 
       <p-button
         type="submit"
-        label="Salvar aparelho"
+        [label]="
+          salvo()
+            ? 'Aparelho salvo'
+            : 'Salvar aparelho'
+        "
         icon="pi pi-check"
         [loading]="salvando()"
-        [disabled]="salvando() || clienteId() === null"
+        [disabled]="
+          salvando() ||
+          salvo() ||
+          carregandoCliente() ||
+          carregandoMarcas() ||
+          carregandoTipos() ||
+          clienteId() === null ||
+          cliente() === null
+        "
       ></p-button>
     </div>
   </form>

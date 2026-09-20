@@ -42,9 +42,11 @@ export class ClienteService {
     );
   }
 
-  buscar(amparoLegalId: number) {
-    return this.http.get<Cliente>(`${this.API}/${amparoLegalId}`);
-  }
+buscarPorId(clienteId: number): Observable<Cliente> {
+  return this.http.get<Cliente>(
+    `${this.API}/${clienteId}`,
+  );
+}
 
   listarTodos(): Observable<Cliente[]> {
     return this.http.get<Cliente[]>(`${this.API}/all`);

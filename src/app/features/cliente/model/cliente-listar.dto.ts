@@ -1,6 +1,12 @@
 export interface Cliente {
   clienteId: number;
-  descricao: string;
-  ativo: string;
-  dataCadastro: string;
+  nome: string;
+  cpf: string;
+  email: string;
+  telefone: string;
+  endereco: string;
+  cidade: string;
+  estado: string;
+  cep: string;
+  dataNascimento: string | null;
 }
