@@ -1,28 +1,57 @@
 // 🔹 Angular
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {
+  inject,
+  Injectable,
+} from '@angular/core';
+
+import {
+  HttpClient,
+} from '@angular/common/http';
 
 // 🔹 RxJS
-import { Observable, shareReplay, of, map, catchError } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  map,
+  of,
+  shareReplay,
+} from 'rxjs';
 
 // 🔹 Environment
-import { environment } from '../../../../environments/environment';
+import {
+  environment,
+} from '../../../../environments/environment';
 
 // 🔹 Shared
-import { Page } from '../../../shared/search-generic/models/page.model';
-import { Cliente } from '../model/cliente-listar.dto';
+import {
+  Page,
+} from '../../../shared/search-generic/models/page.model';
 
-// 🔹 Feature (models / DTOs)
+// 🔹 Feature
+import {
+  Cliente,
+} from '../model/cliente-listar.dto';
 
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class ClienteService {
-  private readonly API = `${environment.apiUrl}/clientes`;
-  private http = inject(HttpClient);
 
-  listar() {
-    return this.http.get<Cliente[]>(this.API);
+  private readonly API =
+    `${environment.apiUrl}/clientes`;
+
+  private readonly http =
+    inject(HttpClient);
+
+
+  listar(): Observable<Cliente[]> {
+
+    return this.http.get<Cliente[]>(
+      this.API,
+    );
   }
+
 
   listarPaginado(
     page: number,
@@ -31,10 +60,16 @@ export class ClienteService {
     sortOrder: string,
     filtro?: string,
   ): Observable<Page<any>> {
-    let params = `page=${page}&size=${size}&sort=${sortField},${sortOrder}`;
+
+    let params =
+      `page=${page}` +
+      `&size=${size}` +
+      `&sort=${sortField},${sortOrder}`;
 
     if (filtro) {
-      params += `&search=${encodeURIComponent(filtro)}`;
+
+      params +=
+        `&search=${encodeURIComponent(filtro)}`;
     }
 
     return this.http.get<Page<any>>(
@@ -42,79 +77,156 @@ export class ClienteService {
     );
   }
 
-buscarPorId(clienteId: number): Observable<Cliente> {
-  return this.http.get<Cliente>(
-    `${this.API}/${clienteId}`,
+
+  buscarPorId(
+    clienteId: number,
+  ): Observable<Cliente> {
+
+    return this.http.get<Cliente>(
+      `${this.API}/${clienteId}`,
+    );
+  }
+
+
+  listarTodos(): Observable<Cliente[]> {
+
+    return this.http.get<Cliente[]>(
+      `${this.API}/all`,
+    );
+  }
+
+
+  criar(
+    cliente: Cliente,
+  ): Observable<Cliente> {
+
+    return this.http.post<Cliente>(
+      this.API,
+      cliente,
+    );
+  }
+
+
+  editar(
+    id: number,
+    cliente: any,
+  ): Observable<Cliente> {
+
+    return this.http.put<Cliente>(
+      `${this.API}/${id}`,
+      cliente,
+    );
+  }
+
+
+  editarParcial(
+    id: number,
+    dto: any,
+  ): Observable<void> {
+
+    console.log(dto);
+
+    return this.http.patch<void>(
+      `${this.API}/${id}`,
+      dto,
+    );
+  }
+
+
+  apagar(
+    id: number,
+  ): Observable<void> {
+
+    return this.http.delete<void>(
+      `${this.API}/${id}`,
+    );
+  }
+
+
+ salvar(dto: any): Observable<Cliente> {
+
+  return this.http.post<Cliente>(
+    this.API,
+    dto,
   );
 }
 
-  listarTodos(): Observable<Cliente[]> {
-    return this.http.get<Cliente[]>(`${this.API}/all`);
-  }
 
-  criar(amparo: Cliente) {
-    return this.http.post<Cliente>(this.API, amparo);
-  }
+  /**
+   * Verifica se já existe cliente
+   * cadastrado com o CPF informado.
+   *
+   * Endpoint:
+   *
+   * GET /clientes/existe-cpf?cpf=12345678900
+   */
+  existePorCpf(
+    cpf: string,
+  ): Observable<boolean> {
 
-  editar(id: number, amparo: any) {
-    return this.http.put<Cliente>(`${this.API}/${id}`, amparo);
-  }
+    const cpfNormalizado =
+      cpf.replace(/\D/g, '');
 
-  editarParcial(id: number, dto: any) {
-    console.log(dto);
-    return this.http.patch<void>(`${this.API}/${id}`, dto);
-  }
-
-  apagar(id: number) {
-    return this.http.delete<void>(`${this.API}/${id}`);
-  }
-
-  salvar(dto: any): Observable<void> {
-    console.log(this.API);
-    console.log(dto);
-    return this.http.post<void>(this.API, dto);
-  }
-  /*
-  listarTipoDespesa(): Observable<TipoDespesa[]> {
-  console.log('tipoDespesaService-listarParaDropdown.');
-
-  return this.http
-    .get<TipoDespesa[]>(`${this.API}/dropdown`)
-    .pipe(
-      map(tipos =>
-        tipos.map(tipo => ({
-          label: tipo.descricao,
-          value: tipo.tipoDespesaId
-        }))
-      ),
-      shareReplay(1)
+    return this.http.get<boolean>(
+      `${this.API}/existe-cpf`,
+      {
+        params: {
+          cpf: cpfNormalizado,
+        },
+      },
     );
-}
-    */
+  }
+
 
   listarTipoDespesa(): Observable<Cliente[]> {
+
     return this.http
-      .get<Cliente[]>(`${this.API}/dropdown`)
-      .pipe(shareReplay(1));
+      .get<Cliente[]>(
+        `${this.API}/dropdown`,
+      )
+      .pipe(
+        shareReplay(1),
+      );
   }
 
-  buscarPorMatricula(matricula: string) {
+
+  buscarPorMatricula(
+    matricula: string,
+  ): Observable<any> {
+
     return this.http.get<any>(
       `${this.API}/matricula/${matricula}`,
     );
   }
 
-  buscarPorMatriculaLista(matricula: string) {
+
+  buscarPorMatriculaLista(
+    matricula: string,
+  ): Observable<any[]> {
+
     return this.http
-      .get<any>(`${this.API}/matricula/${matricula}`)
+      .get<any>(
+        `${this.API}/matricula/${matricula}`,
+      )
       .pipe(
-        map((conta) => (conta ? [conta] : [])), // 🔥 objeto → array
+
+        map(
+          (conta) =>
+            conta
+              ? [conta]
+              : [],
+        ),
+
         catchError((err) => {
+
           if (err.status === 404) {
-            return of([]); // 🔥 sem conta → lista vazia
+
+            return of([]);
           }
-          throw err; // outros erros continuam
+
+          throw err;
         }),
+
       );
   }
 }

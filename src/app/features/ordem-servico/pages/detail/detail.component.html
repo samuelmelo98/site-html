@@ -1,0 +1,1290 @@
+@if (ordem(); as os) {
+
+  <div class="pagina-os">
+
+    <!-- CABECALHO -->
+    <div class="cabecalho-os">
+
+      <div>
+
+        <span class="subtitulo">
+          Ordem de Serviço
+        </span>
+
+        <h1>
+          {{ os.numero }}
+        </h1>
+
+        <span>
+          Aberta em
+          {{
+            os.dataAbertura
+              | date:'dd/MM/yyyy HH:mm'
+          }}
+        </span>
+
+      </div>
+
+
+      <div class="cabecalho-acoes">
+
+        <p-tag
+          [value]="os.statusDescricao"
+          severity="info"
+        ></p-tag>
+
+        <p-button
+          label="Imprimir OS"
+          icon="pi pi-print"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="imprimir()"
+        ></p-button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ERRO -->
+    @if (erro()) {
+
+      <div
+        class="
+          mb-4
+          rounded-lg
+          border
+          border-red-200
+          bg-red-50
+          p-4
+          text-sm
+          text-red-700
+        "
+        role="alert"
+      >
+        {{ erro() }}
+      </div>
+
+    }
+
+
+    <!-- TIMELINE -->
+    @if (!statusEspecial()) {
+
+      <div class="timeline">
+
+        @for (
+          etapa of etapas;
+          track etapa.codigo;
+          let i = $index
+        ) {
+
+          <div
+            class="timeline-item"
+            [class.concluida]="etapaConcluida(i)"
+            [class.atual]="etapaAtual(i)"
+          >
+
+            <div class="timeline-topo">
+
+              <div class="circulo">
+
+                @if (etapaConcluida(i)) {
+
+                  <i
+                    class="pi pi-check"
+                  ></i>
+
+                } @else {
+
+                  <i
+                    [class]="etapa.icone"
+                  ></i>
+
+                }
+
+              </div>
+
+
+              @if (i < etapas.length - 1) {
+
+                <div
+                  class="linha-progresso"
+                ></div>
+
+              }
+
+            </div>
+
+
+            <div class="timeline-titulo">
+              {{ etapa.titulo }}
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    } @else {
+
+      <div class="status-especial">
+
+        <i
+          class="pi pi-exclamation-circle"
+        ></i>
+
+        <span>
+          Ordem de serviço:
+        </span>
+
+        <strong>
+          {{ os.statusDescricao }}
+        </strong>
+
+      </div>
+
+    }
+
+
+    <!-- CONTEUDO -->
+    <div class="conteudo-os">
+
+
+      <!-- CLIENTE -->
+      <section class="card-os">
+
+        <h2>
+          Cliente
+        </h2>
+
+        <div class="grid-info">
+
+          <div>
+
+            <span>
+              Nome
+            </span>
+
+            <strong>
+              {{ os.clienteNome || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              ID do cliente
+            </span>
+
+            <strong>
+              {{ os.clienteId }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- EQUIPAMENTO -->
+      <section class="card-os">
+
+        <h2>
+          Equipamento
+        </h2>
+
+        <div class="grid-info equipamento">
+
+          <div>
+
+            <span>
+              Marca
+            </span>
+
+            <strong>
+              {{ os.marca || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Modelo
+            </span>
+
+            <strong>
+              {{ os.modelo || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Modelo comercial
+            </span>
+
+            <strong>
+              {{ os.modeloComercial || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Número de série
+            </span>
+
+            <strong>
+              {{ os.numeroSerie || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              ID do aparelho
+            </span>
+
+            <strong>
+              {{ os.aparelhoId }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- DEFEITO -->
+      <section class="card-os">
+
+        <h2>
+          Defeito relatado
+        </h2>
+
+        <p>
+          {{
+            os.defeitoRelatado ||
+            'Não informado.'
+          }}
+        </p>
+
+      </section>
+
+
+      <!-- FORMULARIO DO ORCAMENTO -->
+      @if (mostrarFormularioOrcamento()) {
+
+        <section class="card-os">
+
+          <h2>
+            Orçamento
+          </h2>
+
+
+          <form
+            [formGroup]="formOrcamento"
+            (ngSubmit)="salvarOrcamento()"
+            class="space-y-4"
+          >
+
+            <div>
+
+              <label
+                for="servicoProposto"
+                class="block mb-1 font-medium"
+              >
+                Serviço proposto *
+              </label>
+
+              <textarea
+                id="servicoProposto"
+                formControlName="servicoProposto"
+                rows="4"
+                class="w-full border rounded-lg p-3"
+                placeholder="Descreva o serviço que será executado"
+              ></textarea>
+
+
+              @if (
+                formOrcamento
+                  .controls
+                  .servicoProposto
+                  .touched
+                &&
+                formOrcamento
+                  .controls
+                  .servicoProposto
+                  .invalid
+              ) {
+
+                <small class="text-red-600">
+                  Informe o serviço proposto.
+                </small>
+
+              }
+
+            </div>
+
+
+            <div
+              class="
+                grid
+                grid-cols-1
+                md:grid-cols-3
+                gap-4
+              "
+            >
+
+              <div>
+
+                <label
+                  for="valorMaoObra"
+                  class="block mb-1 font-medium"
+                >
+                  Mão de obra
+                </label>
+
+                <input
+                  id="valorMaoObra"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="valorMaoObra"
+                  class="w-full border rounded-lg p-3"
+                />
+
+              </div>
+
+
+              <div>
+
+                <label
+                  for="valorPecas"
+                  class="block mb-1 font-medium"
+                >
+                  Peças
+                </label>
+
+                <input
+                  id="valorPecas"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="valorPecas"
+                  class="w-full border rounded-lg p-3"
+                />
+
+              </div>
+
+
+              <div>
+
+                <label
+                  for="desconto"
+                  class="block mb-1 font-medium"
+                >
+                  Desconto
+                </label>
+
+                <input
+                  id="desconto"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="desconto"
+                  class="w-full border rounded-lg p-3"
+                />
+
+              </div>
+
+            </div>
+
+
+            <div>
+
+              <label
+                for="observacaoOrcamento"
+                class="block mb-1 font-medium"
+              >
+                Observações
+              </label>
+
+              <textarea
+                id="observacaoOrcamento"
+                formControlName="observacao"
+                rows="3"
+                class="w-full border rounded-lg p-3"
+              ></textarea>
+
+            </div>
+
+
+            <div
+              class="
+                flex
+                flex-col
+                sm:flex-row
+                justify-end
+                gap-2
+              "
+            >
+
+              @if (
+                !orcamentoSalvo() ||
+                orcamentoSalvo()?.status === 'RASCUNHO'
+              ) {
+
+                <p-button
+                  type="submit"
+                  label="Salvar rascunho"
+                  icon="pi pi-save"
+                  severity="secondary"
+                  [outlined]="true"
+                  [loading]="salvandoOrcamento()"
+                  [disabled]="
+                    salvandoOrcamento() ||
+                    enviandoOrcamento()
+                  "
+                ></p-button>
+
+              }
+
+
+              @if (
+                orcamentoSalvo()?.status === 'RASCUNHO'
+              ) {
+
+                <p-button
+                  type="button"
+                  label="Enviar para aprovação"
+                  icon="pi pi-send"
+                  iconPos="right"
+                  severity="success"
+                  [loading]="enviandoOrcamento()"
+                  [disabled]="
+                    salvandoOrcamento() ||
+                    enviandoOrcamento()
+                  "
+                  (onClick)="
+                    enviarOrcamentoParaAprovacao()
+                  "
+                ></p-button>
+
+              }
+
+            </div>
+
+          </form>
+
+        </section>
+
+      }
+
+
+      <!-- RESUMO DO ORCAMENTO -->
+      @if (
+        orcamentoSalvo();
+        as orcamento
+      ) {
+
+        <section class="card-os">
+
+          <h2>
+            Orçamento
+          </h2>
+
+          <div class="grid-info">
+
+            <div>
+
+              <span>
+                Versão
+              </span>
+
+              <strong>
+                {{ orcamento.versao }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Status
+              </span>
+
+              <strong>
+                {{ orcamento.status }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Mão de obra
+              </span>
+
+              <strong>
+                {{
+                  orcamento.valorMaoObra
+                    | currency:
+                      'BRL':
+                      'symbol':
+                      '1.2-2':
+                      'pt-BR'
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Peças
+              </span>
+
+              <strong>
+                {{
+                  orcamento.valorPecas
+                    | currency:
+                      'BRL':
+                      'symbol':
+                      '1.2-2':
+                      'pt-BR'
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Desconto
+              </span>
+
+              <strong>
+                {{
+                  orcamento.desconto
+                    | currency:
+                      'BRL':
+                      'symbol':
+                      '1.2-2':
+                      'pt-BR'
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Total
+              </span>
+
+              <strong>
+                {{
+                  orcamento.valorTotal
+                    | currency:
+                      'BRL':
+                      'symbol':
+                      '1.2-2':
+                      'pt-BR'
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="mt-4">
+
+            <span class="block text-sm text-gray-500">
+              Serviço proposto
+            </span>
+
+            <strong>
+              {{
+                orcamento.servicoProposto ||
+                '-'
+              }}
+            </strong>
+
+          </div>
+
+
+          @if (orcamento.observacao) {
+
+            <div class="mt-4">
+
+              <span class="block text-sm text-gray-500">
+                Observações
+              </span>
+
+              <p>
+                {{ orcamento.observacao }}
+              </p>
+
+            </div>
+
+          }
+
+        </section>
+
+      }
+
+
+      <!-- DIAGNOSTICO -->
+      @if (os.diagnostico) {
+
+        <section class="card-os">
+
+          <h2>
+            Diagnóstico
+          </h2>
+
+          <p>
+            {{ os.diagnostico }}
+          </p>
+
+        </section>
+
+      }
+
+
+      <!-- SOLUCAO -->
+      @if (os.solucao) {
+
+        <section class="card-os">
+
+          <h2>
+            Serviço / solução
+          </h2>
+
+          <p>
+            {{ os.solucao }}
+          </p>
+
+        </section>
+
+      }
+
+
+      <!-- OBSERVACAO DA OS -->
+      @if (os.observacao) {
+
+        <section class="card-os">
+
+          <h2>
+            Observações
+          </h2>
+
+          <p>
+            {{ os.observacao }}
+          </p>
+
+        </section>
+
+      }
+
+
+      <!-- VALORES -->
+      @if (
+        os.valorOrcamento !== null ||
+        os.valorFinal !== null
+      ) {
+
+        <section class="card-os">
+
+          <h2>
+            Valores
+          </h2>
+
+          <div class="grid-info">
+
+            <div>
+
+              <span>
+                Valor do orçamento
+              </span>
+
+              <strong>
+
+                @if (
+                  os.valorOrcamento !== null
+                ) {
+
+                  {{
+                    os.valorOrcamento
+                      | currency:
+                        'BRL':
+                        'symbol':
+                        '1.2-2':
+                        'pt-BR'
+                  }}
+
+                } @else {
+
+                  -
+
+                }
+
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Valor final
+              </span>
+
+              <strong>
+
+                @if (
+                  os.valorFinal !== null
+                ) {
+
+                  {{
+                    os.valorFinal
+                      | currency:
+                        'BRL':
+                        'symbol':
+                        '1.2-2':
+                        'pt-BR'
+                  }}
+
+                } @else {
+
+                  -
+
+                }
+
+              </strong>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      }
+
+
+      <!-- TECNICO JA ATRIBUIDO -->
+      @if (os.tecnicoResponsavelId) {
+
+        <section class="card-os">
+
+          <h2>
+            Técnico responsável
+          </h2>
+
+          <div class="grid-info">
+
+            <div>
+
+              <span>
+                Nome
+              </span>
+
+              <strong>
+                {{
+                  os.tecnicoResponsavelNome ||
+                  '-'
+                }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Atribuído em
+              </span>
+
+              <strong>
+
+                @if (
+                  os.dataAtribuicaoTecnico
+                ) {
+
+                  {{
+                    os.dataAtribuicaoTecnico
+                      | date:'dd/MM/yyyy HH:mm'
+                  }}
+
+                } @else {
+
+                  -
+
+                }
+
+              </strong>
+
+            </div>
+
+          </div>
+
+        </section>
+
+      }
+
+      @if (
+  os.statusCodigo === 'ENTREGUE' &&
+  os.dataEntrega
+) {
+
+  <section class="card-os">
+
+    <h2>
+      Entrega
+    </h2>
+
+    <div class="grid-info">
+
+      <div>
+
+        <span>
+          Status
+        </span>
+
+        <strong>
+          Equipamento entregue
+        </strong>
+
+      </div>
+
+      <div>
+
+        <span>
+          Entregue em
+        </span>
+
+        <strong>
+          {{
+            os.dataEntrega
+              | date:'dd/MM/yyyy HH:mm'
+          }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </section>
+
+}
+
+
+      <!-- SELECAO DO TECNICO -->
+      @else if (
+        mostrarSelecaoTecnico()
+      ) {
+
+        <section class="card-os">
+
+          <h2>
+            Técnico responsável
+          </h2>
+
+
+          @if (
+            carregandoTecnicos()
+          ) {
+
+            <p>
+              Carregando técnicos...
+            </p>
+
+          } @else {
+
+            <div class="grid-info">
+
+              <div>
+
+                <label
+                  for="tecnico"
+                  class="block mb-2"
+                >
+                  Selecione o técnico
+                </label>
+
+                <select
+                  id="tecnico"
+                  class="
+                    w-full
+                    border
+                    rounded-lg
+                    p-3
+                  "
+                  (change)="
+                    selecionarTecnico($event)
+                  "
+                >
+
+                  <option value="">
+                    Selecione...
+                  </option>
+
+                  @for (
+                    tecnico of tecnicos();
+                    track tecnico.id
+                  ) {
+
+                    <option
+                      [value]="tecnico.id"
+                    >
+                      {{ tecnico.nome }}
+                      - {{ tecnico.email }}
+                    </option>
+
+                  }
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+            <div
+              class="
+                mt-4
+                flex
+                justify-end
+                gap-2
+              "
+            >
+
+              <p-button
+                label="Cancelar"
+                severity="secondary"
+                [outlined]="true"
+                [disabled]="
+                  atribuindoTecnico()
+                "
+                (onClick)="
+                  mostrarSelecaoTecnico.set(false)
+                "
+              ></p-button>
+
+
+              <p-button
+                label="Confirmar técnico"
+                icon="pi pi-user"
+                severity="success"
+                [loading]="
+                  atribuindoTecnico()
+                "
+                [disabled]="
+                  tecnicoSelecionadoId() === null ||
+                  atribuindoTecnico()
+                "
+                (onClick)="confirmarTecnico()"
+              ></p-button>
+
+            </div>
+
+          }
+
+        </section>
+
+      }
+
+    </div>
+
+
+    <!-- APROVACAO DO ORCAMENTO -->
+    @if (
+      mostrarAprovacao() &&
+      orcamentoSalvo();
+      as orcamento
+    ) {
+
+      <section class="card-os">
+
+        <h2>
+          Aprovação do orçamento
+        </h2>
+
+        <div class="grid-info">
+
+          <div>
+
+            <span>
+              Versão
+            </span>
+
+            <strong>
+              {{ orcamento.versao }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Valor total
+            </span>
+
+            <strong>
+              {{
+                orcamento.valorTotal
+                  | currency:
+                    'BRL':
+                    'symbol':
+                    '1.2-2':
+                    'pt-BR'
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="
+            mt-4
+            flex
+            flex-col
+            sm:flex-row
+            justify-end
+            gap-2
+          "
+        >
+
+          <p-button
+            label="Cancelar"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="
+              processandoAprovacao()
+            "
+            (onClick)="
+              mostrarAprovacao.set(false)
+            "
+          ></p-button>
+
+
+          <p-button
+            label="Reprovar orçamento"
+            icon="pi pi-times"
+            severity="danger"
+            [outlined]="true"
+            [loading]="
+              processandoAprovacao()
+            "
+            [disabled]="
+              processandoAprovacao()
+            "
+            (onClick)="
+              reprovarOrcamento()
+            "
+          ></p-button>
+
+
+          <p-button
+            label="Aprovar orçamento"
+            icon="pi pi-check"
+            severity="success"
+            [loading]="
+              processandoAprovacao()
+            "
+            [disabled]="
+              processandoAprovacao()
+            "
+            (onClick)="
+              aprovarOrcamento()
+            "
+          ></p-button>
+
+        </div>
+
+      </section>
+
+
+    }
+
+    @if (mostrarConclusao()) {
+
+  <section class="card-os">
+
+    <h2>
+      Concluir serviço
+    </h2>
+
+    <form
+      [formGroup]="formConclusao"
+      (ngSubmit)="confirmarConclusao()"
+      class="space-y-4"
+    >
+
+      <div>
+
+        <label
+          for="solucao"
+          class="block mb-1 font-medium"
+        >
+          Solução executada *
+        </label>
+
+        <textarea
+          id="solucao"
+          formControlName="solucao"
+          rows="4"
+          class="w-full border rounded-lg p-3"
+          placeholder="Descreva o serviço realizado"
+        ></textarea>
+
+        @if (
+          formConclusao.controls.solucao.touched &&
+          formConclusao.controls.solucao.invalid
+        ) {
+
+          <small class="text-red-600">
+            Informe a solução executada.
+          </small>
+
+        }
+
+      </div>
+
+
+      <div>
+
+        <label
+          for="valorFinal"
+          class="block mb-1 font-medium"
+        >
+          Valor final *
+        </label>
+
+        <input
+          id="valorFinal"
+          type="number"
+          min="0"
+          step="0.01"
+          formControlName="valorFinal"
+          class="w-full border rounded-lg p-3"
+        />
+
+      </div>
+
+
+      <div>
+
+        <label
+          for="observacaoConclusao"
+          class="block mb-1 font-medium"
+        >
+          Observação
+        </label>
+
+        <textarea
+          id="observacaoConclusao"
+          formControlName="observacao"
+          rows="3"
+          class="w-full border rounded-lg p-3"
+        ></textarea>
+
+      </div>
+
+
+      <div
+        class="flex justify-end gap-2"
+      >
+
+        <p-button
+          type="button"
+          label="Cancelar"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="concluindoServico()"
+          (onClick)="mostrarConclusao.set(false)"
+        ></p-button>
+
+
+        <p-button
+          type="submit"
+          label="Concluir serviço"
+          icon="pi pi-check"
+          severity="success"
+          [loading]="concluindoServico()"
+          [disabled]="concluindoServico()"
+        ></p-button>
+
+      </div>
+
+    </form>
+
+  </section>
+
+}
+
+
+    <!-- ACOES -->
+    <div class="rodape-acoes">
+
+      <p-button
+        label="Voltar"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="voltar()"
+      ></p-button>
+
+
+      @if (
+        acaoPrincipal() &&
+        !mostrarSelecaoTecnico() &&
+        !mostrarAprovacao()
+      ) {
+
+        <p-button
+  [label]="textoAcaoPrincipal()"
+  icon="pi pi-arrow-right"
+  iconPos="right"
+  [loading]="
+    carregando() ||
+    registrandoEntrega()
+  "
+  [disabled]="
+    carregando() ||
+    registrandoEntrega()
+  "
+  (onClick)="executarAcaoPrincipal()"
+></p-button>
+
+      }
+
+    </div>
+
+  </div>
+
+}

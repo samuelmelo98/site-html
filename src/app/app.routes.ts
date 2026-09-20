@@ -48,5 +48,12 @@ export const routes: Routes = [
   loadComponent: () =>
     import('./features/validacao/validacao-component')
       .then(m => m.ValidacaoComponent)
-}
+},
+ {
+    path: 'ordem-servico',
+    canActivate: [authGuard ],
+    loadChildren: () =>
+      import('./features/ordem-servico/ordem-servico.routes')
+        .then(m => m.ORDEM_SERVICO_ROUTES)
+  },
 ];

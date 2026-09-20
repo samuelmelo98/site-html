@@ -1,4 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import {
+  Injectable,
+  inject,
+} from '@angular/core';
 
 import {
   FormBuilder,
@@ -7,13 +10,16 @@ import {
   Validators,
 } from '@angular/forms';
 
-import { ClienteCreateDTO } from '../model/cliente-criar.dto';
+import {
+  ClienteCreateDTO,
+} from '../model/cliente-criar.dto';
 
 /* =========================================================
  * FORM TYPE
  * ========================================================= */
 
 export type ClienteForm = FormGroup<{
+
   nome: FormControl<string>;
 
   cpf: FormControl<string>;
@@ -29,6 +35,7 @@ export type ClienteForm = FormGroup<{
   estado: FormControl<string>;
 
   cep: FormControl<string>;
+
 }>;
 
 /* =========================================================
@@ -39,53 +46,72 @@ export type ClienteForm = FormGroup<{
   providedIn: 'root',
 })
 export class ClienteFormFactoryService {
-  private readonly fb = inject(FormBuilder);
+
+  private readonly fb =
+    inject(FormBuilder);
 
   create(): ClienteForm {
+
     return this.fb.group({
+
       nome: this.fb.nonNullable.control(
         '',
-        Validators.required,
+        [
+          Validators.required,
+          Validators.minLength(3),
+        ],
       ),
 
       cpf: this.fb.nonNullable.control(
         '',
-        Validators.required,
+        [
+          Validators.required,
+          Validators.pattern(
+            /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
+          ),
+        ],
       ),
 
       email: this.fb.nonNullable.control(
-        '',
-        [Validators.required, Validators.email],
-      ),
+  '',
+  [
+    Validators.email,
+  ],
+),
 
       telefone: this.fb.nonNullable.control(
         '',
-        Validators.required,
+        [
+          Validators.required,
+          Validators.pattern(
+            /^\(\d{2}\) \d{5}-\d{4}$/,
+          ),
+        ],
       ),
 
       endereco: this.fb.nonNullable.control(
         '',
-        Validators.required,
       ),
 
       cidade: this.fb.nonNullable.control(
         '',
-        Validators.required,
       ),
 
       estado: this.fb.nonNullable.control(
         '',
-        Validators.required,
       ),
 
       cep: this.fb.nonNullable.control(
         '',
-        Validators.required,
       ),
+
     });
   }
 
-  reset(form: ClienteForm): void {
+  reset(
+    form: ClienteForm,
+  ): void {
+
     form.reset({
       nome: '',
       cpf: '',
@@ -98,18 +124,42 @@ export class ClienteFormFactoryService {
     });
   }
 
-  toPayload(form: ClienteForm): ClienteCreateDTO {
-    const raw = form.getRawValue();
+  toPayload(
+    form: ClienteForm,
+  ): ClienteCreateDTO {
+
+    const raw =
+      form.getRawValue();
 
     return {
-      nome: raw.nome,
-      cpf: raw.cpf,
-      email: raw.email,
-      telefone: raw.telefone,
-      endereco: raw.endereco,
-      cidade: raw.cidade,
-      estado: raw.estado,
-      cep: raw.cep,
+
+      nome:
+        raw.nome.trim(),
+
+      cpf:
+        raw.cpf,
+
+      email:
+        raw.email
+          .trim()
+          .toLowerCase(),
+
+      telefone:
+        raw.telefone,
+
+      endereco:
+        raw.endereco.trim(),
+
+      cidade:
+        raw.cidade.trim(),
+
+      estado:
+        raw.estado
+          .trim()
+          .toUpperCase(),
+
+      cep:
+        raw.cep.trim(),
     };
   }
 }

@@ -78,4 +78,6 @@ export class AparelhoComponent {
         console.error('Erro ao navegar:', erro);
       });
   }
+
+  
 }

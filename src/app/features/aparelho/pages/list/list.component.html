@@ -9,6 +9,7 @@
   </div>
 
   @if (carregandoCliente()) {
+
     <div
       class="flex items-center gap-2 text-sm text-gray-500"
     >
@@ -24,6 +25,7 @@
   } @else if (cliente(); as cliente) {
 
     <div>
+
       <div
         class="text-lg font-semibold text-gray-800"
       >
@@ -33,6 +35,7 @@
       <div
         class="mt-2 flex flex-wrap gap-x-8 gap-y-2 text-sm text-gray-600"
       >
+
         <span>
           <strong
             class="text-gray-700"
@@ -66,7 +69,9 @@
 
           {{ cliente.clienteId }}
         </span>
+
       </div>
+
     </div>
 
   } @else if (erroCliente()) {
@@ -74,6 +79,7 @@
     <div
       class="flex flex-wrap items-center gap-3"
     >
+
       <p
         role="alert"
         class="text-sm text-red-600"
@@ -90,16 +96,20 @@
         [disabled]="carregandoCliente()"
         (onClick)="carregarCliente()"
       ></p-button>
+
     </div>
+
   }
 </div>
 
 
-<!-- ERRO NA LISTAGEM DOS APARELHOS -->
+<!-- ERRO NA LISTAGEM -->
 @if (erro()) {
+
   <div
     class="flex items-center justify-between gap-3 p-4"
   >
+
     <p
       role="alert"
       class="text-sm text-red-600"
@@ -113,7 +123,9 @@
       severity="secondary"
       (onClick)="recarregar()"
     ></p-button>
+
   </div>
+
 }
 
 
@@ -138,8 +150,12 @@
   [showCurrentPageReport]="true"
   currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
 >
+
+  <!-- CABECALHO -->
   <ng-template #header>
+
     <tr>
+
       <th
         pSortableColumn="aparelhoId"
       >
@@ -195,17 +211,22 @@
       <th>
         Ações
       </th>
+
     </tr>
+
   </ng-template>
 
 
+  <!-- CORPO -->
   <ng-template
     #body
     let-item
   >
+
     <tr
       class="hover:bg-gray-50"
     >
+
       <td>
         {{ item.aparelhoId }}
       </td>
@@ -221,14 +242,14 @@
       <td>
         {{
           item.modeloComercial ||
-            '—'
+          '—'
         }}
       </td>
 
       <td>
         {{
           item.numeroSerie ||
-            '—'
+          '—'
         }}
       </td>
 
@@ -253,10 +274,15 @@
         }}
       </td>
 
+
+      <!-- ACOES -->
       <td>
+
         <div
-          class="flex gap-2"
+          class="flex items-center gap-2"
         >
+
+          <!-- ORCAMENTO -->
           <p-button
             icon="pi pi-dollar"
             severity="success"
@@ -266,26 +292,22 @@
             pTooltip="Orçamento"
           ></p-button>
 
-          <p-button
-  icon="pi pi-file-edit"
-  severity="info"
-  [rounded]="true"
-  [loading]="
-    ordemEmProcessamento() ===
-    item.aparelhoId
-  "
-  [disabled]="
-    ordemEmProcessamento() !== null
-  "
-  ariaLabel="Ordem de serviço"
-  pTooltip="Abrir / imprimir ordem de serviço"
-  (onClick)="
-    abrirOrdemServico(
-      item.aparelhoId
-    )
-  "
-></p-button>
 
+          <!-- VER ORDEM DE SERVICO -->
+          <p-button
+            label="Ver OS"
+            icon="pi pi-eye"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="
+              verOrdemServico(
+                item.aparelhoId
+              )
+            "
+          ></p-button>
+
+
+          <!-- EDITAR -->
           <p-button
             icon="pi pi-pencil"
             severity="secondary"
@@ -295,6 +317,8 @@
             pTooltip="Editar aparelho"
           ></p-button>
 
+
+          <!-- EXCLUIR -->
           <p-button
             icon="pi pi-trash"
             severity="danger"
@@ -303,24 +327,40 @@
             ariaLabel="Excluir aparelho"
             pTooltip="Excluir aparelho"
           ></p-button>
+
         </div>
+
       </td>
+
     </tr>
+
   </ng-template>
 
 
+  <!-- SEM RESULTADOS -->
   <ng-template #emptymessage>
+
     <tr>
+
       <td
         colspan="8"
         class="text-center"
       >
+
         @if (erro()) {
+
           Não foi possível consultar os aparelhos.
+
         } @else {
+
           Nenhum aparelho encontrado para este cliente.
+
         }
+
       </td>
+
     </tr>
+
   </ng-template>
+
 </p-table>
