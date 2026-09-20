@@ -1,53 +1,211 @@
+<!-- DADOS DO CLIENTE -->
+<div
+  class="mb-5 rounded-lg border border-gray-200 bg-gray-50 p-4"
+>
+  <div
+    class="mb-2 text-sm font-medium text-gray-500"
+  >
+    Cliente
+  </div>
+
+  @if (carregandoCliente()) {
+    <div
+      class="flex items-center gap-2 text-sm text-gray-500"
+    >
+      <i
+        class="pi pi-spin pi-spinner"
+      ></i>
+
+      <span>
+        Carregando dados do cliente...
+      </span>
+    </div>
+
+  } @else if (cliente(); as cliente) {
+
+    <div>
+      <div
+        class="text-lg font-semibold text-gray-800"
+      >
+        {{ cliente.nome }}
+      </div>
+
+      <div
+        class="mt-2 flex flex-wrap gap-x-8 gap-y-2 text-sm text-gray-600"
+      >
+        <span>
+          <strong
+            class="text-gray-700"
+          >
+            CPF:
+          </strong>
+
+          {{ cliente.cpf | cpf }}
+        </span>
+
+        <span>
+          <strong
+            class="text-gray-700"
+          >
+            Telefone:
+          </strong>
+
+          {{
+            formatarTelefone(
+              cliente.telefone
+            )
+          }}
+        </span>
+
+        <span>
+          <strong
+            class="text-gray-700"
+          >
+            ID:
+          </strong>
+
+          {{ cliente.clienteId }}
+        </span>
+      </div>
+    </div>
+
+  } @else if (erroCliente()) {
+
+    <div
+      class="flex flex-wrap items-center gap-3"
+    >
+      <p
+        role="alert"
+        class="text-sm text-red-600"
+      >
+        {{ erroCliente() }}
+      </p>
+
+      <p-button
+        type="button"
+        label="Tentar novamente"
+        icon="pi pi-refresh"
+        severity="secondary"
+        size="small"
+        [disabled]="carregandoCliente()"
+        (onClick)="carregarCliente()"
+      ></p-button>
+    </div>
+  }
+</div>
+
+
+<!-- ERRO NA LISTAGEM DOS APARELHOS -->
+@if (erro()) {
+  <div
+    class="flex items-center justify-between gap-3 p-4"
+  >
+    <p
+      role="alert"
+      class="text-sm text-red-600"
+    >
+      {{ erro() }}
+    </p>
+
+    <p-button
+      label="Tentar novamente"
+      icon="pi pi-refresh"
+      severity="secondary"
+      (onClick)="recarregar()"
+    ></p-button>
+  </div>
+}
+
+
+<!-- TABELA -->
 <p-table
   #tabela
-  [value]="dados2"
+  [value]="dados2()"
+  dataKey="aparelhoId"
   [lazy]="true"
   (onLazyLoad)="carregar($event)"
   [paginator]="true"
   [rows]="10"
-  [totalRecords]="total"
-  [loading]="loading"
-  [rowsPerPageOptions]="[10,20,50]"
-  responsiveLayout="scroll"
+  [totalRecords]="total()"
+  [loading]="loading()"
+  [rowsPerPageOptions]="[10, 20, 50]"
+  sortField="aparelhoId"
+  [sortOrder]="1"
+  [scrollable]="true"
+  [tableStyle]="{
+    'min-width': '65rem'
+  }"
   [showCurrentPageReport]="true"
   currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
 >
-
-  <ng-template pTemplate="header">
+  <ng-template #header>
     <tr>
-      <th pSortableColumn="aparelhoId">
+      <th
+        pSortableColumn="aparelhoId"
+      >
         ID
-        <p-sortIcon field="aparelhoId"></p-sortIcon>
+
+        <p-sortIcon
+          field="aparelhoId"
+        ></p-sortIcon>
       </th>
 
-      <th pSortableColumn="marca">
+      <th
+        pSortableColumn="marca"
+      >
         Marca
-        <p-sortIcon field="marca"></p-sortIcon>
+
+        <p-sortIcon
+          field="marca"
+        ></p-sortIcon>
       </th>
 
-      <th pSortableColumn="modelo">
+      <th
+        pSortableColumn="modelo"
+      >
         Modelo
-        <p-sortIcon field="modelo"></p-sortIcon>
+
+        <p-sortIcon
+          field="modelo"
+        ></p-sortIcon>
       </th>
 
-      <th pSortableColumn="modeloComercial">
-        Modelo Comercial
-        <p-sortIcon field="modeloComercial"></p-sortIcon>
+      <th
+        pSortableColumn="modeloComercial"
+      >
+        Modelo comercial
+
+        <p-sortIcon
+          field="modeloComercial"
+        ></p-sortIcon>
       </th>
 
-      <th>Número Série</th>
+      <th>
+        Número de série
+      </th>
 
-      <th>Status</th>
+      <th>
+        Status
+      </th>
 
-       <th>Data Entrada</th>
+      <th>
+        Data de entrada
+      </th>
 
-      <th>Ações</th>
+      <th>
+        Ações
+      </th>
     </tr>
   </ng-template>
 
-  <ng-template pTemplate="body" let-item>
-    <tr class="hover:bg-gray-50">
 
+  <ng-template
+    #body
+    let-item
+  >
+    <tr
+      class="hover:bg-gray-50"
+    >
       <td>
         {{ item.aparelhoId }}
       </td>
@@ -57,60 +215,112 @@
       </td>
 
       <td>
-        {{ item.modelo }}
+        {{ item.modelo || '—' }}
       </td>
 
       <td>
-        {{ item.modeloComercial }}
+        {{
+          item.modeloComercial ||
+            '—'
+        }}
       </td>
 
       <td>
-        {{ item.numeroSerie }}
+        {{
+          item.numeroSerie ||
+            '—'
+        }}
       </td>
 
       <td>
-        {{ item.statusAparelho }}
+        {{
+          textoStatus(
+            item.statusAparelho
+          )
+        }}
       </td>
 
       <td>
-        {{ item.dataEntradaAparelho | date: 'dd/MM/yyyy  HH:mm:ss' }}
+        {{
+          (
+            (
+              item.dataEntradaAparelho ??
+              item.dataCadastro
+            )
+            | date:
+              'dd/MM/yyyy HH:mm:ss'
+          ) || '—'
+        }}
       </td>
 
-      <td class="flex gap-2">
+      <td>
+        <div
+          class="flex gap-2"
+        >
+          <p-button
+            icon="pi pi-dollar"
+            severity="success"
+            [rounded]="true"
+            [disabled]="true"
+            ariaLabel="Orçamento"
+            pTooltip="Orçamento"
+          ></p-button>
 
-  <!-- Orçamento -->
-  <p-button
-      icon="pi pi-dollar"
-      severity="success"
-      rounded
-      pTooltip="Orçamento">
-  </p-button>
+          <p-button
+  icon="pi pi-file-edit"
+  severity="info"
+  [rounded]="true"
+  [loading]="
+    ordemEmProcessamento() ===
+    item.aparelhoId
+  "
+  [disabled]="
+    ordemEmProcessamento() !== null
+  "
+  ariaLabel="Ordem de serviço"
+  pTooltip="Abrir / imprimir ordem de serviço"
+  (onClick)="
+    abrirOrdemServico(
+      item.aparelhoId
+    )
+  "
+></p-button>
 
-  <!-- Ordem Serviço -->
-  <p-button
-      icon="pi pi-file-edit"
-      severity="info"
-      rounded
-      pTooltip="Ordem de Serviço">
-  </p-button>
+          <p-button
+            icon="pi pi-pencil"
+            severity="secondary"
+            [rounded]="true"
+            [disabled]="true"
+            ariaLabel="Editar aparelho"
+            pTooltip="Editar aparelho"
+          ></p-button>
 
-  <!-- Editar -->
-  <p-button
-      icon="pi pi-pencil"
-      severity="secondary"
-      rounded>
-  </p-button>
-
-  <!-- Excluir -->
-  <p-button
-      icon="pi pi-trash"
-      severity="danger"
-      rounded>
-  </p-button>
-
-</td>
-
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [rounded]="true"
+            [disabled]="true"
+            ariaLabel="Excluir aparelho"
+            pTooltip="Excluir aparelho"
+          ></p-button>
+        </div>
+      </td>
     </tr>
   </ng-template>
 
+
+  <ng-template #emptymessage>
+    <tr>
+      <td
+        colspan="8"
+        class="text-center"
+      >
+        @if (erro()) {
+          Não foi possível consultar os aparelhos.
+        } @else {
+          Nenhum aparelho encontrado para este cliente.
+        }
+      </td>
+    </tr>
+  </ng-template>
 </p-table>

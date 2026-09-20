@@ -1,177 +1,426 @@
-<p-panel>
-  <h2>Novo equipamento</h2>
-
-  <p-divider align="left"></p-divider>
-
-  <br />
-
-  <form [formGroup]="form" class="flex flex-col gap-4">
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-      <div class="flex flex-col gap-2">
-        <label>Nome <span class="text-red-500">*</span></label>
-
-        <input
-          pInputText
-          formControlName="nome"
-          class="w-full"
-          placeholder="Digite o nome completo" />
-
-        @if (form.controls.nome.invalid && form.controls.nome.touched) {
-          <small class="text-red-500">
-            Campo obrigatório
-          </small>
-        }
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label>CPF <span class="text-red-500">*</span></label>
-
-        <input
-          pInputText
-          formControlName="cpf"
-          class="w-full"
-          placeholder="000.000.000-00" />
-
-        @if (form.controls.cpf.invalid && form.controls.cpf.touched) {
-          <small class="text-red-500">
-            CPF obrigatório
-          </small>
-        }
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label>E-mail</label>
-
-        <input
-          pInputText
-          formControlName="email"
-          class="w-full"
-          placeholder="email@empresa.com.br" />
-
-        @if (
-          form.controls.email.errors?.['email'] &&
-          form.controls.email.touched
-        ) {
-          <small class="text-red-500">
-            E-mail inválido
-          </small>
-        }
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label>Telefone</label>
-
-        <input
-          pInputText
-          formControlName="telefone"
-          class="w-full"
-          placeholder="(61) 99999-9999" />
-      </div>
-
-    </div>
-
-    <p-divider align="left">
-      <span class="text-blue-800 font-bold text-lg">
-        Endereço
-      </span>
-    </p-divider>
-
-    <div class="flex flex-col gap-2">
-      <label>Endereço</label>
-
-      <input
-        pInputText
-        formControlName="endereco"
-        class="w-full"
-        placeholder="Rua, Avenida, Quadra..." />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-      <div class="flex flex-col gap-2">
-        <label>Cidade</label>
-
-        <input
-          pInputText
-          formControlName="cidade"
-          class="w-full"
-          placeholder="Cidade" />
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label>Estado</label>
-
-        <input
-          pInputText
-          formControlName="estado"
-          class="w-full"
-          placeholder="UF" />
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label>CEP</label>
-
-        <input
-          pInputText
-          formControlName="cep"
-          class="w-full"
-          placeholder="00000-000" />
-      </div>
-
-    </div>
-
-    <!-- <p-divider align="left">
-      <span class="text-blue-800 font-bold text-lg">
-        Aparelhos
-      </span>
-    </p-divider>
-
-    <app-aparelho-list
-      formControlName="aparelhos">
-    </app-aparelho-list> -->
-
+<p-panel header="Novo equipamento">
+  <form
+    [formGroup]="form"
+    (ngSubmit)="salvar()"
+    class="p-4 md:p-6 space-y-6"
+  >
+    <!-- CLIENTE -->
     <div
-      class="p-3 bg-yellow-100 border-left-4 border-yellow-500 text-sm">
+      class="rounded-lg border border-gray-200 bg-gray-50 p-4"
+    >
+      <span class="block text-sm font-medium text-gray-500">
+        Cliente selecionado
+      </span>
 
-      <strong>Campos Inválidos:</strong>
+      @if (carregandoCliente()) {
+        <div class="mt-3 flex items-center gap-2 text-sm text-gray-500">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Carregando dados do cliente...</span>
+        </div>
+      } @else if (cliente(); as cliente) {
+        <div class="mt-3">
+          <div class="text-lg font-semibold text-gray-800">
+            {{ cliente.nome }}
+          </div>
 
-      <ul>
+          <div
+            class="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600"
+          >
+            <span>
+              <strong class="text-gray-700">CPF:</strong>
+              {{ cliente.cpf || '-' }}
+            </span>
 
-        @if (form.controls.nome.invalid) {
-          <li>Nome</li>
-        }
+            <span>
+              <strong class="text-gray-700">Telefone:</strong>
+              {{ cliente.telefone || '-' }}
+            </span>
 
-        @if (form.controls.cpf.invalid) {
-          <li>CPF</li>
-        }
+            <span>
+              <strong class="text-gray-700">ID:</strong>
+              {{ cliente.clienteId }}
+            </span>
+          </div>
+        </div>
+      } @else if (erroCliente()) {
+        <div class="mt-3">
+          <p
+            role="alert"
+            class="text-sm text-red-600"
+          >
+            {{ erroCliente() }}
+          </p>
 
-        @if (form.controls.email.invalid) {
-          <li>E-mail</li>
-        }
-
-      </ul>
-
+          @if (clienteId() !== null) {
+            <p-button
+              type="button"
+              label="Tentar novamente"
+              icon="pi pi-refresh"
+              severity="secondary"
+              size="small"
+              class="mt-2"
+              [disabled]="carregandoCliente()"
+              (onClick)="carregarCliente()"
+            ></p-button>
+          }
+        </div>
+      } @else {
+        <p
+          role="alert"
+          class="mt-2 text-sm text-red-600"
+        >
+          Cliente ausente ou inválido. Volte à lista e selecione um cliente.
+        </p>
+      }
     </div>
 
-    <div class="flex justify-content-end gap-2 mt-3">
+    <p class="text-sm text-gray-500">
+      Campos com
+      <span class="text-red-500">*</span>
+      são obrigatórios.
+    </p>
+
+    <fieldset
+      [disabled]="
+        salvando() ||
+        salvo() ||
+        carregandoCliente() ||
+        clienteId() === null ||
+        cliente() === null
+      "
+      class="m-0 min-w-0 border-0 p-0"
+    >
+      <legend class="sr-only">
+        Dados do aparelho
+      </legend>
+
+      <div
+        class="grid grid-cols-1 gap-5 md:grid-cols-2"
+      >
+        <!-- MARCA -->
+        <div class="flex flex-col gap-2">
+          <label for="marcaId">
+            Marca
+            <span class="text-red-500">*</span>
+          </label>
+
+          <p-select
+            inputId="marcaId"
+            formControlName="marcaId"
+            [options]="marcas()"
+            optionLabel="nome"
+            optionValue="marcaId"
+            placeholder="Selecione a marca"
+            [filter]="true"
+            filterBy="nome"
+            [showClear]="true"
+            [loading]="carregandoMarcas()"
+            emptyMessage="Nenhuma marca disponível"
+            emptyFilterMessage="Nenhuma marca encontrada"
+            [style]="{ width: '100%' }"
+            [class.ng-invalid]="invalido('marcaId')"
+            [class.ng-dirty]="invalido('marcaId')"
+          ></p-select>
+
+          @if (invalido('marcaId')) {
+            <small
+              id="marca-erro"
+              class="text-red-600"
+            >
+              Selecione a marca.
+            </small>
+          }
+
+          @if (erroMarcas()) {
+            <div class="flex flex-wrap items-center gap-2">
+              <small
+                role="alert"
+                class="text-red-600"
+              >
+                {{ erroMarcas() }}
+              </small>
+
+              <p-button
+                type="button"
+                label="Tentar novamente"
+                icon="pi pi-refresh"
+                severity="secondary"
+                size="small"
+                [disabled]="salvando() || carregandoMarcas()"
+                (onClick)="carregarMarcas()"
+              ></p-button>
+            </div>
+          } @else if (
+            !carregandoMarcas() &&
+            marcas().length === 0
+          ) {
+            <small class="text-gray-500">
+              Nenhuma marca ativa cadastrada.
+            </small>
+          }
+        </div>
+
+        <!-- MODELO -->
+        <div class="flex flex-col gap-2">
+          <label for="modelo">
+            Modelo
+            <span class="text-red-500">*</span>
+          </label>
+
+          <input
+            pInputText
+            id="modelo"
+            formControlName="modelo"
+            placeholder="Ex.: SM-A156M"
+            required
+            class="w-full"
+            [class.ng-invalid]="invalido('modelo')"
+            [class.ng-dirty]="invalido('modelo')"
+            [attr.aria-invalid]="invalido('modelo')"
+            [attr.aria-describedby]="
+              invalido('modelo')
+                ? 'modelo-erro'
+                : null
+            "
+          />
+
+          @if (invalido('modelo')) {
+            <small
+              id="modelo-erro"
+              class="text-red-600"
+            >
+              Informe o modelo.
+            </small>
+          }
+        </div>
+
+        <!-- MODELO COMERCIAL -->
+        <div class="flex flex-col gap-2">
+          <label for="modeloComercial">
+            Modelo comercial
+          </label>
+
+          <input
+            pInputText
+            id="modeloComercial"
+            formControlName="modeloComercial"
+            placeholder="Ex.: Galaxy A15 5G"
+            class="w-full"
+          />
+        </div>
+
+        <!-- NÚMERO DE SÉRIE -->
+        <div class="flex flex-col gap-2">
+          <label for="numeroSerie">
+            Número de série
+            <span class="text-red-500">*</span>
+          </label>
+
+          <input
+            pInputText
+            id="numeroSerie"
+            formControlName="numeroSerie"
+            placeholder="Informe o número de série"
+            required
+            class="w-full"
+            [class.ng-invalid]="invalido('numeroSerie')"
+            [class.ng-dirty]="invalido('numeroSerie')"
+            [attr.aria-invalid]="invalido('numeroSerie')"
+            [attr.aria-describedby]="
+              invalido('numeroSerie')
+                ? 'serie-erro'
+                : null
+            "
+          />
+
+          @if (invalido('numeroSerie')) {
+            <small
+              id="serie-erro"
+              class="text-red-600"
+            >
+              Informe o número de série.
+            </small>
+          }
+        </div>
+
+        <!-- TIPO DO APARELHO -->
+        <div class="flex flex-col gap-2">
+          <label for="tipoAparelhoId">
+            Tipo de aparelho
+            <span class="text-red-500">*</span>
+          </label>
+
+          <p-select
+            inputId="tipoAparelhoId"
+            formControlName="tipoAparelhoId"
+            [options]="tipos()"
+            optionLabel="nome"
+            optionValue="tipoAparelhoId"
+            placeholder="Selecione o tipo"
+            [filter]="true"
+            filterBy="nome"
+            [showClear]="true"
+            [loading]="carregandoTipos()"
+            emptyMessage="Nenhum tipo disponível"
+            emptyFilterMessage="Nenhum tipo encontrado"
+            [style]="{ width: '100%' }"
+            [class.ng-invalid]="invalido('tipoAparelhoId')"
+            [class.ng-dirty]="invalido('tipoAparelhoId')"
+          ></p-select>
+
+          @if (invalido('tipoAparelhoId')) {
+            <small
+              id="tipo-erro"
+              class="text-red-600"
+            >
+              Selecione o tipo de aparelho.
+            </small>
+          }
+
+          @if (erroTipos()) {
+            <div class="flex flex-wrap items-center gap-2">
+              <small
+                role="alert"
+                class="text-red-600"
+              >
+                {{ erroTipos() }}
+              </small>
+
+              <p-button
+                type="button"
+                label="Tentar novamente"
+                icon="pi pi-refresh"
+                severity="secondary"
+                size="small"
+                [disabled]="salvando() || carregandoTipos()"
+                (onClick)="carregarTipos()"
+              ></p-button>
+            </div>
+          } @else if (
+            !carregandoTipos() &&
+            tipos().length === 0
+          ) {
+            <small class="text-gray-500">
+              Nenhum tipo de aparelho ativo cadastrado.
+            </small>
+          }
+        </div>
+
+        <!-- DESCRIÇÃO -->
+        <div class="flex flex-col gap-2">
+          <label for="descricao">
+            Descrição
+          </label>
+
+          <input
+            pInputText
+            id="descricao"
+            formControlName="descricao"
+            placeholder="Cor, capacidade e outras características"
+            class="w-full"
+          />
+        </div>
+
+        <!-- DEFEITO -->
+        <div
+          class="flex flex-col gap-2 md:col-span-2"
+        >
+          <label for="defeito">
+            Defeito relatado
+            <span class="text-red-500">*</span>
+          </label>
+
+          <textarea
+            id="defeito"
+            formControlName="defeito"
+            rows="4"
+            required
+            placeholder="Descreva o problema informado pelo cliente"
+            class="w-full rounded-md border border-gray-300 p-3"
+            [class.border-red-500]="invalido('defeito')"
+            [attr.aria-invalid]="invalido('defeito')"
+            [attr.aria-describedby]="
+              invalido('defeito')
+                ? 'defeito-erro'
+                : null
+            "
+          ></textarea>
+
+          @if (invalido('defeito')) {
+            <small
+              id="defeito-erro"
+              class="text-red-600"
+            >
+              Informe o defeito relatado.
+            </small>
+          }
+        </div>
+
+        <!-- OBSERVAÇÕES -->
+        <div
+          class="flex flex-col gap-2 md:col-span-2"
+        >
+          <label for="observacao">
+            Observações
+          </label>
+
+          <textarea
+            id="observacao"
+            formControlName="observacao"
+            rows="3"
+            placeholder="Estado de conservação, acessórios entregues etc."
+            class="w-full rounded-md border border-gray-300 p-3"
+          ></textarea>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- ERRO AO SALVAR -->
+    @if (erroSalvar()) {
+      <p
+        role="alert"
+        class="text-sm text-red-600"
+      >
+        {{ erroSalvar() }}
+      </p>
+    }
+
+    <!-- AÇÕES -->
+    <div
+      class="flex justify-end gap-3 border-t border-gray-200 pt-4"
+    >
+      <p-button
+        type="button"
+        [label]="
+          salvo()
+            ? 'Voltar ao histórico'
+            : 'Cancelar'
+        "
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [disabled]="salvando()"
+        [routerLink]="voltarPara()"
+      ></p-button>
 
       <p-button
-        label="Cancelar"
-        icon="pi pi-times"
-        severity="secondary">
-      </p-button>
-
-      <p-button
-        label="Salvar"
+        type="submit"
+        [label]="
+          salvo()
+            ? 'Aparelho salvo'
+            : 'Salvar aparelho'
+        "
         icon="pi pi-check"
-        (onClick)="salvar()"
-        [disabled]="form.invalid || salvando">
-      </p-button>
-
+        [loading]="salvando()"
+        [disabled]="
+          salvando() ||
+          salvo() ||
+          carregandoCliente() ||
+          carregandoMarcas() ||
+          carregandoTipos() ||
+          clienteId() === null ||
+          cliente() === null
+        "
+      ></p-button>
     </div>
-
   </form>
-
 </p-panel>
