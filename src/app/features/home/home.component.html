@@ -1,63 +1,119 @@
+<section class="dashboard-page">
 
-<section class="content">
-  <h2>Home</h2>
+  <header class="dashboard-header">
 
-  <!-- AÇÃO DA PÁGINA -->
-  <div class="actions">
-    <button
-      class="btn-primary"
-      routerLink="/users/cadastrar">
-      Cadastrar Usuário
-    </button>
-  </div>
+    <div class="dashboard-title">
 
-  <div class="actions">
-    <button
-      class="btn-primary"
-      routerLink="/users">
-      Listar Usuário
-    </button>
-  </div>
+      <h1>
+        Painel de Métricas de Ordens de Serviço
+      </h1>
 
-  <div class="actions">
-  <button
-    class="btn-primary"
-    (click)="gerarPdf()">
-    Gerar PDF
-  </button>
-</div>
+      <p>
+        Visão consolidada das ordens de serviço por período
+      </p>
 
-<div class="actions">
-  <button
-    class="btn-primary"
-    (click)="gerarPdfTeste()">
-    Gerar PDF teste
-  </button>
-</div>
+    </div>
 
-  <p>Component home works!</p>
 
-<div class="dashboard-grid">
+    <div class="dashboard-actions">
 
-  <app-dashboard-metrica
-    [aparelhosProntos]="125"
-    [aparelhosNaoAutorizados]="18"
-    [aparelhosDevolvidos]="42">
-  </app-dashboard-metrica>
+      <button
+        type="button"
+        class="btn-secondary"
+        routerLink="/cliente">
+        Cadastrar Cliente
+      </button>
 
-  <app-dashboard-metrica
-    [aparelhosProntos]="80"
-    [aparelhosNaoAutorizados]="12"
-    [aparelhosDevolvidos]="20">
-  </app-dashboard-metrica>
+      <button
+        type="button"
+        class="btn-secondary"
+         routerLink="/cliente">
+        Listar Usuário
+      </button>
 
-  <app-dashboard-metrica
-    [aparelhosProntos]="150"
-    [aparelhosNaoAutorizados]="30"
-    [aparelhosDevolvidos]="10">
-  </app-dashboard-metrica>
+    </div>
 
-</div>
+  </header>
 
+
+  @if (carregandoMetricas) {
+
+    <div class="dashboard-loading">
+
+      <span class="spinner"></span>
+
+      <span>
+        Carregando métricas...
+      </span>
+
+    </div>
+
+  } @else if (erroMetricas) {
+
+    <div class="dashboard-error">
+
+      <span>
+        {{ erroMetricas }}
+      </span>
+
+      <button
+        type="button"
+        (click)="carregarMetricas()">
+        Tentar novamente
+      </button>
+
+    </div>
+
+  } @else if (metricas; as dados) {
+
+    <div class="dashboard-grid">
+
+
+      <!-- ÚLTIMA SEMANA -->
+
+      <app-dashboard-metrica
+        titulo="Última semana"
+        [subtitulo]="
+          'Segunda a sábado • ' +
+          formatarPeriodo(dados.semana)
+        "
+        [abertas]="dados.semana.abertas"
+        [autorizadas]="dados.semana.autorizadas"
+        [entregues]="dados.semana.entregues"
+        [naoAutorizadas]="dados.semana.naoAutorizadas">
+      </app-dashboard-metrica>
+
+
+      <!-- ÚLTIMOS 30 DIAS -->
+
+      <app-dashboard-metrica
+        titulo="Últimos 30 dias"
+        [subtitulo]="
+          formatarPeriodo(dados.trintaDias)
+        "
+        [abertas]="dados.trintaDias.abertas"
+        [autorizadas]="dados.trintaDias.autorizadas"
+        [entregues]="dados.trintaDias.entregues"
+        [naoAutorizadas]="dados.trintaDias.naoAutorizadas">
+      </app-dashboard-metrica>
+
+
+      <!-- ÚLTIMOS 365 DIAS -->
+
+      <app-dashboard-metrica
+        titulo="Últimos 365 dias"
+        [subtitulo]="
+          formatarPeriodo(dados.ano)
+        "
+        [abertas]="dados.ano.abertas"
+        [autorizadas]="dados.ano.autorizadas"
+        [entregues]="dados.ano.entregues"
+        [naoAutorizadas]="dados.ano.naoAutorizadas">
+      </app-dashboard-metrica>
+
+
+    </div>
+
+  }
 
 </section>
