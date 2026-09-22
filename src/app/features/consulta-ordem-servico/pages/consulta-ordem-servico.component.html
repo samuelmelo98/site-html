@@ -1,0 +1,299 @@
+<div class="consulta-page">
+
+  <div class="consulta-container">
+
+    <header class="cabecalho">
+      <h1>
+        String Tecnologia
+      </h1>
+
+      <p>
+        Consulta de Ordem de Serviço
+      </p>
+    </header>
+
+    @if (!linkValido()) {
+
+      <p-message
+        severity="error"
+        text="O link de consulta é inválido ou está incompleto."
+      />
+
+    } @else {
+
+      @if (!ordem()) {
+
+        <p-card>
+
+          <ng-template pTemplate="header">
+            <div class="card-header">
+              <span class="label">
+                Ordem de Serviço
+              </span>
+
+              <strong>
+                {{ numero }}
+              </strong>
+            </div>
+          </ng-template>
+
+          <form
+            [formGroup]="form"
+            (ngSubmit)="consultar()"
+          >
+
+            <p class="orientacao">
+              Para acessar os dados da ordem de serviço,
+              informe os
+              <strong>
+                2 últimos dígitos do CPF
+              </strong>
+              cadastrado.
+            </p>
+
+            <div class="campo">
+
+              <label for="ultimosDigitosCpf">
+                Últimos 2 dígitos do CPF
+              </label>
+
+              <input
+                id="ultimosDigitosCpf"
+                type="text"
+                pInputText
+                formControlName="ultimosDigitosCpf"
+                maxlength="2"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="00"
+              />
+
+              @if (
+                form.controls.ultimosDigitosCpf.invalid
+                && form.controls.ultimosDigitosCpf.touched
+              ) {
+
+                <small class="erro-campo">
+                  Informe exatamente 2 números.
+                </small>
+
+              }
+
+            </div>
+
+            @if (erro()) {
+
+              <p-message
+                severity="error"
+                [text]="erro()!"
+              />
+
+            }
+
+            <p-button
+              type="submit"
+              label="Consultar Ordem de Serviço"
+              icon="pi pi-search"
+              [loading]="carregando()"
+              [disabled]="carregando()"
+            />
+
+          </form>
+
+        </p-card>
+
+      } @else {
+
+        @if (ordem(); as os) {
+
+          <p-card>
+
+            <ng-template pTemplate="header">
+
+              <div class="resultado-header">
+
+                <div>
+                  <span class="label">
+                    Ordem de Serviço
+                  </span>
+
+                  <h2>
+                    {{ os.numero }}
+                  </h2>
+                </div>
+
+                <div class="status">
+                  {{ os.statusDescricao }}
+                </div>
+
+              </div>
+
+            </ng-template>
+
+            <section class="secao">
+
+              <h3>
+                Cliente
+              </h3>
+
+              <div class="dados-grid">
+
+                <div>
+                  <span>
+                    Nome
+                  </span>
+
+                  <strong>
+                    {{ os.clienteNome }}
+                  </strong>
+                </div>
+
+              </div>
+
+            </section>
+
+            <section class="secao">
+
+              <h3>
+                Equipamento
+              </h3>
+
+              <div class="dados-grid">
+
+                <div>
+                  <span>
+                    Marca
+                  </span>
+
+                  <strong>
+                    {{ os.aparelhoMarca || '-' }}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Modelo
+                  </span>
+
+                  <strong>
+                    {{ os.aparelhoModelo || '-' }}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Modelo comercial
+                  </span>
+
+                  <strong>
+                    {{ os.aparelhoModeloComercial || '-' }}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Número de série
+                  </span>
+
+                  <strong>
+                    {{ os.aparelhoNumeroSerie || '-' }}
+                  </strong>
+                </div>
+
+              </div>
+
+            </section>
+
+            <section class="secao">
+
+              <h3>
+                Atendimento
+              </h3>
+
+              <div class="dados-grid">
+
+                <div class="coluna-inteira">
+                  <span>
+                    Defeito relatado
+                  </span>
+
+                  <strong>
+                    {{ os.defeitoRelatado || '-' }}
+                  </strong>
+                </div>
+
+                <div class="coluna-inteira">
+                  <span>
+                    Diagnóstico
+                  </span>
+
+                  <strong>
+                    {{ os.diagnostico || 'Aguardando diagnóstico' }}
+                  </strong>
+                </div>
+
+                <div class="coluna-inteira">
+                  <span>
+                    Solução
+                  </span>
+
+                  <strong>
+                    {{ os.solucao || '-' }}
+                  </strong>
+                </div>
+
+              </div>
+
+            </section>
+
+            <section class="secao">
+
+              <h3>
+                Valores
+              </h3>
+
+              <div class="dados-grid">
+
+                <div>
+                  <span>
+                    Orçamento
+                  </span>
+
+                  <strong>
+                    @if (os.valorOrcamento !== null) {
+                      {{ os.valorOrcamento | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                    } @else {
+                      -
+                    }
+                  </strong>
+                </div>
+
+                <div>
+                  <span>
+                    Valor final
+                  </span>
+
+                  <strong>
+                    @if (os.valorFinal !== null) {
+                      {{ os.valorFinal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                    } @else {
+                      -
+                    }
+                  </strong>
+                </div>
+
+              </div>
+
+            </section>
+
+          </p-card>
+
+        }
+
+      }
+
+    }
+
+  </div>
+
+</div>
