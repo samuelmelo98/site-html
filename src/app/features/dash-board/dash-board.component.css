@@ -261,3 +261,40 @@
     height: 180px;
   }
 }
+
+.tecnicos-wrapper {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.tecnicos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: #475569;
+}
+
+.tecnicos-table caption {
+  padding-bottom: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #0f2747;
+}
+
+.tecnicos-table th,
+.tecnicos-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+}
+
+.tecnicos-table th {
+  background: #f8fafc;
+  color: #0f2747;
+}
+
+.tecnicos-table .numero {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}

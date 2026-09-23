@@ -77,6 +77,49 @@
     </div>
   </div>
 
+  @if (somenteEntregues) {
+    <div class="tecnicos-wrapper">
+      <table class="tecnicos-table">
+        <caption>Entregas por técnico no período</caption>
+
+        <thead>
+          <tr>
+            <th scope="col">Técnico</th>
+            <th scope="col" class="numero">OS</th>
+            <th scope="col" class="numero">Valor total</th>
+            <th scope="col" class="numero">Material</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (tecnico of tecnicos; track tecnico.tecnicoId) {
+            <tr>
+              <td>{{ tecnico.tecnicoNome }}</td>
+
+              <td class="numero">
+                {{ tecnico.quantidadeEntregues }}
+              </td>
+
+              <td class="numero">
+                {{ formatarMoeda(tecnico.valorTotal) }}
+              </td>
+
+              <td class="numero">
+                {{ formatarMoeda(tecnico.valorMaterial) }}
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4">
+                Nenhuma entrega no período.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
   <footer class="metrica-footer">
     <div>
       <span class="footer-label">

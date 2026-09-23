@@ -8,6 +8,10 @@ import {
   ChartModule,
 } from 'primeng/chart';
 
+import {
+  MetricaEntregasTecnicoDTO,
+} from './model/dashboard-ordem-servico.dto';
+
 
 @Component({
   selector: 'app-dashboard-metrica',
@@ -24,6 +28,9 @@ import {
 })
 export class DashboardComponent
   implements OnChanges {
+
+    @Input()
+    tecnicos: MetricaEntregasTecnicoDTO[] = [];
 
 
 
@@ -176,6 +183,15 @@ somenteEntregues = false;
 
     };
 
+  }
+
+  private readonly formatoMoeda = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
+
+  formatarMoeda(valor: number): string {
+    return this.formatoMoeda.format(valor);
   }
 
 }
