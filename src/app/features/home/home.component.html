@@ -111,6 +111,15 @@
         [naoAutorizadas]="dados.ano.naoAutorizadas">
       </app-dashboard-metrica>
 
+            <!-- ENTREGUES NOS ÚLTIMOS 6 DIAS -->
+
+            <app-dashboard-metrica
+            titulo="Entregues nos últimos 6 dias"
+            [subtitulo]="formatarPeriodo(dados.entreguesSeisDias)"
+            [somenteEntregues]="true"
+            [entregues]="dados.entreguesSeisDias.entregues">
+          </app-dashboard-metrica>
+
 
     </div>
 
