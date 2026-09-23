@@ -1,116 +1,606 @@
-<p-table
-  #tabela
-  [value]="dados2"
-  [lazy]="true"
-  (onLazyLoad)="carregar($event)"
-  [paginator]="true"
-  [rows]="10"
-  [totalRecords]="total"
-  [loading]="loading"
-  [rowsPerPageOptions]="[10,20,50]"
-  responsiveLayout="scroll"
-  [showCurrentPageReport]="true"
-  currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
+<!-- TABELA -->
+<div
+  class="
+    w-full
+    overflow-hidden
+    rounded-lg
+    border
+    border-gray-200
+    bg-white
+  "
 >
 
-  <ng-template pTemplate="header">
-    <tr>
-      <th pSortableColumn="aparelhoId">
-        ID
-        <p-sortIcon field="aparelhoId"></p-sortIcon>
-      </th>
+  <p-table
+    #tabela
+    [value]="dados2()"
+    dataKey="aparelhoId"
+    [lazy]="true"
+    (onLazyLoad)="carregar($event)"
+    [paginator]="true"
+    [rows]="10"
+    [totalRecords]="total()"
+    [loading]="loading()"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    sortField="aparelhoId"
+    [sortOrder]="1"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-sm"
+  >
 
-      <th pSortableColumn="marca">
-        Marca
-        <p-sortIcon field="marca"></p-sortIcon>
-      </th>
+    <!-- CABEÇALHO -->
+    <ng-template #header>
 
-      <th pSortableColumn="modelo">
-        Modelo
-        <p-sortIcon field="modelo"></p-sortIcon>
-      </th>
+      <tr
+        class="
+          border-b
+          border-gray-200
+          bg-gray-50
+        "
+      >
 
-      <th pSortableColumn="modeloComercial">
-        Modelo Comercial
-        <p-sortIcon field="modeloComercial"></p-sortIcon>
-      </th>
+        <!-- ID -->
+        <th
+          pSortableColumn="aparelhoId"
+          class="
+            w-16
+            px-2
+            py-3
+            text-left
+            text-sm
+            font-semibold
+            text-gray-600
 
-      <th>Número Série</th>
+            sm:w-20
+            sm:px-4
+          "
+        >
 
-      <th>Status</th>
+          <div
+            class="
+              flex
+              items-center
+              gap-1
+            "
+          >
 
-       <th>Data Entrada</th>
+            ID
 
-      <th>Ações</th>
-    </tr>
-  </ng-template>
+            <p-sortIcon
+              field="aparelhoId"
+            >
+            </p-sortIcon>
 
-  <ng-template pTemplate="body" let-item>
-    <tr class="hover:bg-gray-50">
+          </div>
 
-      <td>
-        {{ item.aparelhoId }}
-      </td>
+        </th>
 
-      <td>
-        {{ item.marca }}
-      </td>
 
-      <td>
-        {{ item.modelo }}
-      </td>
+        <!-- MARCA -->
+        <th
+          pSortableColumn="marca"
+          class="
+            px-2
+            py-3
+            text-left
+            text-sm
+            font-semibold
+            text-gray-600
 
-      <td>
-        {{ item.modeloComercial }}
-      </td>
+            sm:px-4
+          "
+        >
 
-      <td>
-        {{ item.numeroSerie }}
-      </td>
+          <div
+            class="
+              flex
+              items-center
+              gap-1
+            "
+          >
 
-      <td>
-        {{ item.statusAparelho }}
-      </td>
+            Marca
 
-      <td>
-        {{ item.dataEntradaAparelho | date: 'dd/MM/yyyy  HH:mm:ss' }}
-      </td>
+            <p-sortIcon
+              field="marca"
+            >
+            </p-sortIcon>
 
-      <td class="flex gap-2">
+          </div>
 
-  <!-- Orçamento -->
-  <p-button
-      icon="pi pi-dollar"
-      severity="success"
-      rounded
-      pTooltip="Orçamento">
-  </p-button>
+        </th>
 
-  <!-- Ordem Serviço -->
-  <p-button
-      icon="pi pi-file-edit"
-      severity="info"
-      rounded
-      pTooltip="Ordem de Serviço">
-  </p-button>
 
-  <!-- Editar -->
-  <p-button
-      icon="pi pi-pencil"
-      severity="secondary"
-      rounded>
-  </p-button>
+        <!-- TIPO DE APARELHO -->
+        <th
+          class="
+            hidden
 
-  <!-- Excluir -->
-  <p-button
-      icon="pi pi-trash"
-      severity="danger"
-      rounded>
-  </p-button>
+            md:table-cell
+            md:px-4
+            md:py-3
+            md:text-left
+            md:text-sm
+            md:font-semibold
+            md:text-gray-600
+          "
+        >
+          Tipo
+        </th>
 
-</td>
 
-    </tr>
-  </ng-template>
+        <!-- MODELO -->
+        <th
+          pSortableColumn="modelo"
+          class="
+            px-2
+            py-3
+            text-left
+            text-sm
+            font-semibold
+            text-gray-600
 
-</p-table>
+            sm:px-4
+          "
+        >
+
+          <div
+            class="
+              flex
+              items-center
+              gap-1
+            "
+          >
+
+            Modelo
+
+            <p-sortIcon
+              field="modelo"
+            >
+            </p-sortIcon>
+
+          </div>
+
+        </th>
+
+
+        <!-- MODELO COMERCIAL -->
+        <th
+          pSortableColumn="modeloComercial"
+          class="
+            hidden
+
+            lg:table-cell
+            lg:px-4
+            lg:py-3
+            lg:text-left
+            lg:text-sm
+            lg:font-semibold
+            lg:text-gray-600
+          "
+        >
+
+          <div
+            class="
+              flex
+              items-center
+              gap-2
+            "
+          >
+
+            Modelo comercial
+
+            <p-sortIcon
+              field="modeloComercial"
+            >
+            </p-sortIcon>
+
+          </div>
+
+        </th>
+
+
+        <!-- NUMERO DE SERIE -->
+        <th
+          class="
+            hidden
+
+            xl:table-cell
+            xl:px-4
+            xl:py-3
+            xl:text-left
+            xl:text-sm
+            xl:font-semibold
+            xl:text-gray-600
+          "
+        >
+          Número de série
+        </th>
+
+
+        <!-- STATUS -->
+        <th
+          class="
+            px-2
+            py-3
+            text-left
+            text-sm
+            font-semibold
+            text-gray-600
+
+            sm:px-4
+          "
+        >
+          Status
+        </th>
+
+
+        <!-- DATA -->
+        <th
+          class="
+            hidden
+
+            xl:table-cell
+            xl:px-4
+            xl:py-3
+            xl:text-left
+            xl:text-sm
+            xl:font-semibold
+            xl:text-gray-600
+          "
+        >
+          Data de entrada
+        </th>
+
+
+        <!-- AÇÕES -->
+        <th
+          class="
+            w-20
+            px-2
+            py-3
+            text-center
+            text-sm
+            font-semibold
+            text-gray-600
+
+            sm:w-28
+            sm:px-4
+          "
+        >
+          Ações
+        </th>
+
+      </tr>
+
+    </ng-template>
+
+
+    <!-- CORPO -->
+    <ng-template
+      #body
+      let-item
+    >
+
+      <tr
+        class="
+          group
+          border-b
+          border-gray-100
+
+          transition-[background-color,box-shadow]
+          duration-200
+
+          hover:!bg-green-50
+          hover:shadow-[inset_4px_0_0_#22c55e]
+        "
+      >
+
+        <!-- ID -->
+        <td
+          class="
+            px-2
+            py-4
+            text-sm
+            text-gray-500
+
+            sm:px-4
+          "
+        >
+          {{ item.aparelhoId }}
+        </td>
+
+
+        <!-- MARCA -->
+        <td
+          class="
+            px-2
+            py-4
+            text-sm
+
+            sm:px-4
+          "
+        >
+
+          <span
+            class="
+              font-medium
+              text-gray-800
+              transition-colors
+              duration-200
+              group-hover:text-green-800
+            "
+          >
+            {{ item.marca || '—' }}
+          </span>
+
+        </td>
+
+
+        <!-- TIPO DE APARELHO -->
+        <td
+          class="
+            hidden
+
+            md:table-cell
+            md:px-4
+            md:py-4
+            md:text-sm
+            md:text-gray-600
+          "
+        >
+          {{ item.tipoAparelho || '—' }}
+        </td>
+
+
+        <!-- MODELO -->
+        <td
+          class="
+            px-2
+            py-4
+            text-sm
+            text-gray-600
+
+            sm:px-4
+          "
+        >
+          {{ item.modelo || '—' }}
+        </td>
+
+
+        <!-- MODELO COMERCIAL -->
+        <td
+          class="
+            hidden
+
+            lg:table-cell
+            lg:px-4
+            lg:py-4
+            lg:text-sm
+            lg:text-gray-600
+          "
+        >
+          {{ item.modeloComercial || '—' }}
+        </td>
+
+
+        <!-- NUMERO DE SERIE -->
+        <td
+          class="
+            hidden
+
+            xl:table-cell
+            xl:px-4
+            xl:py-4
+            xl:text-sm
+            xl:text-gray-600
+          "
+        >
+          {{ item.numeroSerie || '—' }}
+        </td>
+
+
+        <!-- STATUS -->
+        <td
+          class="
+            px-2
+            py-4
+
+            sm:px-4
+          "
+        >
+
+          <span
+            class="
+              inline-flex
+              max-w-28
+              items-center
+              overflow-hidden
+              text-ellipsis
+              whitespace-nowrap
+              rounded-full
+              bg-gray-100
+              px-2
+              py-1
+              text-xs
+              font-medium
+              text-gray-700
+
+              sm:max-w-40
+              sm:px-3
+            "
+            [pTooltip]="
+              textoStatus(
+                item.statusAparelho
+              )
+            "
+            tooltipPosition="top"
+          >
+
+            {{
+              textoStatus(
+                item.statusAparelho
+              )
+            }}
+
+          </span>
+
+        </td>
+
+
+        <!-- DATA DE ENTRADA -->
+        <td
+          class="
+            hidden
+
+            xl:table-cell
+            xl:px-4
+            xl:py-4
+            xl:text-sm
+            xl:text-gray-600
+          "
+        >
+
+          {{
+            (
+              item.dataEntradaAparelho
+              | date:'dd/MM/yyyy HH:mm:ss'
+            ) || '—'
+          }}
+
+        </td>
+
+
+        <!-- AÇÕES -->
+        <td
+          class="
+            px-2
+            py-4
+            text-center
+
+            sm:px-4
+          "
+        >
+
+          <div
+            class="
+              flex
+              items-center
+              justify-center
+              gap-1
+            "
+          >
+
+            <!-- EDITAR -->
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              rounded
+              text
+              ariaLabel="Editar aparelho"
+              pTooltip="Editar aparelho"
+              tooltipPosition="top"
+              (onClick)="
+                editarAparelho(
+                  item.aparelhoId
+                )
+              "
+            >
+            </p-button>
+
+
+            <!-- ORDEM DE SERVIÇO -->
+            <p-button
+              icon="pi pi-eye"
+              severity="secondary"
+              rounded
+              text
+              ariaLabel="Ver ordens de serviço"
+              pTooltip="Ver ordens de serviço"
+              tooltipPosition="top"
+              (onClick)="
+                verOrdemServico(
+                  item.aparelhoId
+                )
+              "
+            >
+            </p-button>
+
+          </div>
+
+        </td>
+
+      </tr>
+
+    </ng-template>
+
+
+    <!-- SEM RESULTADOS -->
+    <ng-template #emptymessage>
+
+      <tr>
+
+        <td
+          colspan="9"
+          class="
+            py-12
+            text-center
+            text-sm
+            text-gray-500
+          "
+        >
+
+          @if (erro()) {
+
+            <i
+              class="
+                pi
+                pi-exclamation-circle
+                mb-3
+                block
+                text-3xl
+                text-red-300
+              "
+            >
+            </i>
+
+            Não foi possível consultar os aparelhos.
+
+          } @else {
+
+            <i
+              class="
+                pi
+                pi-mobile
+                mb-3
+                block
+                text-3xl
+                text-gray-300
+              "
+            >
+            </i>
+
+            Nenhum aparelho encontrado para este cliente.
+
+          }
+
+        </td>
+
+      </tr>
+
+    </ng-template>
+
+  </p-table>
+
+</div>
+
+
+<!-- MODAL DE EDIÇÃO -->
+<app-aparelho-edit
+  [visible]="modalEdicaoVisivel()"
+  (visibleChange)="modalEdicaoVisivel.set($event)"
+  [aparelhoId]="aparelhoEdicaoId()"
+  (atualizado)="aparelhoAtualizado()"
+>
+</app-aparelho-edit>

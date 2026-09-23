@@ -1,25 +1,38 @@
-import { Routes } from '@angular/router';
+import {
+  Routes,
+} from '@angular/router';
+
+import {
+  ClienteComponent,
+} from './cliente.component';
 
 export const CLIENTE_ROUTES: Routes = [
-  {
-    path: '',
-    loadComponent: () =>
-      import('./cliente.component').then((m) => m.ClienteComponent),
-  },
 
   {
-    path: 'edit',
-    loadComponent: () =>
-      import('./pages/edit/edit.component').then((m) => m.EditComponent),
+    path: '',
+    component: ClienteComponent,
   },
-  {
-    path: 'list',
-    loadComponent: () =>
-      import('./pages/list/list.component').then((m) => m.ListComponent),
-  },
+
   {
     path: 'create',
     loadComponent: () =>
-      import('./pages/create/create.component').then((m) => m.CreateComponent),
+      import(
+        './pages/create/create.component'
+      )
+        .then(
+          m => m.CreateComponent,
+        ),
   },
+
+  {
+    path: 'edit/:clienteId',
+    loadComponent: () =>
+      import(
+        './pages/edit/edit.component'
+      )
+        .then(
+          m => m.EditComponent,
+        ),
+  },
+
 ];

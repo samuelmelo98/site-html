@@ -11,56 +11,268 @@
   responsiveLayout="scroll"
   [showCurrentPageReport]="true"
   currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
-  
+  styleClass="p-datatable-sm"
 >
-  <!-- HEADER -->
+
+  <!-- CABEÇALHO -->
+
   <ng-template pTemplate="header">
-    <tr>
-      <th pSortableColumn="contaBancariaId">
-        ID <p-sortIcon field="clienteId"></p-sortIcon>
+
+    <tr
+      class="
+        border-b
+        border-gray-200
+        bg-gray-50
+      "
+    >
+
+      <th
+        class="
+          w-24
+          px-4
+          py-3
+          text-left
+          text-sm
+          font-semibold
+          text-gray-600
+        "
+      >
+        ID
       </th>
 
-      <th pSortableColumn="descricao">
-        Nome <p-sortIcon field="descricao"></p-sortIcon>
+      <th
+        class="
+          px-4
+          py-3
+          text-left
+          text-sm
+          font-semibold
+          text-gray-600
+        "
+      >
+        Nome
       </th>
 
-      <th>CPF</th>
-      <th>Data Nascimento</th>
-      <th>Ações</th>
+      <th
+        class="
+          w-52
+          px-4
+          py-3
+          text-left
+          text-sm
+          font-semibold
+          text-gray-600
+        "
+      >
+        CPF
+      </th>
+
+      <th
+        class="
+          w-52
+          px-4
+          py-3
+          text-left
+          text-sm
+          font-semibold
+          text-gray-600
+        "
+      >
+        Telefone
+      </th>
+
+      <th
+        class="
+          w-32
+          px-4
+          py-3
+          text-center
+          text-sm
+          font-semibold
+          text-gray-600
+        "
+      >
+        Ações
+      </th>
+
     </tr>
+
   </ng-template>
 
-  <!-- BODY -->
-  <ng-template pTemplate="body" let-item>
-   <tr
-  (click)="adicionarAparelho(item)"
-  class="cursor-pointer hover:bg-red-50"
-  [class.bg-red-100]="clienteSelecionado?.clienteId === item.clienteId">
-      <td>{{ item.clienteId }}</td>
-      <td>{{ item.nome }}</td>
 
-      <td>
-        <!-- {{this.formatCpf(item.cpf)}}  função ou pipe ??-->
-           {{item.cpf | cpf }}
+  <!-- CORPO -->
+
+  <ng-template
+    pTemplate="body"
+    let-item
+  >
+
+    <tr
+      (click)="adicionarAparelho(item)"
+
+      class="
+        group
+        cursor-pointer
+
+        border-b
+        border-gray-100
+
+        transition-[background-color,box-shadow]
+        duration-200
+        ease-out
+
+        hover:!bg-green-50
+        hover:shadow-[inset_4px_0_0_#22c55e]
+      "
+
+      [ngClass]="
+        clienteSelecionado?.clienteId === item.clienteId
+          ? '!bg-green-100 shadow-[inset_4px_0_0_#16a34a]'
+          : ''
+      "
+    >
+
+      <!-- ID -->
+
+      <td
+        class="
+          px-4
+          py-4
+          text-sm
+          text-gray-500
+        "
+      >
+        {{ item.clienteId }}
       </td>
 
-      <td>{{ item.dataNascimento | date: "dd/MM/yyyy" }}</td>
-      <td class="flex gap-2">
+
+      <!-- NOME -->
+
+      <td
+        class="
+          px-4
+          py-4
+        "
+      >
+
+        <span
+          class="
+            font-medium
+            text-gray-800
+
+            transition-colors
+            duration-200
+
+            group-hover:text-green-800
+          "
+        >
+          {{ item.nome }}
+        </span>
+
+      </td>
+
+
+      <!-- CPF -->
+
+      <td
+        class="
+          px-4
+          py-4
+          text-sm
+          text-gray-600
+        "
+      >
+        {{ item.cpf | cpf }}
+      </td>
+
+
+      <!-- TELEFONE -->
+
+      <td
+        class="
+          px-4
+          py-4
+          text-sm
+          text-gray-600
+        "
+      >
+        {{ formatarTelefone(item.telefone) }}
+      </td>
+
+
+      <!-- AÇÕES -->
+
+      <td
+        class="
+          px-4
+          py-4
+          text-center
+        "
+      >
+
         <p-button
           icon="pi pi-pencil"
           severity="secondary"
           rounded
-
+          text
+          pTooltip="Editar cliente"
+          tooltipPosition="top"
+          ariaLabel="Editar cliente"
+          (onClick)="editarCliente($event, item)"
         >
         </p-button>
 
-        <p-button
-          icon="pi pi-trash"
-          severity="danger"
-          rounded
-        >
-        </p-button>
       </td>
+
     </tr>
+
   </ng-template>
+
+
+  <!-- VAZIO -->
+
+  <ng-template pTemplate="emptymessage">
+
+    <tr>
+
+      <td
+        colspan="5"
+        class="
+          py-12
+          text-center
+          text-sm
+          text-gray-500
+        "
+      >
+
+        <i
+          class="
+            pi
+            pi-users
+            mb-3
+            block
+            text-3xl
+            text-gray-300
+          "
+        >
+        </i>
+
+        Nenhum cliente encontrado.
+
+      </td>
+
+    </tr>
+
+  </ng-template>
+
 </p-table>
+
+
+<!-- MODAL DE EDIÇÃO -->
+
+<app-edit
+  [(visible)]="modalEdicaoVisivel"
+  [clienteId]="clienteEdicaoId"
+  (atualizado)="clienteAtualizado()"
+>
+</app-edit>

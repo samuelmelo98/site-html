@@ -12,6 +12,14 @@ import { environment } from '../../../../environments/environment';
 import { Page } from '../../../shared/search-generic/models/page.model';
 import { Cliente } from '../../cliente/model/cliente-listar.dto'; 
 
+import { CadastroAparelho } from '../pages/create/create.component';
+
+import { AparelhoResponse } from '../model/aparelho-cadastro.dto';
+
+import {
+  AparelhoAtualizarDTO,
+} from '../model/aparelho-atualizar.dto';
+
 // 🔹 Feature (models / DTOs)
 
 
@@ -24,24 +32,29 @@ export class AparelhoService {
     return this.http.get<Cliente[]>(this.API);
   }
 
-  listarPaginado(
-    page: number,
-    size: number,
-    sortField: string,
-    sortOrder: string,
-    filtro?: string,
-    cliente?: number
-  ): Observable<Page<any>> {
-    let params = `page=${page}&size=${size}&sort=${sortField},${sortOrder}`;
+ listarPaginado(
+  page: number,
+  size: number,
+  sortField: string,
+  sortOrder: string,
+  filtro?: string,
+  clienteId?: number,
+): Observable<Page<AparelhoResponse>> {
 
-    if (filtro) {
-      params += `&search=${encodeURIComponent(filtro)}`;
-    }
+  let params =
+    `page=${page}` +
+    `&size=${size}` +
+    `&sort=${sortField},${sortOrder}`;
 
-    return this.http.get<Page<any>>(
-      `${this.API}/cliente/${cliente}`,
-    );
+  if (filtro) {
+    params +=
+      `&search=${encodeURIComponent(filtro)}`;
   }
+
+  return this.http.get<Page<AparelhoResponse>>(
+    `${this.API}/cliente/${clienteId}?${params}`,
+  );
+}
 
   buscar(amparoLegalId: number) {
     return this.http.get<Cliente>(`${this.API}/${amparoLegalId}`);
@@ -68,11 +81,9 @@ export class AparelhoService {
     return this.http.delete<void>(`${this.API}/${id}`);
   }
 
-  salvar(dto: any): Observable<void> {
-    console.log(this.API);
-    console.log(dto);
-    return this.http.post<void>(this.API, dto);
-  }
+ salvar(dto: CadastroAparelho): Observable<unknown> {
+  return this.http.post<unknown>(this.API, dto);
+}
   /*
   listarTipoDespesa(): Observable<TipoDespesa[]> {
   console.log('tipoDespesaService-listarParaDropdown.');
@@ -120,12 +131,33 @@ export class AparelhoService {
 
 
 
-  listarPorCliente(
-  clienteId: number
-): Observable<any[]> {
+listarPorCliente(
+  clienteId: number,
+): Observable<Page<AparelhoResponse>> {
 
-  return this.http.get<any[]>(
-    `${this.API}/cliente/${clienteId}`
+  return this.http.get<Page<AparelhoResponse>>(
+    `${this.API}/cliente/${clienteId}`,
+  );
+}
+
+buscarPorId(
+  aparelhoId: number,
+): Observable<AparelhoResponse> {
+
+  return this.http.get<AparelhoResponse>(
+    `${this.API}/${aparelhoId}`,
+  );
+}
+
+
+atualizar(
+  aparelhoId: number,
+  dto: AparelhoAtualizarDTO,
+): Observable<AparelhoResponse> {
+
+  return this.http.put<AparelhoResponse>(
+    `${this.API}/${aparelhoId}`,
+    dto,
   );
 }
 }

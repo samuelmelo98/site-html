@@ -1,72 +1,177 @@
-import { RouterModule } from '@angular/router';
-import { Component, Input, OnChanges } from '@angular/core';
-import { ChartModule } from 'primeng/chart';
+import {
+  Component,
+  Input,
+  OnChanges,
+} from '@angular/core';
+
+import {
+  ChartModule,
+} from 'primeng/chart';
 
 
 @Component({
   selector: 'app-dashboard-metrica',
-  standalone: true,
-  imports: [
-    RouterModule,
-    ChartModule
-  ],
-  templateUrl: './dash-board.component.html',
-  styleUrl: './dash-board.component.css'
-})
-export class DashboardComponent implements OnChanges {
 
-  @Input() aparelhosProntos = 0;
-  @Input() aparelhosNaoAutorizados = 0;
-  @Input() aparelhosDevolvidos = 0;
+  standalone: true,
+
+  imports: [
+    ChartModule,
+  ],
+
+  templateUrl: './dash-board.component.html',
+
+  styleUrl: './dash-board.component.css',
+})
+export class DashboardComponent
+  implements OnChanges {
+
+  @Input()
+  titulo = '';
+
+  @Input()
+  subtitulo = '';
+
+  @Input()
+  abertas = 0;
+
+  @Input()
+  autorizadas = 0;
+
+  @Input()
+  entregues = 0;
+
+  @Input()
+  naoAutorizadas = 0;
+
 
   data: any;
+
   options: any;
 
+
   ngOnChanges(): void {
+
     this.carregarGrafico();
+
   }
+
+
+  get total(): number {
+
+    return (
+      this.abertas +
+      this.autorizadas +
+      this.entregues +
+      this.naoAutorizadas
+    );
+
+  }
+
 
   private carregarGrafico(): void {
 
-    const documentStyle = getComputedStyle(document.documentElement);
-
     this.data = {
+
       labels: [
-        'Prontos',
-        'Não Autorizados',
-        'Devolvidos'
+        'Abertas',
+        'Autorizadas',
+        'Entregues',
+        'Não autorizadas',
       ],
+
       datasets: [
         {
+
           data: [
-            this.aparelhosProntos,
-            this.aparelhosNaoAutorizados,
-            this.aparelhosDevolvidos
+            this.abertas,
+            this.autorizadas,
+            this.entregues,
+            this.naoAutorizadas,
           ],
-       backgroundColor: [
-  '#22C55E', // Verde
-  '#F59E0B', // Laranja
-  '#3B82F6'  // Azul
-],
-borderColor: '#FFFFFF',
-borderWidth: 2
-        }
-      ]
+
+          backgroundColor: [
+            '#3B82F6',
+            '#22C55E',
+            '#0F766E',
+            '#F97316',
+          ],
+
+          borderColor:
+            '#FFFFFF',
+
+          borderWidth:
+            3,
+
+          hoverOffset:
+            6,
+
+        },
+      ],
     };
 
-    this.options = {
-  responsive: true,
-  maintainAspectRatio: false,
 
-  plugins: {
-    legend: {
-      position: 'bottom'
-    },
-    title: {
-      display: true,
-      text: 'Situação dos Aparelhos'
-    }
+    this.options = {
+
+      responsive:
+        true,
+
+      maintainAspectRatio:
+        false,
+
+      cutout:
+        '70%',
+
+      animation: {
+        duration:
+          500,
+      },
+
+      plugins: {
+
+        legend: {
+          display:
+            false,
+        },
+
+        tooltip: {
+
+          callbacks: {
+
+            label:
+              (context: any) => {
+
+                const valor =
+                  Number(
+                    context.raw ?? 0,
+                  );
+
+                const percentual =
+                  this.total > 0
+                    ? (
+                        (
+                          valor /
+                          this.total
+                        ) *
+                        100
+                      ).toFixed(1)
+                    : '0.0';
+
+                return (
+                  `${context.label}: ` +
+                  `${valor} ` +
+                  `(${percentual}%)`
+                );
+
+              },
+
+          },
+
+        },
+
+      },
+
+    };
+
   }
-};
-  }
+
 }

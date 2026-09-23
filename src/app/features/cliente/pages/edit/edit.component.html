@@ -1,1 +1,321 @@
-<p>edit works!</p>
+<p-toast></p-toast>
+
+<p-dialog
+
+  header="Editar Cliente"
+
+  [visible]="visible"
+
+  (visibleChange)="onVisibleChange($event)"
+
+  [modal]="true"
+
+  [draggable]="false"
+
+  [resizable]="false"
+
+  [closable]="!salvando"
+
+  [closeOnEscape]="!salvando"
+
+  appendTo="body"
+
+  [style]="{
+    width: '34rem',
+    maxWidth: '95vw'
+  }"
+
+>
+
+  @if (carregando) {
+
+    <div
+      class="
+        flex
+        items-center
+        justify-center
+        gap-3
+        py-12
+      "
+    >
+
+      <p-progressSpinner
+
+        strokeWidth="4"
+
+        [style]="{
+          width: '40px',
+          height: '40px'
+        }"
+
+      >
+      </p-progressSpinner>
+
+
+      <span
+        class="
+          text-sm
+          text-gray-500
+        "
+      >
+
+        Carregando dados do cliente...
+
+      </span>
+
+    </div>
+
+  } @else {
+
+    <form
+
+      [formGroup]="form"
+
+      (ngSubmit)="salvar()"
+
+      class="space-y-5"
+
+    >
+
+      <!-- NOME -->
+
+      <div>
+
+        <label
+
+          for="nome"
+
+          class="
+            mb-2
+            block
+            text-sm
+            font-medium
+            text-gray-700
+          "
+
+        >
+
+          Nome
+
+          <span class="text-red-500">
+            *
+          </span>
+
+        </label>
+
+
+        <input
+
+          id="nome"
+
+          type="text"
+
+          pInputText
+
+          formControlName="nome"
+
+          autocomplete="name"
+
+          class="w-full"
+
+        />
+
+
+        @if (
+          form.controls.nome.invalid &&
+          form.controls.nome.touched
+        ) {
+
+          <small
+            class="
+              mt-1
+              block
+              text-red-500
+            "
+          >
+
+            Informe o nome do cliente.
+
+          </small>
+
+        }
+
+      </div>
+
+
+      <!-- CPF -->
+
+      <div>
+
+        <label
+
+          for="cpf"
+
+          class="
+            mb-2
+            block
+            text-sm
+            font-medium
+            text-gray-700
+          "
+
+        >
+
+          CPF
+
+          <span class="text-red-500">
+            *
+          </span>
+
+        </label>
+
+
+        <input
+
+          id="cpf"
+
+          type="text"
+
+          pInputText
+
+          formControlName="cpf"
+
+          inputmode="numeric"
+
+          maxlength="14"
+
+          autocomplete="off"
+
+          class="w-full"
+
+          (input)="onCpfInput($event)"
+
+        />
+
+
+        @if (
+          form.controls.cpf.invalid &&
+          form.controls.cpf.touched
+        ) {
+
+          <small
+            class="
+              mt-1
+              block
+              text-red-500
+            "
+          >
+
+            Informe um CPF válido.
+
+          </small>
+
+        }
+
+      </div>
+
+
+      <!-- TELEFONE -->
+
+      <div>
+
+        <label
+
+          for="telefone"
+
+          class="
+            mb-2
+            block
+            text-sm
+            font-medium
+            text-gray-700
+          "
+
+        >
+
+          Telefone
+
+        </label>
+
+
+        <input
+
+          id="telefone"
+
+          type="text"
+
+          pInputText
+
+          formControlName="telefone"
+
+          inputmode="tel"
+
+          maxlength="15"
+
+          autocomplete="tel"
+
+          class="w-full"
+
+          (input)="onTelefoneInput($event)"
+
+        />
+
+      </div>
+
+
+      <!-- AÇÕES -->
+
+      <div
+        class="
+          mt-6
+          flex
+          justify-end
+          gap-3
+          border-t
+          border-gray-100
+          pt-5
+        "
+      >
+
+        <p-button
+
+          type="button"
+
+          label="Cancelar"
+
+          severity="secondary"
+
+          [outlined]="true"
+
+          [disabled]="salvando"
+
+          (onClick)="fechar()"
+
+        >
+        </p-button>
+
+
+        <p-button
+
+          type="submit"
+
+          label="Salvar alterações"
+
+          icon="pi pi-check"
+
+          severity="success"
+
+          [loading]="salvando"
+
+          [disabled]="form.invalid || salvando"
+
+        >
+        </p-button>
+
+      </div>
+
+    </form>
+
+  }
+
+</p-dialog>

@@ -11,10 +11,18 @@ import { initializeKeycloak } from './core/auth/app-init.factory';
 import { authInterceptor } from './core/auth/auth.interceptor';
 import { loaderInterceptor } from './core/auth/loader.interceptor';
 
+import {
+  LOCALE_ID,
+} from '@angular/core';
+
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    {
+  provide: LOCALE_ID,
+  useValue: 'pt-BR',
+},
     provideRouter(routes),
 
     provideAppInitializer(() => initializeKeycloak()),
@@ -55,5 +63,7 @@ export const appConfig: ApplicationConfig = {
     // PrimeNG Services
     MessageService,
     ConfirmationService
+
+    
   ]
 };

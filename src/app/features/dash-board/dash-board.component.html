@@ -1,7 +1,153 @@
-<div class="grafico-container">
-  <p-chart
-    type="pie"
-    [data]="data"
-    [options]="options">
-  </p-chart>
-</div>
+<article class="metrica-card">
+
+  <header class="metrica-header">
+
+    <div>
+
+      <h3>
+        {{ titulo }}
+      </h3>
+
+      @if (subtitulo) {
+
+        <p>
+          {{ subtitulo }}
+        </p>
+
+      }
+
+    </div>
+
+  </header>
+
+
+  <div class="metrica-content">
+
+    <div class="grafico-wrapper">
+
+      <div class="grafico-container">
+
+        <p-chart
+          type="doughnut"
+          [data]="data"
+          [options]="options">
+        </p-chart>
+
+
+        <div class="grafico-total">
+
+          <strong>
+            {{ total }}
+          </strong>
+
+          <span>
+            Ordens de<br>
+            Serviço
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="legenda">
+
+      <div class="legenda-item">
+
+        <span class="legenda-info">
+
+          <span
+            class="bolinha abertas">
+          </span>
+
+          Abertas
+
+        </span>
+
+        <strong>
+          {{ abertas }}
+        </strong>
+
+      </div>
+
+
+      <div class="legenda-item">
+
+        <span class="legenda-info">
+
+          <span
+            class="bolinha autorizadas">
+          </span>
+
+          Autorizadas
+
+        </span>
+
+        <strong>
+          {{ autorizadas }}
+        </strong>
+
+      </div>
+
+
+      <div class="legenda-item">
+
+        <span class="legenda-info">
+
+          <span
+            class="bolinha entregues">
+          </span>
+
+          Entregues
+
+        </span>
+
+        <strong>
+          {{ entregues }}
+        </strong>
+
+      </div>
+
+
+      <div class="legenda-item">
+
+        <span class="legenda-info">
+
+          <span
+            class="bolinha nao-autorizadas">
+          </span>
+
+          Não autorizadas
+
+        </span>
+
+        <strong>
+          {{ naoAutorizadas }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <footer class="metrica-footer">
+
+    <div>
+
+      <span class="footer-label">
+        Total de ordens
+      </span>
+
+      <strong>
+        {{ total }}
+      </strong>
+
+    </div>
+
+  </footer>
+
+</article>

@@ -1,44 +1,302 @@
-.menu {
-  background: #f5f5f5;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+:host {
+  display: block;
 }
 
-.menu ul {
-  list-style: none;
+
+/* =========================================
+   PÁGINA
+   ========================================= */
+
+.dashboard-page {
+  min-height: calc(100vh - 70px);
+
+  box-sizing: border-box;
+
+  padding: 28px;
+
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(59, 130, 246, 0.08),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 80% 30%,
+      rgba(14, 165, 233, 0.06),
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      #f8fbff 0%,
+      #f1f7fd 55%,
+      #edf5fc 100%
+    );
+}
+
+
+/* =========================================
+   HEADER
+   ========================================= */
+
+.dashboard-header {
   display: flex;
-  gap: 20px;
-  padding: 0;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 28px;
+}
+
+
+.dashboard-title h1 {
   margin: 0;
+
+  color: #0f2747;
+
+  font-size: 30px;
+
+  line-height: 1.2;
+
+  font-weight: 700;
 }
 
-.menu a {
-  text-decoration: none;
-  color: #333;
+
+.dashboard-title p {
+  margin: 8px 0 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+
+/* =========================================
+   AÇÕES
+   ========================================= */
+
+.dashboard-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+
+.btn-secondary {
+  padding: 9px 14px;
+
+  border: 1px solid #dbe4ee;
+
+  border-radius: 9px;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.9
+  );
+
+  color: #334155;
+
+  font-size: 13px;
+
   font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.menu a.active {
-  color: #1976d2;
-  border-bottom: 2px solid #1976d2;
+
+.btn-secondary:hover {
+  border-color: #3b82f6;
+
+  background: #ffffff;
+
+  color: #2563eb;
+
+  transform: translateY(-1px);
 }
 
 
-
-
+/* =========================================
+   GRID
+   ========================================= */
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1rem;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  align-items: stretch;
+
+  gap: 20px;
+
   width: 100%;
 }
 
-.dashboard-grid app-dashboard-metrica {
+
+.dashboard-grid
+app-dashboard-metrica {
   display: block;
-  background: white;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+
+  min-width: 0;
 }
 
+
+/* =========================================
+   LOADING
+   ========================================= */
+
+.dashboard-loading {
+  min-height: 300px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 12px;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+
+.spinner {
+  width: 22px;
+
+  height: 22px;
+
+  border: 3px solid #dbeafe;
+
+  border-top-color: #3b82f6;
+
+  border-radius: 50%;
+
+  animation:
+    dashboard-spin 0.8s linear infinite;
+}
+
+
+@keyframes dashboard-spin {
+  to {
+    transform:
+      rotate(360deg);
+  }
+}
+
+
+/* =========================================
+   ERRO
+   ========================================= */
+
+.dashboard-error {
+  min-height: 220px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 14px;
+
+  padding: 24px;
+
+  border: 1px solid #fecaca;
+
+  border-radius: 14px;
+
+  background: #fff7f7;
+
+  color: #b91c1c;
+}
+
+
+.dashboard-error button {
+  padding: 8px 14px;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: #b91c1c;
+
+  color: white;
+
+  cursor: pointer;
+}
+
+
+/* =========================================
+   RESPONSIVO
+   ========================================= */
+
+@media (
+  max-width: 1200px
+) {
+
+  .dashboard-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+
+@media (
+  max-width: 850px
+) {
+
+  .dashboard-header {
+    flex-direction: column;
+  }
+
+  .dashboard-actions {
+    justify-content: flex-start;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+@media (
+  max-width: 600px
+) {
+
+  .dashboard-page {
+    padding: 18px;
+  }
+
+  .dashboard-title h1 {
+    font-size: 24px;
+  }
+
+}
