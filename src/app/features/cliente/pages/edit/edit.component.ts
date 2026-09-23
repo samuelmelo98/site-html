@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 
 import {
-  CommonModule,
-} from '@angular/common';
+  HttpErrorResponse,
+} from '@angular/common/http';
 
 import {
   FormBuilder,
@@ -43,6 +43,10 @@ import {
 } from 'primeng/api';
 
 import {
+  InputMaskModule,
+} from 'primeng/inputmask';
+
+import {
   ClienteService,
 } from '../../services/cliente.service';
 
@@ -55,18 +59,27 @@ import {
 } from '../../model/cliente-atualizar.dto';
 
 
-@Component({
+interface ApiErrorResponse {
+  title?: string;
+  detail?: string;
+  message?: string;
+  status?: number;
+  instance?: string;
+  path?: string;
+}
 
+
+@Component({
   selector: 'app-edit',
 
   standalone: true,
 
   imports: [
-    CommonModule,
     ReactiveFormsModule,
-    DialogModule,
     ButtonModule,
+    DialogModule,
     InputTextModule,
+    InputMaskModule,
     ProgressSpinnerModule,
     ToastModule,
   ],
@@ -76,9 +89,7 @@ import {
   ],
 
   templateUrl: './edit.component.html',
-
   styleUrl: './edit.component.css',
-
 })
 export class EditComponent
   implements OnChanges {
@@ -86,15 +97,12 @@ export class EditComponent
   @Input()
   visible = false;
 
-
   @Input()
   clienteId: number | null = null;
-
 
   @Output()
   visibleChange =
     new EventEmitter<boolean>();
-
 
   @Output()
   atualizado =
@@ -113,7 +121,6 @@ export class EditComponent
 
   clienteOriginal:
     Cliente | null = null;
-
 
   carregando = false;
 
@@ -140,6 +147,9 @@ export class EditComponent
 
       telefone: [
         '',
+        [
+          Validators.required,
+        ],
       ],
 
     });
@@ -164,24 +174,22 @@ export class EditComponent
     ) {
 
       this.carregarCliente();
+
     }
+
   }
 
 
   private carregarCliente(): void {
 
-    if (
-      !this.clienteId
-    ) {
+    if (!this.clienteId) {
       return;
     }
 
 
-    this.carregando =
-      true;
+    this.carregando = true;
 
-    this.clienteOriginal =
-      null;
+    this.clienteOriginal = null;
 
 
     this.clienteService
@@ -204,39 +212,40 @@ export class EditComponent
               cliente.nome ?? '',
 
             cpf:
-              this.formatarCpf(
+              this.somenteNumeros(
                 cliente.cpf,
               ),
 
             telefone:
-              this.formatarTelefone(
+              this.somenteNumeros(
                 cliente.telefone,
               ),
 
           });
 
 
-          this.carregando =
-            false;
+          this.carregando = false;
+
         },
 
 
-        error: () => {
+        error: (
+          error: HttpErrorResponse,
+        ) => {
 
-          this.carregando =
-            false;
+          this.carregando = false;
 
 
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail:
-              'Não foi possível carregar os dados do cliente.',
-          });
+          this.exibirErroApi(
+            error,
+            'Erro',
+            'Não foi possível carregar os dados do cliente.',
+          );
 
         },
 
       });
+
   }
 
 
@@ -252,6 +261,7 @@ export class EditComponent
         .markAllAsTouched();
 
       return;
+
     }
 
 
@@ -266,9 +276,7 @@ export class EditComponent
       );
 
 
-    if (
-      cpf.length !== 11
-    ) {
+    if (cpf.length !== 11) {
 
       this.form
         .controls
@@ -277,12 +285,15 @@ export class EditComponent
           cpfInvalido: true,
         });
 
+
       this.form
         .controls
         .cpf
         .markAsTouched();
 
+
       return;
+
     }
 
 
@@ -303,13 +314,11 @@ export class EditComponent
         telefone:
           telefone || null,
 
-
         /*
          * Esses campos não são editados
          * neste modal, mas precisam ser
          * preservados no PUT.
          */
-
         email:
           this.clienteOriginal.email,
 
@@ -328,8 +337,7 @@ export class EditComponent
       };
 
 
-    this.salvando =
-      true;
+    this.salvando = true;
 
 
     this.clienteService
@@ -343,15 +351,20 @@ export class EditComponent
           cliente,
         ) => {
 
-          this.salvando =
-            false;
+          this.salvando = false;
 
 
           this.messageService.add({
+
             severity: 'success',
+
             summary: 'Sucesso',
+
             detail:
               'Cliente atualizado com sucesso.',
+
+            life: 4000,
+
           });
 
 
@@ -366,53 +379,178 @@ export class EditComponent
 
 
         error: (
-          error,
+          error: HttpErrorResponse,
         ) => {
 
-          this.salvando =
-            false;
+          this.salvando = false;
 
 
-          if (
-            error.status === 409
-          ) {
+          /*
+           * Exemplo retornado pelo backend:
+           *
+           * {
+           *   "title": "Dados inválidos",
+           *   "detail": "CPF inválido.",
+           *   "status": 400
+           * }
+           */
 
-            this.messageService.add({
-              severity: 'warn',
-              summary:
-                'CPF já cadastrado',
-              detail:
-                'Este CPF já pertence a outro cliente.',
-            });
+
+          if (error.status === 409) {
+
+            this.exibirErroApi(
+              error,
+              'CPF já cadastrado',
+              'Este CPF já pertence a outro cliente.',
+              'warn',
+            );
 
             return;
+
           }
 
 
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail:
-              'Não foi possível atualizar o cliente.',
-          });
+          this.exibirErroApi(
+            error,
+            'Erro',
+            'Não foi possível atualizar o cliente.',
+          );
 
         },
 
       });
+
+  }
+
+
+  /**
+   * Exibe no Toast a mensagem REAL retornada
+   * pelo backend.
+   *
+   * Prioridade:
+   *
+   * summary:
+   *   error.error.title
+   *
+   * detail:
+   *   error.error.detail
+   *   error.error.message
+   *   resposta String
+   *   fallback
+   */
+  private exibirErroApi(
+    error: HttpErrorResponse,
+    summaryFallback: string,
+    detailFallback: string,
+    severity:
+      'error' |
+      'warn' = 'error',
+  ): void {
+
+    const body =
+      error.error;
+
+
+    let summary =
+      summaryFallback;
+
+    let detail =
+      detailFallback;
+
+
+    /*
+     * Backend retornou apenas texto.
+     *
+     * Exemplo:
+     *
+     * "CPF inválido."
+     */
+    if (
+      typeof body === 'string'
+    ) {
+
+      const mensagem =
+        body.trim();
+
+
+      if (mensagem) {
+        detail = mensagem;
+      }
+
+    }
+
+
+    /*
+     * Backend retornou JSON.
+     *
+     * Exemplo:
+     *
+     * {
+     *   title: "Dados inválidos",
+     *   detail: "CPF inválido."
+     * }
+     */
+    if (
+      body &&
+      typeof body === 'object'
+    ) {
+
+      const apiError =
+        body as ApiErrorResponse;
+
+
+      if (
+        apiError.title?.trim()
+      ) {
+
+        summary =
+          apiError.title.trim();
+
+      }
+
+
+      if (
+        apiError.detail?.trim()
+      ) {
+
+        detail =
+          apiError.detail.trim();
+
+      } else if (
+        apiError.message?.trim()
+      ) {
+
+        detail =
+          apiError.message.trim();
+
+      }
+
+    }
+
+
+    this.messageService.add({
+
+      severity,
+
+      summary,
+
+      detail,
+
+      life: 6000,
+
+    });
+
   }
 
 
   fechar(): void {
 
-    if (
-      this.salvando
-    ) {
+    if (this.salvando) {
       return;
     }
 
 
-    this.visible =
-      false;
+    this.visible = false;
 
 
     this.visibleChange.emit(
@@ -422,8 +560,8 @@ export class EditComponent
 
     this.form.reset();
 
-    this.clienteOriginal =
-      null;
+    this.clienteOriginal = null;
+
   }
 
 
@@ -440,82 +578,15 @@ export class EditComponent
     );
 
 
-    if (
-      !visible
-    ) {
+    if (!visible) {
 
       this.form.reset();
 
-      this.clienteOriginal =
-        null;
+      this.clienteOriginal = null;
+
     }
+
   }
-
-
-  onCpfInput(
-  event: Event,
-): void {
-
-  if (
-    !(event.target instanceof HTMLInputElement)
-  ) {
-    return;
-  }
-
-  const input =
-    event.target;
-
-  const valor =
-    this.formatarCpf(
-      input.value,
-    );
-
-  input.value =
-    valor;
-
-  this.form
-    .controls
-    .cpf
-    .setValue(
-      valor,
-      {
-        emitEvent: false,
-      },
-    );
-}
-
-
-onTelefoneInput(
-  event: Event,
-): void {
-
-  if (
-    !(event.target instanceof HTMLInputElement)
-  ) {
-    return;
-  }
-
-  const input =
-    event.target;
-
-  const valor =
-    this.formatarTelefone(
-      input.value,
-    );
-
-  input.value =
-    valor;
-
-  this.form
-    .controls
-    .telefone
-    .setValue(
-      valor,
-      {
-        emitEvent: false,
-      },
-    );
-}
 
 
   private somenteNumeros(
@@ -524,83 +595,11 @@ onTelefoneInput(
 
     return (
       valor ?? ''
-    )
-      .replace(
-        /\D/g,
-        '',
-      );
-  }
+    ).replace(
+      /\D/g,
+      '',
+    );
 
-
-  private formatarCpf(
-    valor?: string | null,
-  ): string {
-
-    const numeros =
-      this.somenteNumeros(
-        valor,
-      )
-        .slice(
-          0,
-          11,
-        );
-
-
-    return numeros
-      .replace(
-        /^(\d{3})(\d)/,
-        '$1.$2',
-      )
-      .replace(
-        /^(\d{3})\.(\d{3})(\d)/,
-        '$1.$2.$3',
-      )
-      .replace(
-        /\.(\d{3})(\d)/,
-        '.$1-$2',
-      );
-  }
-
-
-  private formatarTelefone(
-    valor?: string | null,
-  ): string {
-
-    const numeros =
-      this.somenteNumeros(
-        valor,
-      )
-        .slice(
-          0,
-          11,
-        );
-
-
-    if (
-      numeros.length <= 10
-    ) {
-
-      return numeros
-        .replace(
-          /^(\d{2})(\d)/,
-          '($1) $2',
-        )
-        .replace(
-          /(\d{4})(\d)/,
-          '$1-$2',
-        );
-    }
-
-
-    return numeros
-      .replace(
-        /^(\d{2})(\d)/,
-        '($1) $2',
-      )
-      .replace(
-        /(\d{5})(\d)/,
-        '$1-$2',
-      );
   }
 
 }

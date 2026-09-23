@@ -64,6 +64,10 @@
     ClienteForm,
     ClienteFormFactoryService,
   } from '../../services/cliente-form-factory-service';
+
+  import {
+  ToastModule,
+} from 'primeng/toast';
   
   
   @Component({
@@ -79,6 +83,7 @@
       InputTextModule,
       InputMaskModule,
       Panel,
+      ToastModule,
     ],
     
     templateUrl: './create.component.html',
@@ -159,144 +164,245 @@
       );
     }
     
-    
     salvar(): void {
-      
-      /*
-      * Evita envio duplicado.
-      */
-      if (this.salvando) {
-        return;
-      }
-      
-      /*
-      * Garante o nome formatado
-      * antes da validação/envio.
-      */
-      this.formatarNome();
-      
-      /*
-      * Validação do formulário.
-      */
-      if (this.form.invalid) {
-        
-        this.form.markAllAsTouched();
-        
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Atenção',
-          detail:
-          'Preencha os campos obrigatórios corretamente',
-        });
-        
-        return;
-      }
-      
-      /*
-      * Cria o payload.
-      */
-      const payload =
-      this.formFactory.toPayload(
-        this.form,
-      );
-      
-      this.salvando = true;
-      
-      /*
-      * Primeiro verifica se o CPF
-      * já está cadastrado.
-      */
-      this.clienteService
-      .existePorCpf(
-        payload.cpf,
-      )
-      .pipe(
-        
-        switchMap((existe) => {
-          
+
+  /*
+   * Evita envio duplicado.
+   */
+  if (this.salvando) {
+    return;
+  }
+
+
+  /*
+   * Garante o nome formatado
+   * antes da validação/envio.
+   */
+  this.formatarNome();
+
+
+  /*
+   * Validação do formulário.
+   */
+  if (this.form.invalid) {
+
+    this.form.markAllAsTouched();
+
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Atenção',
+      detail:
+        'Preencha os campos obrigatórios corretamente.',
+      life: 5000,
+    });
+
+    return;
+  }
+
+
+  /*
+   * Cria o payload original.
+   */
+  const payloadOriginal =
+    this.formFactory.toPayload(
+      this.form,
+    );
+
+
+  /*
+   * Remove máscaras antes de
+   * enviar para o backend.
+   *
+   * Exemplo:
+   *
+   * 014.729.821-66
+   *      ↓
+   * 01472982166
+   *
+   * (61) 99999-9999
+   *      ↓
+   * 61999999999
+   */
+  const payload = {
+
+    ...payloadOriginal,
+
+    cpf:
+      payloadOriginal.cpf
+        ?.replace(
+          /\D/g,
+          '',
+        ) ?? '',
+
+    telefone:
+      payloadOriginal.telefone
+        ?.replace(
+          /\D/g,
+          '',
+        ) ?? '',
+
+  };
+
+
+  /*
+   * Remove erros de backend
+   * anteriores do CPF.
+   */
+  const cpfControl =
+    this.form.controls.cpf;
+
+
+  if (
+    cpfControl.hasError(
+      'cpfExistente',
+    ) ||
+    cpfControl.hasError(
+      'cpfInvalido',
+    )
+  ) {
+
+    const erros = {
+      ...cpfControl.errors,
+    };
+
+    delete erros[
+      'cpfExistente'
+    ];
+
+    delete erros[
+      'cpfInvalido'
+    ];
+
+
+    cpfControl.setErrors(
+      Object.keys(erros).length > 0
+        ? erros
+        : null,
+    );
+  }
+
+
+  this.salvando =
+    true;
+
+
+  /*
+   * Primeiro verifica se o CPF
+   * já está cadastrado.
+   */
+  this.clienteService
+    .existePorCpf(
+      payload.cpf,
+    )
+    .pipe(
+
+      switchMap(
+        (
+          existe,
+        ) => {
+
           /*
-          * CPF já cadastrado.
-          */
+           * CPF já cadastrado.
+           */
           if (existe) {
-            
-            const cpfControl =
-            this.form.controls.cpf;
-            
+
             cpfControl.setErrors({
               ...cpfControl.errors,
               cpfExistente: true,
             });
-            
+
             cpfControl.markAsTouched();
-            
+
+
             this.messageService.add({
               severity: 'warn',
+
               summary:
-              'Cliente já cadastrado',
+                'Cliente já cadastrado',
+
               detail:
-              'Já existe um cliente cadastrado com este CPF.',
+                'Já existe um cliente cadastrado com este CPF.',
+
               life: 5000,
             });
-            
+
+
             return EMPTY;
           }
-          
+
+
           /*
-          * CPF não cadastrado.
-          *
-          * Pode criar o cliente.
-          */
+           * CPF não cadastrado.
+           *
+           * O backend agora fará
+           * também a validação real
+           * dos dígitos verificadores.
+           */
           return this.clienteService
-          .salvar(payload);
-        }),
-        
-        tap((cliente) => {
-          
+            .salvar(
+              payload,
+            );
+        },
+      ),
+
+
+      tap(
+        (
+          cliente,
+        ) => {
+
           /*
-          * Garante que o backend
-          * retornou o ID do cliente.
-          */
+           * Garante que o backend
+           * retornou o ID do cliente.
+           */
           if (
             !cliente ||
             !cliente.clienteId
           ) {
-            
+
             throw new Error(
               'Cliente cadastrado, mas o backend não retornou clienteId.',
             );
           }
-          
+
+
           const clienteId =
-          cliente.clienteId;
-          
+            cliente.clienteId;
+
+
           console.log(
             'Cliente criado:',
             cliente,
           );
-          
+
+
           console.log(
             'Redirecionando para cadastro de aparelho. Cliente ID:',
             clienteId,
           );
-          
+
+
           this.messageService.add({
             severity: 'success',
             summary: 'Sucesso',
             detail:
-            'Cliente cadastrado com sucesso',
+              'Cliente cadastrado com sucesso.',
+            life: 4000,
           });
-          
+
+
           /*
-          * Informa outros componentes
-          * que o cliente foi salvo.
-          */
+           * Informa outros componentes
+           * que o cliente foi salvo.
+           */
           this.salvo.emit();
-          
+
+
           /*
-          * Direciona para:
-          *
-          * /aparelho/create?clienteId=9
-          */
+           * Direciona para:
+           *
+           * /aparelho/create/9
+           */
           void this.router.navigate(
             [
               '/aparelho',
@@ -304,96 +410,268 @@
               clienteId,
             ],
           );
-        }),
-        
-        catchError(
-          (
-            err:
+        },
+      ),
+
+
+      catchError(
+        (
+          err:
             HttpErrorResponse |
             Error,
-          ) => {
-            
-            console.error(
-              'Erro ao cadastrar cliente:',
-              err,
-            );
-            
+        ) => {
+
+          console.error(
+            'Erro ao cadastrar cliente:',
+            err,
+          );
+
+
+          /*
+           * Erros HTTP retornados
+           * pelo backend.
+           */
+          if (
+            err instanceof
+              HttpErrorResponse
+          ) {
+
+            const detalhe =
+              err.error?.detail ??
+              err.error?.message ??
+              'Não foi possível cadastrar o cliente.';
+
+
             /*
-            * CPF duplicado detectado
-            * pelo backend/banco.
-            */
+             * 400 - Dados inválidos.
+             *
+             * Exemplo atual:
+             *
+             * {
+             *   status: 400,
+             *   title: "Dados inválidos",
+             *   detail: "CPF inválido."
+             * }
+             */
             if (
-              err instanceof HttpErrorResponse &&
+              err.status === 400
+            ) {
+
+              const mensagem =
+                String(
+                  detalhe,
+                );
+
+
+              /*
+               * Se o erro estiver
+               * relacionado ao CPF,
+               * marca o campo.
+               */
+              if (
+                mensagem
+                  .toLowerCase()
+                  .includes(
+                    'cpf',
+                  )
+              ) {
+
+                cpfControl.setErrors({
+                  ...cpfControl.errors,
+                  cpfInvalido: true,
+                });
+
+                cpfControl
+                  .markAsTouched();
+              }
+
+
+              this.messageService.add({
+                severity: 'warn',
+
+                summary:
+                  err.error?.title ??
+                  'Dados inválidos',
+
+                detail:
+                  mensagem,
+
+                life: 5000,
+              });
+
+
+              return EMPTY;
+            }
+
+
+            /*
+             * 409 - CPF duplicado.
+             */
+            if (
               err.status === 409
             ) {
-              
-              const cpfControl =
-              this.form.controls.cpf;
-              
+
               cpfControl.setErrors({
                 ...cpfControl.errors,
                 cpfExistente: true,
               });
-              
-              cpfControl.markAsTouched();
-              
+
+              cpfControl
+                .markAsTouched();
+
+
               this.messageService.add({
                 severity: 'warn',
+
                 summary:
-                'Cliente já cadastrado',
+                  'Cliente já cadastrado',
+
                 detail:
-                'Já existe um cliente cadastrado com este CPF.',
+                  detalhe ||
+                  'Já existe um cliente cadastrado com este CPF.',
+
                 life: 5000,
               });
-              
+
+
               return EMPTY;
             }
-            
+
+
             /*
-            * Backend cadastrou mas não
-            * retornou clienteId.
-            */
+             * Sessão expirada.
+             */
             if (
-              err instanceof Error &&
-              err.message.includes(
-                'clienteId',
-              )
+              err.status === 401
             ) {
-              
+
               this.messageService.add({
                 severity: 'error',
+
                 summary:
-                'Erro ao redirecionar',
+                  'Sessão expirada',
+
                 detail:
-                'O cliente foi cadastrado, mas não foi possível identificar o ID retornado pelo servidor.',
+                  'Entre novamente para continuar.',
+
                 life: 5000,
               });
-              
+
+
               return EMPTY;
             }
-            
+
+
+            /*
+             * Sem permissão.
+             */
+            if (
+              err.status === 403
+            ) {
+
+              this.messageService.add({
+                severity: 'error',
+
+                summary:
+                  'Acesso negado',
+
+                detail:
+                  'Você não tem permissão para cadastrar clientes.',
+
+                life: 5000,
+              });
+
+
+              return EMPTY;
+            }
+
+
+            /*
+             * Outros erros HTTP.
+             */
             this.messageService.add({
               severity: 'error',
-              summary: 'Erro',
+
+              summary:
+                'Erro ao cadastrar cliente',
+
               detail:
-              'Não foi possível cadastrar o cliente.',
+                String(
+                  detalhe,
+                ),
+
               life: 5000,
             });
-            
+
+
             return EMPTY;
-          },
-        ),
-        
-        finalize(() => {
-          
-          this.salvando = false;
-          
-        }),
-        
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
-      )
-      .subscribe();
-    }
+          }
+
+
+          /*
+           * Backend cadastrou,
+           * mas não retornou clienteId.
+           */
+          if (
+            err instanceof Error &&
+            err.message.includes(
+              'clienteId',
+            )
+          ) {
+
+            this.messageService.add({
+              severity: 'error',
+
+              summary:
+                'Erro ao redirecionar',
+
+              detail:
+                'O cliente foi cadastrado, mas não foi possível identificar o ID retornado pelo servidor.',
+
+              life: 5000,
+            });
+
+
+            return EMPTY;
+          }
+
+
+          /*
+           * Erro inesperado no front.
+           */
+          this.messageService.add({
+            severity: 'error',
+
+            summary: 'Erro',
+
+            detail:
+              'Não foi possível cadastrar o cliente.',
+
+            life: 5000,
+          });
+
+
+          return EMPTY;
+        },
+      ),
+
+
+      finalize(
+        () => {
+
+          this.salvando =
+            false;
+
+        },
+      ),
+
+
+      takeUntilDestroyed(
+        this.destroyRef,
+      ),
+
+    )
+    .subscribe();
+}
+   
   }

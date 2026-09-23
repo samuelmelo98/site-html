@@ -145,122 +145,88 @@
 
       <!-- CPF -->
 
-      <div>
+<div>
 
-        <label
+  <label
+    for="cpf"
+    class="
+      mb-2
+      block
+      text-sm
+      font-medium
+      text-gray-700
+    "
+  >
+    CPF
 
-          for="cpf"
-
-          class="
-            mb-2
-            block
-            text-sm
-            font-medium
-            text-gray-700
-          "
-
-        >
-
-          CPF
-
-          <span class="text-red-500">
-            *
-          </span>
-
-        </label>
+    <span class="text-red-500">
+      *
+    </span>
+  </label>
 
 
-        <input
-
-          id="cpf"
-
-          type="text"
-
-          pInputText
-
-          formControlName="cpf"
-
-          inputmode="numeric"
-
-          maxlength="14"
-
-          autocomplete="off"
-
-          class="w-full"
-
-          (input)="onCpfInput($event)"
-
-        />
+  <p-inputMask
+  inputId="cpf"
+  formControlName="cpf"
+  mask="999.999.999-99"
+  placeholder="000.000.000-00"
+  [autoClear]="false"
+  [unmask]="true"
+  styleClass="w-full"
+>
+</p-inputMask>
 
 
-        @if (
-          form.controls.cpf.invalid &&
-          form.controls.cpf.touched
-        ) {
+  @if (
+    form.controls.cpf.invalid &&
+    form.controls.cpf.touched
+  ) {
 
-          <small
-            class="
-              mt-1
-              block
-              text-red-500
-            "
-          >
+    <small
+      class="
+        mt-1
+        block
+        text-red-500
+      "
+    >
+      Informe um CPF válido.
+    </small>
 
-            Informe um CPF válido.
+  }
 
-          </small>
-
-        }
-
-      </div>
+</div>
 
 
-      <!-- TELEFONE -->
+     <!-- TELEFONE -->
 
-      <div>
+<div>
 
-        <label
-
-          for="telefone"
-
-          class="
-            mb-2
-            block
-            text-sm
-            font-medium
-            text-gray-700
-          "
-
-        >
-
-          Telefone
-
-        </label>
+  <label
+    for="telefone"
+    class="
+      mb-2
+      block
+      text-sm
+      font-medium
+      text-gray-700
+    "
+  >
+    Telefone
+  </label>
 
 
-        <input
+  <p-inputMask
+  inputId="telefone"
+  formControlName="telefone"
+  mask="(99) 99999-9999"
+  placeholder="(00) 00000-0000"
+  [autoClear]="false"
+  [unmask]="true"
+  styleClass="w-full"
+>
+</p-inputMask>
 
-          id="telefone"
-
-          type="text"
-
-          pInputText
-
-          formControlName="telefone"
-
-          inputmode="tel"
-
-          maxlength="15"
-
-          autocomplete="tel"
-
-          class="w-full"
-
-          (input)="onTelefoneInput($event)"
-
-        />
-
-      </div>
+</div>
 
 
       <!-- AÇÕES -->
