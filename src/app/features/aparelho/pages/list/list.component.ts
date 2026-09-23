@@ -65,12 +65,24 @@ import {
   OrdemServicoService,
 } from '../../../ordem-servico/services/ordem-servico.service';
 
+import {
+  EditComponent,
+} from '../edit/edit.component';
 
+
+/*
+ * MODELO UTILIZADO PELA LISTAGEM
+ *
+ * Mantido localmente porque a tela
+ * precisa apenas destes campos.
+ */
 interface AparelhoLinha {
 
   aparelhoId: number;
 
-  marca: string;
+  marcaId?: number | null;
+
+  marca: string | null;
 
   modelo: string | null;
 
@@ -78,11 +90,17 @@ interface AparelhoLinha {
 
   numeroSerie: string | null;
 
-  statusAparelho?: unknown;
+  statusAparelhoId?: number | null;
+
+  statusAparelho?: string | null;
 
   dataEntradaAparelho?: string | null;
 
-  dataCadastro?: string | null;
+  observacao?: string | null;
+
+  tipoAparelhoId?: number | null;
+
+tipoAparelho?: string | null;
 }
 
 
@@ -97,9 +115,11 @@ interface AparelhoLinha {
     TableModule,
     ButtonModule,
     TooltipModule,
+    EditComponent,
   ],
 
-  templateUrl: './list.component.html',
+  templateUrl:
+    './list.component.html',
 
   changeDetection:
     ChangeDetectionStrategy.OnPush,
@@ -150,6 +170,19 @@ export class ListComponent
 
   readonly erroCliente =
     signal('');
+
+
+  /*
+   * EDICAO DO APARELHO
+   */
+
+  readonly modalEdicaoVisivel =
+    signal(false);
+
+  readonly aparelhoEdicaoId =
+    signal<number | null>(
+      null,
+    );
 
 
   /*
@@ -221,9 +254,11 @@ export class ListComponent
     const alteracao =
       changes['clienteId'];
 
+
     if (!alteracao) {
       return;
     }
+
 
     this.carregarCliente();
 
@@ -262,8 +297,10 @@ export class ListComponent
     this.requisicaoCliente
       ?.unsubscribe();
 
+
     const clienteId =
       this.clienteId();
+
 
     if (
       !Number.isSafeInteger(
@@ -300,10 +337,11 @@ export class ListComponent
         )
         .pipe(
 
-          finalize(() =>
-            this.carregandoCliente.set(
-              false,
-            ),
+          finalize(
+            () =>
+              this.carregandoCliente.set(
+                false,
+              ),
           ),
 
           takeUntilDestroyed(
@@ -410,6 +448,7 @@ export class ListComponent
     this.requisicao
       ?.unsubscribe();
 
+
     const clienteId =
       this.clienteId();
 
@@ -494,10 +533,11 @@ export class ListComponent
         )
         .pipe(
 
-          finalize(() =>
-            this.loading.set(
-              false,
-            ),
+          finalize(
+            () =>
+              this.loading.set(
+                false,
+              ),
           ),
 
           takeUntilDestroyed(
@@ -509,6 +549,10 @@ export class ListComponent
 
           next: resposta => {
 
+            /*
+             * AparelhoResponse é estruturalmente
+             * compatível com AparelhoLinha.
+             */
             this.dados2.set(
               resposta.content,
             );
@@ -528,6 +572,7 @@ export class ListComponent
               erro,
             );
 
+
             this.dados2.set(
               [],
             );
@@ -535,6 +580,7 @@ export class ListComponent
             this.total.set(
               0,
             );
+
 
             this.erro.set(
               erro.error?.detail ??
@@ -561,6 +607,7 @@ export class ListComponent
     if (!telefone) {
       return '—';
     }
+
 
     const numeros =
       telefone.replace(
@@ -604,10 +651,14 @@ export class ListComponent
   ): string {
 
     if (
-      typeof status === 'string'
+      typeof status ===
+      'string'
     ) {
 
-      return status || '—';
+      return (
+        status ||
+        '—'
+      );
     }
 
 
@@ -643,9 +694,55 @@ export class ListComponent
 
 
   /*
+   * EDITAR APARELHO
+   */
+
+  editarAparelho(
+    aparelhoId: number,
+  ): void {
+
+    if (
+      !Number.isSafeInteger(
+        aparelhoId,
+      ) ||
+      aparelhoId <= 0
+    ) {
+
+      return;
+    }
+
+
+    this.aparelhoEdicaoId.set(
+      aparelhoId,
+    );
+
+    this.modalEdicaoVisivel.set(
+      true,
+    );
+  }
+
+
+  /*
+   * APARELHO ATUALIZADO
+   */
+
+  aparelhoAtualizado(): void {
+
+  this.modalEdicaoVisivel.set(
+    false,
+  );
+
+  this.aparelhoEdicaoId.set(
+    null,
+  );
+
+  this.recarregar();
+}
+
+  /*
    * NOVA ORDEM DE SERVICO
    *
-   * Este método CRIA uma nova OS.
+   * Este método cria uma nova OS.
    */
 
   novaOrdemServico(
@@ -653,9 +750,10 @@ export class ListComponent
   ): void {
 
     if (
-      this.ordemEmProcessamento()
-        !== null
+      this.ordemEmProcessamento() !==
+      null
     ) {
+
       return;
     }
 
@@ -690,10 +788,11 @@ export class ListComponent
       )
       .pipe(
 
-        finalize(() =>
-          this.ordemEmProcessamento.set(
-            null,
-          ),
+        finalize(
+          () =>
+            this.ordemEmProcessamento.set(
+              null,
+            ),
         ),
 
         takeUntilDestroyed(
@@ -705,14 +804,7 @@ export class ListComponent
 
         next: ordem => {
 
-          /*
-           * O POST já retornou a OS.
-           *
-           * Enviamos o objeto para a
-           * tela de detalhes para evitar
-           * outro GET da mesma ordem.
-           */
-          this.router.navigate(
+          void this.router.navigate(
             [
               '/ordem-servico',
               ordem.ordemServicoId,
@@ -735,6 +827,7 @@ export class ListComponent
             erro,
           );
 
+
           this.erro.set(
             erro.error?.detail ??
             erro.error?.message ??
@@ -749,117 +842,171 @@ export class ListComponent
   /*
    * VER ULTIMA ORDEM DE SERVICO
    *
-   * Este método NÃO cria uma nova OS.
+   * Este método NÃO cria uma nova OS
+   * caso já exista uma.
    */
 
- verOrdemServico(
-  aparelhoId: number,
-): void {
+  verOrdemServico(
+    aparelhoId: number,
+  ): void {
 
-  this.erro.set('');
+    if (
+      !Number.isSafeInteger(
+        aparelhoId,
+      ) ||
+      aparelhoId <= 0
+    ) {
 
-  this.ordemServicoService
-    .buscarUltimaPorAparelho(
-      aparelhoId,
-    )
-    .pipe(
-      takeUntilDestroyed(
-        this.destroyRef,
-      ),
-    )
-    .subscribe({
+      this.erro.set(
+        'Identificador do aparelho inválido.',
+      );
 
-      next: ordem => {
+      return;
+    }
 
-        if (!ordem) {
 
-          this.gerarOrdemServico(
-            aparelhoId,
+    this.erro.set(
+      '',
+    );
+
+
+    this.ordemServicoService
+      .buscarUltimaPorAparelho(
+        aparelhoId,
+      )
+      .pipe(
+
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+
+      )
+      .subscribe({
+
+        next: ordem => {
+
+          if (!ordem) {
+
+            this.gerarOrdemServico(
+              aparelhoId,
+            );
+
+            return;
+          }
+
+
+          void this.router.navigate(
+            [
+              '/ordem-servico',
+              ordem.ordemServicoId,
+            ],
+            {
+              state: {
+                ordem,
+              },
+            },
+          );
+        },
+
+
+        error: (
+          erro: HttpErrorResponse,
+        ) => {
+
+          console.error(
+            'Erro ao consultar OS:',
+            erro,
           );
 
-          return;
-        }
 
-        this.router.navigate(
-          [
-            '/ordem-servico',
-            ordem.ordemServicoId,
-          ],
-          {
-            state: {
-              ordem,
-            },
-          },
-        );
-      },
+          this.erro.set(
+            erro.error?.detail ??
+            erro.error?.message ??
+            'Não foi possível consultar a ordem de serviço.',
+          );
+        },
 
-      error: (
-        erro: HttpErrorResponse,
-      ) => {
+      });
+  }
 
-        console.error(
-          'Erro ao consultar OS:',
-          erro,
-        );
 
-        this.erro.set(
-          erro.error?.detail ??
-          erro.error?.message ??
-          'Não foi possível consultar a ordem de serviço.',
-        );
-      },
-
-    });
-}
+  /*
+   * GERAR ORDEM DE SERVICO
+   *
+   * Chamado quando ainda não existe
+   * uma OS para o aparelho.
+   */
 
   gerarOrdemServico(
-  aparelhoId: number,
-): void {
+    aparelhoId: number,
+  ): void {
 
-  this.erro.set('');
+    if (
+      !Number.isSafeInteger(
+        aparelhoId,
+      ) ||
+      aparelhoId <= 0
+    ) {
 
-  this.ordemServicoService
-    .abrir(
-      aparelhoId,
-    )
-    .pipe(
-      takeUntilDestroyed(
-        this.destroyRef,
-      ),
-    )
-    .subscribe({
+      this.erro.set(
+        'Identificador do aparelho inválido.',
+      );
 
-      next: ordem => {
+      return;
+    }
 
-        this.router.navigate(
-          [
-            '/ordem-servico',
-            ordem.ordemServicoId,
-          ],
-          {
-            state: {
-              ordem,
+
+    this.erro.set(
+      '',
+    );
+
+
+    this.ordemServicoService
+      .abrir(
+        aparelhoId,
+      )
+      .pipe(
+
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+
+      )
+      .subscribe({
+
+        next: ordem => {
+
+          void this.router.navigate(
+            [
+              '/ordem-servico',
+              ordem.ordemServicoId,
+            ],
+            {
+              state: {
+                ordem,
+              },
             },
-          },
-        );
-      },
+          );
+        },
 
-      error: (
-        erro: HttpErrorResponse,
-      ) => {
 
-        console.error(
-          'Erro ao gerar OS:',
-          erro,
-        );
+        error: (
+          erro: HttpErrorResponse,
+        ) => {
 
-        this.erro.set(
-          erro.error?.detail ??
-          erro.error?.message ??
-          'Não foi possível gerar a ordem de serviço.',
-        );
-      },
+          console.error(
+            'Erro ao gerar OS:',
+            erro,
+          );
 
-    });
-}
+
+          this.erro.set(
+            erro.error?.detail ??
+            erro.error?.message ??
+            'Não foi possível gerar a ordem de serviço.',
+          );
+        },
+
+      });
+  }
 }

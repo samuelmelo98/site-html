@@ -64,12 +64,14 @@
               gap-1
             "
           >
+
             ID
 
             <p-sortIcon
               field="aparelhoId"
             >
             </p-sortIcon>
+
           </div>
 
         </th>
@@ -97,14 +99,34 @@
               gap-1
             "
           >
+
             Marca
 
             <p-sortIcon
               field="marca"
             >
             </p-sortIcon>
+
           </div>
 
+        </th>
+
+
+        <!-- TIPO DE APARELHO -->
+        <th
+          class="
+            hidden
+
+            md:table-cell
+            md:px-4
+            md:py-3
+            md:text-left
+            md:text-sm
+            md:font-semibold
+            md:text-gray-600
+          "
+        >
+          Tipo
         </th>
 
 
@@ -130,12 +152,14 @@
               gap-1
             "
           >
+
             Modelo
 
             <p-sortIcon
               field="modelo"
             >
             </p-sortIcon>
+
           </div>
 
         </th>
@@ -164,12 +188,14 @@
               gap-2
             "
           >
+
             Modelo comercial
 
             <p-sortIcon
               field="modeloComercial"
             >
             </p-sortIcon>
+
           </div>
 
         </th>
@@ -231,7 +257,7 @@
         <!-- AÇÕES -->
         <th
           class="
-            w-16
+            w-20
             px-2
             py-3
             text-center
@@ -239,7 +265,7 @@
             font-semibold
             text-gray-600
 
-            sm:w-24
+            sm:w-28
             sm:px-4
           "
         >
@@ -301,12 +327,30 @@
             class="
               font-medium
               text-gray-800
+              transition-colors
+              duration-200
               group-hover:text-green-800
             "
           >
-            {{ item.marca }}
+            {{ item.marca || '—' }}
           </span>
 
+        </td>
+
+
+        <!-- TIPO DE APARELHO -->
+        <td
+          class="
+            hidden
+
+            md:table-cell
+            md:px-4
+            md:py-4
+            md:text-sm
+            md:text-gray-600
+          "
+        >
+          {{ item.tipoAparelho || '—' }}
         </td>
 
 
@@ -337,10 +381,7 @@
             lg:text-gray-600
           "
         >
-          {{
-            item.modeloComercial ||
-            '—'
-          }}
+          {{ item.modeloComercial || '—' }}
         </td>
 
 
@@ -356,10 +397,7 @@
             xl:text-gray-600
           "
         >
-          {{
-            item.numeroSerie ||
-            '—'
-          }}
+          {{ item.numeroSerie || '—' }}
         </td>
 
 
@@ -392,26 +430,26 @@
               sm:max-w-40
               sm:px-3
             "
-
             [pTooltip]="
               textoStatus(
                 item.statusAparelho
               )
             "
-
             tooltipPosition="top"
           >
+
             {{
               textoStatus(
                 item.statusAparelho
               )
             }}
+
           </span>
 
         </td>
 
 
-        <!-- DATA -->
+        <!-- DATA DE ENTRADA -->
         <td
           class="
             hidden
@@ -426,12 +464,8 @@
 
           {{
             (
-              (
-                item.dataEntradaAparelho ??
-                item.dataCadastro
-              )
-              | date:
-                'dd/MM/yyyy HH:mm:ss'
+              item.dataEntradaAparelho
+              | date:'dd/MM/yyyy HH:mm:ss'
             ) || '—'
           }}
 
@@ -449,21 +483,51 @@
           "
         >
 
-          <p-button
-            icon="pi pi-eye"
-            severity="secondary"
-            rounded
-            text
-            ariaLabel="Ver ordens de serviço"
-            pTooltip="Ver ordens de serviço"
-            tooltipPosition="top"
-            (onClick)="
-              verOrdemServico(
-                item.aparelhoId
-              )
+          <div
+            class="
+              flex
+              items-center
+              justify-center
+              gap-1
             "
           >
-          </p-button>
+
+            <!-- EDITAR -->
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              rounded
+              text
+              ariaLabel="Editar aparelho"
+              pTooltip="Editar aparelho"
+              tooltipPosition="top"
+              (onClick)="
+                editarAparelho(
+                  item.aparelhoId
+                )
+              "
+            >
+            </p-button>
+
+
+            <!-- ORDEM DE SERVIÇO -->
+            <p-button
+              icon="pi pi-eye"
+              severity="secondary"
+              rounded
+              text
+              ariaLabel="Ver ordens de serviço"
+              pTooltip="Ver ordens de serviço"
+              tooltipPosition="top"
+              (onClick)="
+                verOrdemServico(
+                  item.aparelhoId
+                )
+              "
+            >
+            </p-button>
+
+          </div>
 
         </td>
 
@@ -478,7 +542,7 @@
       <tr>
 
         <td
-          colspan="8"
+          colspan="9"
           class="
             py-12
             text-center
@@ -530,3 +594,13 @@
   </p-table>
 
 </div>
+
+
+<!-- MODAL DE EDIÇÃO -->
+<app-aparelho-edit
+  [visible]="modalEdicaoVisivel()"
+  (visibleChange)="modalEdicaoVisivel.set($event)"
+  [aparelhoId]="aparelhoEdicaoId()"
+  (atualizado)="aparelhoAtualizado()"
+>
+</app-aparelho-edit>

@@ -1,1 +1,416 @@
-<p>edit works!</p>
+<p-dialog
+  header="Editar aparelho"
+  [visible]="visible"
+  (visibleChange)="alterarVisibilidade($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!salvando()"
+  [closeOnEscape]="!salvando()"
+  appendTo="body"
+  [style]="{
+    width: '36rem',
+    maxWidth: '95vw'
+  }"
+>
+
+  @if (carregando()) {
+
+    <div
+      class="
+        flex
+        items-center
+        justify-center
+        gap-3
+        py-12
+        text-sm
+        text-gray-500
+      "
+    >
+
+      <i
+        class="
+          pi
+          pi-spin
+          pi-spinner
+          text-xl
+          text-green-600
+        "
+      ></i>
+
+      <span>
+        Carregando aparelho...
+      </span>
+
+    </div>
+
+  } @else {
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="salvar()"
+      class="space-y-5"
+    >
+
+      <!-- MARCA -->
+
+      <div
+        class="
+          flex
+          flex-col
+          gap-2
+        "
+      >
+
+        <label
+          for="marcaEdicao"
+          class="
+            text-sm
+            font-medium
+            text-gray-700
+          "
+        >
+          Marca
+
+          <span class="text-red-500">
+            *
+          </span>
+        </label>
+
+
+        <p-select
+          inputId="marcaEdicao"
+          formControlName="marcaId"
+          [options]="marcas()"
+          optionLabel="nome"
+          optionValue="marcaId"
+          placeholder="Selecione a marca"
+          [filter]="true"
+          filterBy="nome"
+          [showClear]="true"
+          [loading]="carregandoMarcas()"
+          emptyMessage="Nenhuma marca disponível"
+          emptyFilterMessage="Nenhuma marca encontrada"
+          [style]="{
+            width: '100%'
+          }"
+        >
+        </p-select>
+
+        <!-- TIPO DE APARELHO -->
+
+<div
+  class="
+    flex
+    flex-col
+    gap-2
+  "
+>
+
+  <label
+    for="tipoAparelhoEdicao"
+    class="
+      text-sm
+      font-medium
+      text-gray-700
+    "
+  >
+    Tipo de aparelho
+
+    <span class="text-red-500">
+      *
+    </span>
+  </label>
+
+
+  <p-select
+    inputId="tipoAparelhoEdicao"
+    formControlName="tipoAparelhoId"
+    [options]="tipos()"
+    optionLabel="nome"
+    optionValue="tipoAparelhoId"
+    placeholder="Selecione o tipo de aparelho"
+    [filter]="true"
+    filterBy="nome"
+    [showClear]="true"
+    [loading]="carregandoTipos()"
+    emptyMessage="Nenhum tipo disponível"
+    emptyFilterMessage="Nenhum tipo encontrado"
+    [style]="{
+      width: '100%'
+    }"
+  >
+  </p-select>
+
+
+  @if (
+    invalido('tipoAparelhoId')
+  ) {
+
+    <small
+      class="text-red-600"
+    >
+      Selecione o tipo de aparelho.
+    </small>
+
+  }
+
+
+  @if (
+    erroTipos()
+  ) {
+
+    <small
+      class="text-red-600"
+    >
+      {{ erroTipos() }}
+    </small>
+
+  }
+
+</div>
+
+
+        @if (
+          invalido('marcaId')
+        ) {
+
+          <small
+            class="text-red-600"
+          >
+            Selecione a marca.
+          </small>
+
+        }
+
+
+        @if (
+          erroMarcas()
+        ) {
+
+          <small
+            class="text-red-600"
+          >
+            {{ erroMarcas() }}
+          </small>
+
+        }
+
+      </div>
+
+
+      <!-- MODELO -->
+
+      <div
+        class="
+          flex
+          flex-col
+          gap-2
+        "
+      >
+
+        <label
+          for="modeloEdicao"
+          class="
+            text-sm
+            font-medium
+            text-gray-700
+          "
+        >
+          Modelo
+
+          <span class="text-red-500">
+            *
+          </span>
+        </label>
+
+
+        <input
+          pInputText
+          id="modeloEdicao"
+          formControlName="modelo"
+          placeholder="Ex.: SM-A156M"
+          class="w-full"
+        />
+
+
+        @if (
+          invalido('modelo')
+        ) {
+
+          <small
+            class="text-red-600"
+          >
+            Informe o modelo.
+          </small>
+
+        }
+
+      </div>
+
+
+      <!-- MODELO COMERCIAL -->
+
+      <div
+        class="
+          flex
+          flex-col
+          gap-2
+        "
+      >
+
+        <label
+          for="modeloComercialEdicao"
+          class="
+            text-sm
+            font-medium
+            text-gray-700
+          "
+        >
+          Modelo comercial
+        </label>
+
+
+        <input
+          pInputText
+          id="modeloComercialEdicao"
+          formControlName="modeloComercial"
+          placeholder="Ex.: Galaxy A15 5G"
+          class="w-full"
+        />
+
+      </div>
+
+
+      <!-- NUMERO DE SERIE -->
+
+      <div
+        class="
+          flex
+          flex-col
+          gap-2
+        "
+      >
+
+        <label
+          for="numeroSerieEdicao"
+          class="
+            text-sm
+            font-medium
+            text-gray-700
+          "
+        >
+          Número de série
+
+          <span class="text-red-500">
+            *
+          </span>
+        </label>
+
+
+        <input
+          pInputText
+          id="numeroSerieEdicao"
+          formControlName="numeroSerie"
+          placeholder="Informe o número de série"
+          class="w-full"
+        />
+
+
+        @if (
+          invalido('numeroSerie')
+        ) {
+
+          <small
+            class="text-red-600"
+          >
+            Informe o número de série.
+          </small>
+
+        }
+
+      </div>
+
+
+      <!-- ERRO -->
+
+      @if (erro()) {
+
+        <div
+          class="
+            flex
+            items-start
+            gap-2
+            rounded-lg
+            border
+            border-red-200
+            bg-red-50
+            p-3
+            text-sm
+            text-red-600
+          "
+        >
+
+          <i
+            class="
+              pi
+              pi-exclamation-circle
+              mt-0.5
+            "
+          ></i>
+
+          <span>
+            {{ erro() }}
+          </span>
+
+        </div>
+
+      }
+
+
+      <!-- ACOES -->
+
+      <div
+        class="
+          flex
+          justify-end
+          gap-3
+          border-t
+          border-gray-200
+          pt-5
+        "
+      >
+
+        <p-button
+          type="button"
+          label="Cancelar"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="salvando()"
+          (onClick)="fechar()"
+        >
+        </p-button>
+
+
+        <p-button
+  type="submit"
+  label="Salvar alterações"
+  icon="pi pi-check"
+  severity="success"
+  [loading]="salvando()"
+  [disabled]="
+    salvando() ||
+    carregando() ||
+    carregandoMarcas() ||
+    carregandoTipos()
+  "
+>
+</p-button>
+
+      </div>
+
+    </form>
+
+  }
+
+</p-dialog>
