@@ -58,15 +58,7 @@ import {
   ClienteAtualizarDTO,
 } from '../../model/cliente-atualizar.dto';
 
-
-interface ApiErrorResponse {
-  title?: string;
-  detail?: string;
-  message?: string;
-  status?: number;
-  instance?: string;
-  path?: string;
-}
+import {ApiErrorResponse} from '../../model/api-error-response'
 
 
 @Component({
