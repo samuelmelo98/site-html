@@ -32,6 +32,9 @@ import {
   Cliente,
 } from '../model/cliente-listar.dto';
 
+import { ClienteAtualizarDTO } from '../model/cliente-atualizar.dto';
+
+
 
 @Injectable({
   providedIn: 'root',
@@ -108,15 +111,15 @@ export class ClienteService {
 
 
   editar(
-    id: number,
-    cliente: any,
-  ): Observable<Cliente> {
+  id: number,
+  cliente: ClienteAtualizarDTO,
+): Observable<Cliente> {
 
-    return this.http.put<Cliente>(
-      `${this.API}/${id}`,
-      cliente,
-    );
-  }
+  return this.http.put<Cliente>(
+    `${this.API}/${id}`,
+    cliente,
+  );
+}
 
 
   editarParcial(
@@ -229,4 +232,6 @@ export class ClienteService {
 
       );
   }
+
+  
 }

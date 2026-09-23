@@ -15,21 +15,33 @@ import { ClienteService } from '../../services/cliente.service';
 
 import { NavigationService } from '../../../../shared/services/navegation-service';
 
+import { Cliente } from '../../model/cliente-listar.dto';
+
+import {
+  EditComponent,
+} from '../edit/edit.component';
+
 @Component({
   selector: 'app-list',
   standalone: true, // Adicionado explicitamente para garantir o escopo no Angular 20
   imports: [
-    CommonModule,
-    TableModule,
-    TagModule,
-    ProgressSpinnerModule,
-    ButtonModule,
-    CpfPipe,
-  ],
+  CommonModule,
+  TableModule,
+  TagModule,
+  ProgressSpinnerModule,
+  ButtonModule,
+  CpfPipe,
+  EditComponent,
+],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
 })
 export class ListComponent {
+
+  modalEdicaoVisivel = false;
+
+clienteEdicaoId:
+  number | null = null;
   dados2: any[] = [];
   total = 0;
   loading = false;
@@ -114,4 +126,26 @@ formatarTelefone(telefone?: string | null): string {
 
   return telefone;
 }
+
+editarCliente(
+  event: Event,
+  cliente: Cliente,
+): void {
+
+  event.stopPropagation();
+
+  this.clienteEdicaoId =
+    cliente.clienteId;
+
+  this.modalEdicaoVisivel =
+    true;
+}
+
+
+clienteAtualizado(): void {
+
+  this.recarregar();
+}
+
+
 }
