@@ -1,21 +1,45 @@
-// 🔹 Angular core
-import { Component, ViewChild, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  ViewChild,
+  inject,
+} from '@angular/core';
 
-// 🔹 PrimeNG v20 Modules
-import { TableModule, Table } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { ButtonModule } from 'primeng/button';
+import {
+  CommonModule,
+} from '@angular/common';
 
-import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
+import {
+  Table,
+  TableModule,
+} from 'primeng/table';
 
-// 🔹 Services
-import { ClienteService } from '../../services/cliente.service';
+import {
+  TagModule,
+} from 'primeng/tag';
 
-import { NavigationService } from '../../../../shared/services/navegation-service';
+import {
+  ProgressSpinnerModule,
+} from 'primeng/progressspinner';
 
-import { Cliente } from '../../model/cliente-listar.dto';
+import {
+  ButtonModule,
+} from 'primeng/button';
+
+import {
+  CpfPipe,
+} from '../../../../shared/pipes/cpf.pipe';
+
+import {
+  ClienteService,
+} from '../../services/cliente.service';
+
+import {
+  NavigationService,
+} from '../../../../shared/services/navegation-service';
+
+import {
+  Cliente,
+} from '../../model/cliente-listar.dto';
 
 import {
   EditComponent,
@@ -23,16 +47,16 @@ import {
 
 @Component({
   selector: 'app-list',
-  standalone: true, // Adicionado explicitamente para garantir o escopo no Angular 20
+  standalone: true,
   imports: [
-  CommonModule,
-  TableModule,
-  TagModule,
-  ProgressSpinnerModule,
-  ButtonModule,
-  CpfPipe,
-  EditComponent,
-],
+    CommonModule,
+    TableModule,
+    TagModule,
+    ProgressSpinnerModule,
+    ButtonModule,
+    CpfPipe,
+    EditComponent,
+  ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
 })
@@ -40,20 +64,26 @@ export class ListComponent {
 
   modalEdicaoVisivel = false;
 
-clienteEdicaoId:
-  number | null = null;
-  dados2: any[] = [];
+  clienteEdicaoId: number | null = null;
+
+  dados2: Cliente[] = [];
+
   total = 0;
+
   loading = false;
+
   termoBusca = '';
 
-  clienteSelecionado: any | null = null;
+  clienteSelecionado: Cliente | null = null;
 
-  private clienteService = inject(ClienteService);
+  private readonly clienteService =
+    inject(ClienteService);
 
-  private navegationService = inject(NavigationService);
+  private readonly navegationService =
+    inject(NavigationService);
 
-  @ViewChild('tabela') tabela!: Table;
+  @ViewChild('tabela')
+  tabela!: Table;
 
   buscar(valor: string): void {
     this.termoBusca = valor;
@@ -61,22 +91,48 @@ clienteEdicaoId:
   }
 
   carregar(event: any): void {
+
     this.loading = true;
 
-    const page = event.first / event.rows;
-    const size = event.rows;
-    const sortField = event.sortField ?? 'clienteId';
-    const sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+    const page =
+      event.first / event.rows;
+
+    const size =
+      event.rows;
+
+    const sortField =
+      event.sortField ?? 'clienteId';
+
+    const sortOrder =
+      event.sortOrder === 1
+        ? 'asc'
+        : 'desc';
 
     this.clienteService
-      .listarPaginado(page, size, sortField, sortOrder, this.termoBusca)
+      .listarPaginado(
+        page,
+        size,
+        sortField,
+        sortOrder,
+        this.termoBusca,
+      )
       .subscribe({
         next: (res) => {
-          this.dados2 = res.content;
-          this.total = res.totalElements;
-          this.loading = false;
+
+          this.dados2 =
+            res.content;
+
+          this.total =
+            res.totalElements;
+
+          this.loading =
+            false;
         },
-        error: () => (this.loading = false),
+        error: () => {
+
+          this.loading =
+            false;
+        },
       });
   }
 
@@ -84,68 +140,64 @@ clienteEdicaoId:
     this.tabela.reset();
   }
 
-formatCpf(cpf: string): string {
-  return cpf.replace(
-    /(\d{3})(\d{3})(\d{3})(\d{2})/,
-    '$1.$2.$3-$4'
-  );
-}
+  public adicionarAparelho(
+    cliente: Cliente,
+  ): void {
 
+    this.clienteSelecionado =
+      cliente;
 
-public adicionarAparelho(cliente: any){
-  this.clienteSelecionado = cliente;
-  console.log(this.clienteSelecionado);
     this.navegationService.irPara([
-    'aparelho',
-    cliente.clienteId.toString()
-  ]);
-  
-
-}
-
-formatarTelefone(telefone?: string | null): string {
-  if (!telefone) {
-    return '—';
+      'aparelho',
+      cliente.clienteId.toString(),
+    ]);
   }
 
-  const numeros = telefone.replace(/\D/g, '');
+  formatarTelefone(
+    telefone?: string | null,
+  ): string {
 
-  if (numeros.length === 11) {
-    return numeros.replace(
-      /(\d{2})(\d{5})(\d{4})/,
-      '($1) $2-$3'
-    );
+    if (!telefone) {
+      return '—';
+    }
+
+    const numeros =
+      telefone.replace(/\D/g, '');
+
+    if (numeros.length === 11) {
+
+      return numeros.replace(
+        /(\d{2})(\d{5})(\d{4})/,
+        '($1) $2-$3',
+      );
+    }
+
+    if (numeros.length === 10) {
+
+      return numeros.replace(
+        /(\d{2})(\d{4})(\d{4})/,
+        '($1) $2-$3',
+      );
+    }
+
+    return telefone;
   }
 
-  if (numeros.length === 10) {
-    return numeros.replace(
-      /(\d{2})(\d{4})(\d{4})/,
-      '($1) $2-$3'
-    );
+  editarCliente(
+    event: Event,
+    cliente: Cliente,
+  ): void {
+
+    event.stopPropagation();
+
+    this.clienteEdicaoId =
+      cliente.clienteId;
+
+    this.modalEdicaoVisivel =
+      true;
   }
 
-  return telefone;
-}
-
-editarCliente(
-  event: Event,
-  cliente: Cliente,
-): void {
-
-  event.stopPropagation();
-
-  this.clienteEdicaoId =
-    cliente.clienteId;
-
-  this.modalEdicaoVisivel =
-    true;
-}
-
-
-clienteAtualizado(): void {
-
-  this.recarregar();
-}
-
-
+  clienteAtualizado(): void {
+    this.recarregar();
+  }
 }

@@ -22,4 +22,6 @@ export interface Cliente {
 
   ativo: boolean;
 
+  dataCadastro: string;
+
 }
