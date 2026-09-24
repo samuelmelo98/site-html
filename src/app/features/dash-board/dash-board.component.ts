@@ -8,6 +8,10 @@ import {
   ChartModule,
 } from 'primeng/chart';
 
+import {
+  MetricaEntregasTecnicoDTO,
+} from './model/dashboard-ordem-servico.dto';
+
 
 @Component({
   selector: 'app-dashboard-metrica',
@@ -25,6 +29,13 @@ import {
 export class DashboardComponent
   implements OnChanges {
 
+    @Input()
+    tecnicos: MetricaEntregasTecnicoDTO[] = [];
+
+
+
+    @Input()
+somenteEntregues = false;
   @Input()
   titulo = '';
 
@@ -57,6 +68,9 @@ export class DashboardComponent
 
 
   get total(): number {
+    if (this.somenteEntregues) {
+      return this.entregues;
+    }
 
     return (
       this.abertas +
@@ -64,47 +78,44 @@ export class DashboardComponent
       this.entregues +
       this.naoAutorizadas
     );
-
   }
 
 
   private carregarGrafico(): void {
 
     this.data = {
-
-      labels: [
-        'Abertas',
-        'Autorizadas',
-        'Entregues',
-        'Não autorizadas',
-      ],
+      labels: this.somenteEntregues
+        ? ['Entregues']
+        : [
+            'Abertas',
+            'Autorizadas',
+            'Entregues',
+            'Não autorizadas',
+          ],
 
       datasets: [
         {
+          data: this.somenteEntregues
+            ? [this.entregues]
+            : [
+                this.abertas,
+                this.autorizadas,
+                this.entregues,
+                this.naoAutorizadas,
+              ],
 
-          data: [
-            this.abertas,
-            this.autorizadas,
-            this.entregues,
-            this.naoAutorizadas,
-          ],
+          backgroundColor: this.somenteEntregues
+            ? ['#0F766E']
+            : [
+                '#3B82F6',
+                '#22C55E',
+                '#0F766E',
+                '#F97316',
+              ],
 
-          backgroundColor: [
-            '#3B82F6',
-            '#22C55E',
-            '#0F766E',
-            '#F97316',
-          ],
-
-          borderColor:
-            '#FFFFFF',
-
-          borderWidth:
-            3,
-
-          hoverOffset:
-            6,
-
+          borderColor: '#FFFFFF',
+          borderWidth: 3,
+          hoverOffset: 6,
         },
       ],
     };
@@ -172,6 +183,15 @@ export class DashboardComponent
 
     };
 
+  }
+
+  private readonly formatoMoeda = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
+
+  formatarMoeda(valor: number): string {
+    return this.formatoMoeda.format(valor);
   }
 
 }

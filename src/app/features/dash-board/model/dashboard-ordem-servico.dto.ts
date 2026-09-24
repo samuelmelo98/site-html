@@ -19,11 +19,17 @@ export interface MetricaOrdemServicoDTO {
 }
 
 export interface DashboardOrdemServicoDTO {
-
   semana: MetricaOrdemServicoDTO;
-
+  entreguesSeisDias: MetricaOrdemServicoDTO;
   trintaDias: MetricaOrdemServicoDTO;
-
   ano: MetricaOrdemServicoDTO;
+  entreguesPorTecnico: MetricaEntregasTecnicoDTO[];
+}
 
+export interface MetricaEntregasTecnicoDTO {
+  tecnicoId: number | null;
+  tecnicoNome: string;
+  quantidadeEntregues: number;
+  valorTotal: number;
+  valorMaterial: number;
 }
