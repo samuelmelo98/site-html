@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
-import { FooterComponent } from '../footer/footer.component';
-import { MenuComponent } from "../menu/menu.component";
 import { SideBar } from "../side-bar/side-bar";
 import { GlobalLoaderComponent } from '../ui/components/global-loader/global-loader.component';
 
@@ -13,10 +11,8 @@ import { GlobalLoaderComponent } from '../ui/components/global-loader/global-loa
   imports: [
     RouterOutlet,
     HeaderComponent,
-    FooterComponent,
-    MenuComponent,
-     SideBar,
-     GlobalLoaderComponent
+    SideBar,
+    GlobalLoaderComponent
     ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.css'

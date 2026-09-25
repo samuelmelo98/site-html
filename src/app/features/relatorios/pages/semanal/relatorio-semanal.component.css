@@ -1,0 +1,752 @@
+.pagina-relatorio {
+
+  padding: 2rem;
+
+}
+
+.cabecalho-pagina {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 1rem;
+
+  margin-bottom: 1.5rem;
+
+}
+
+.cabecalho-pagina h1 {
+
+  margin: .25rem 0;
+
+  font-size: 1.5rem;
+
+  color: #0f172a;
+
+}
+
+.cabecalho-pagina p {
+
+  margin: 0;
+
+  color: #64748b;
+
+}
+
+.subtitulo {
+
+  color: #64748b;
+
+}
+
+.cabecalho-acoes {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: .75rem;
+
+}
+
+.estado {
+
+  min-height: 280px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 1rem;
+
+  padding: 2rem;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 10px;
+
+  background: white;
+
+}
+
+.estado > div {
+
+  display: grid;
+
+  gap: .25rem;
+
+}
+
+.estado span {
+
+  color: #64748b;
+
+}
+
+.estado-erro {
+
+  color: #991b1b;
+
+}
+
+.estado-erro i,
+
+.estado-vazio i {
+
+  font-size: 1.5rem;
+
+}
+
+.resumo-geral {
+
+  display: grid;
+
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+
+  gap: .75rem;
+
+  margin-bottom: 1.5rem;
+
+}
+
+.resumo-card {
+
+  padding: 1rem;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 10px;
+
+  background: white;
+
+}
+
+.resumo-card span,
+
+.dados-tecnico span,
+
+.periodo-relatorio span,
+
+.total-item span {
+
+  display: block;
+
+  margin-bottom: .25rem;
+
+  font-size: .75rem;
+
+  color: #64748b;
+
+}
+
+.resumo-card strong {
+
+  color: #0f172a;
+
+}
+
+.resumo-card.destaque {
+
+  border-color: #bbf7d0;
+
+  background: #f0fdf4;
+
+}
+
+.resumo-card.destaque strong {
+
+  color: #166534;
+
+}
+
+.relatorio-tecnico {
+
+  margin-bottom: 1.5rem;
+
+  padding: 1.5rem;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 10px;
+
+  background: white;
+
+}
+
+.cabecalho-relatorio {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 1rem;
+
+  padding-bottom: 1rem;
+
+  border-bottom: 1px solid #e2e8f0;
+
+}
+
+.empresa {
+
+  display: block;
+
+  margin-bottom: .25rem;
+
+  font-size: .8rem;
+
+  color: #64748b;
+
+}
+
+.cabecalho-relatorio h2 {
+
+  margin: 0;
+
+  font-size: 1.15rem;
+
+  color: #0f172a;
+
+}
+
+.periodo-relatorio {
+
+  text-align: right;
+
+}
+
+.dados-tecnico {
+
+  display: grid;
+
+  grid-template-columns: 2fr .5fr 2fr;
+
+  gap: 1rem;
+
+  padding: 1rem 0;
+
+}
+
+.dados-tecnico strong {
+
+  color: #0f172a;
+
+}
+
+.tabela-wrapper {
+
+  width: 100%;
+
+  overflow-x: auto;
+
+}
+
+.tabela-relatorio {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: .85rem;
+
+}
+
+.tabela-relatorio th,
+
+.tabela-relatorio td {
+
+  padding: .75rem;
+
+  border: 1px solid #e2e8f0;
+
+  vertical-align: top;
+
+}
+
+.tabela-relatorio th {
+
+  background: #f8fafc;
+
+  text-align: left;
+
+  font-size: .75rem;
+
+  color: #475569;
+
+}
+
+.tabela-relatorio td {
+
+  color: #0f172a;
+
+}
+
+.tabela-relatorio td small {
+
+  display: block;
+
+  margin-top: .25rem;
+
+  color: #64748b;
+
+}
+
+.numero {
+
+  text-align: right !important;
+
+  white-space: nowrap;
+
+}
+
+.pagamentos {
+
+  display: grid;
+
+  gap: .35rem;
+
+}
+
+.pagamento {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: baseline;
+
+  gap: .5rem;
+
+  white-space: nowrap;
+
+}
+
+.pagamento span {
+
+  color: #475569;
+
+}
+
+.pagamento small {
+
+  margin: 0 !important;
+
+}
+
+.sem-pagamento {
+
+  color: #94a3b8;
+
+}
+
+.totais-relatorio {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  align-items: stretch;
+
+  gap: .5rem;
+
+  margin-top: 1rem;
+
+}
+
+.total-item {
+
+  min-width: 145px;
+
+  padding: .85rem;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 8px;
+
+  background: #f8fafc;
+
+}
+
+.total-item strong {
+
+  color: #0f172a;
+
+}
+
+.total-operador {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 0 .15rem;
+
+  font-weight: 700;
+
+  color: #64748b;
+
+}
+
+.total-tecnico {
+
+  border-color: #86efac;
+
+  background: #f0fdf4;
+
+}
+
+.total-tecnico strong {
+
+  color: #166534;
+
+  font-size: 1.05rem;
+
+}
+
+.formula-relatorio {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: .5rem;
+
+  margin-top: .75rem;
+
+  font-size: .78rem;
+
+  color: #64748b;
+
+}
+
+.formula-relatorio strong {
+
+  color: #334155;
+
+}
+
+
+/* FILTRO */
+
+.filtro-periodo {
+
+  margin-bottom: 1.5rem;
+
+  padding: 1rem;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 10px;
+
+  background: white;
+
+}
+
+.filtro-periodo-form {
+
+  display: flex;
+
+  align-items: flex-end;
+
+  gap: .75rem;
+
+  flex-wrap: wrap;
+
+}
+
+.campo-tecnico {
+
+  min-width: 280px;
+
+}
+
+.campo-periodo {
+
+  min-width: 190px;
+
+}
+
+.campo-tecnico label,
+
+.campo-periodo label {
+
+  display: block;
+
+  margin-bottom: .35rem;
+
+  font-size: .75rem;
+
+  font-weight: 600;
+
+  color: #475569;
+
+}
+
+.campo-tecnico select,
+
+.campo-periodo input {
+
+  width: 100%;
+
+  min-height: 40px;
+
+  padding: .55rem .7rem;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 8px;
+
+  background: white;
+
+  color: #0f172a;
+
+}
+
+.campo-tecnico select:focus,
+
+.campo-periodo input:focus {
+
+  outline: none;
+
+  border-color: #0ea5e9;
+
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, .10);
+
+}
+
+.campo-tecnico select:disabled {
+
+  background: #f8fafc;
+
+  color: #94a3b8;
+
+  cursor: not-allowed;
+
+}
+
+.filtro-acoes {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: .5rem;
+
+  flex-wrap: wrap;
+
+}
+
+
+@media (max-width: 1200px) {
+
+  .resumo-geral {
+
+    grid-template-columns: repeat(3, 1fr);
+
+  }
+
+  .totais-relatorio {
+
+    flex-wrap: wrap;
+
+  }
+
+}
+
+@media (max-width: 700px) {
+
+  .pagina-relatorio {
+
+    padding: 1rem;
+
+  }
+
+  .cabecalho-pagina,
+
+  .cabecalho-relatorio {
+
+    flex-direction: column;
+
+  }
+
+  .cabecalho-acoes {
+
+    width: 100%;
+
+    flex-wrap: wrap;
+
+  }
+
+  .resumo-geral,
+
+  .dados-tecnico {
+
+    grid-template-columns: 1fr;
+
+  }
+
+  .periodo-relatorio {
+
+    text-align: left;
+
+  }
+
+  .totais-relatorio {
+
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+  }
+
+  .total-operador {
+
+    min-height: 25px;
+
+  }
+
+  .formula-relatorio {
+
+    justify-content: flex-start;
+
+    flex-wrap: wrap;
+
+  }
+
+  .filtro-periodo-form,
+
+  .campo-tecnico,
+
+  .campo-periodo {
+
+    width: 100%;
+
+    min-width: 0;
+
+  }
+
+  .filtro-acoes {
+
+    width: 100%;
+
+  }
+
+}
+
+
+/* IMPRESSAO */
+
+@page {
+
+  size: A4 landscape;
+
+  margin: 10mm;
+
+}
+
+@media print {
+
+  .no-print {
+
+    display: none !important;
+
+  }
+
+  .pagina-relatorio {
+
+    padding: 0;
+
+  }
+
+  .relatorio-tecnico {
+
+    margin: 0;
+
+    padding: 0;
+
+    border: 0;
+
+    border-radius: 0;
+
+    break-after: page;
+
+    page-break-after: always;
+
+  }
+
+  .relatorio-tecnico:last-child {
+
+    break-after: auto;
+
+    page-break-after: auto;
+
+  }
+
+  .tabela-wrapper {
+
+    overflow: visible;
+
+  }
+
+  .tabela-relatorio {
+
+    font-size: 8.5pt;
+
+  }
+
+  .tabela-relatorio th,
+
+  .tabela-relatorio td {
+
+    padding: 5px;
+
+    border-color: #bfc5cc;
+
+  }
+
+  .tabela-relatorio th {
+
+    background: #f1f5f9 !important;
+
+    print-color-adjust: exact;
+
+    -webkit-print-color-adjust: exact;
+
+  }
+
+  .total-item {
+
+    background: #f8fafc !important;
+
+    print-color-adjust: exact;
+
+    -webkit-print-color-adjust: exact;
+
+  }
+
+  .total-tecnico {
+
+    background: #f0fdf4 !important;
+
+    print-color-adjust: exact;
+
+    -webkit-print-color-adjust: exact;
+
+  }
+
+  .pagamento {
+
+    white-space: normal;
+
+  }
+
+}

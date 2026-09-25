@@ -53,6 +53,12 @@ import {
 } from '../../services/tecnico.service';
 
 import {
+  FormaPagamento,
+  OrdemServicoPagamentoResumoDTO,
+  OrdemServicoPagamentoService,
+} from '../../services/ordem-servico-pagamento.service';
+
+import {
   OrdemServicoDetalheDTO,
 } from '../../model/ordem-servico-detalhe.dto';
 
@@ -115,6 +121,9 @@ export class DetailComponent
   private readonly tecnicoService =
     inject(TecnicoService);
 
+  private readonly pagamentoService =
+    inject(OrdemServicoPagamentoService);
+
 
   /*
    * Recupera a OS enviada via Router NavigationExtras.
@@ -151,8 +160,8 @@ export class DetailComponent
       null,
     );
 
-    readonly registrandoEntrega =
-  signal(false);
+  readonly registrandoEntrega =
+    signal(false);
 
 
   /*
@@ -211,6 +220,43 @@ export class DetailComponent
 
   readonly concluindoServico =
     signal(false);
+
+
+  /*
+   * PAGAMENTOS
+   */
+
+  readonly carregandoPagamentos =
+    signal(false);
+
+  readonly salvandoPagamento =
+    signal(false);
+
+  readonly cancelandoPagamentoId =
+    signal<number | null>(null);
+
+  readonly mostrarFormularioPagamento =
+    signal(false);
+
+  readonly erroPagamento =
+    signal('');
+
+  readonly sucessoPagamento =
+    signal('');
+
+  readonly pagamentoResumo =
+    signal<OrdemServicoPagamentoResumoDTO | null>(null);
+
+  readonly formasPagamento: ReadonlyArray<{
+    value: FormaPagamento;
+    label: string;
+  }> = [
+    { value: 'PIX', label: 'PIX' },
+    { value: 'DINHEIRO', label: 'Dinheiro' },
+    { value: 'CARTAO_DEBITO', label: 'Cartão de débito' },
+    { value: 'CARTAO_CREDITO', label: 'Cartão de crédito' },
+    { value: 'TRANSFERENCIA', label: 'Transferência' },
+  ];
 
 
   /*
@@ -274,6 +320,43 @@ export class DetailComponent
         [
           Validators.required,
           Validators.min(0),
+        ],
+      ],
+
+      observacao: [
+        '',
+      ],
+
+    });
+
+
+  /*
+   * FORMULARIO DE PAGAMENTO
+   */
+
+  readonly formPagamento =
+    this.formBuilder.group({
+
+      formaPagamento: [
+        '' as FormaPagamento | '',
+        [
+          Validators.required,
+        ],
+      ],
+
+      valor: [
+        0,
+        [
+          Validators.required,
+          Validators.min(0.01),
+        ],
+      ],
+
+      parcelas: [
+        1,
+        [
+          Validators.required,
+          Validators.min(1),
         ],
       ],
 
@@ -364,6 +447,35 @@ export class DetailComponent
         status === 'CANCELADA'
       );
     });
+
+
+  readonly exibirPagamentos =
+    computed(() => {
+
+      const status =
+        this.ordem()?.statusCodigo;
+
+      return (
+        status === 'CONCLUIDA' ||
+        status === 'ENTREGUE'
+      );
+    });
+
+  readonly podeEditarPagamentos =
+    computed(() =>
+      this.ordem()?.statusCodigo === 'CONCLUIDA',
+    );
+
+  readonly pagamentoQuitado =
+    computed(() =>
+      this.pagamentoResumo()?.quitado === true,
+    );
+
+  readonly entregaBloqueada =
+    computed(() =>
+      this.ordem()?.statusCodigo === 'CONCLUIDA' &&
+      !this.pagamentoQuitado(),
+    );
 
 
   /*
@@ -475,6 +587,10 @@ export class DetailComponent
         id,
       );
 
+      this.carregarPagamentosSeNecessario(
+        this.ordemRecebidaNaNavegacao,
+      );
+
       return;
     }
 
@@ -552,6 +668,10 @@ export class DetailComponent
 
           this.aplicarOrcamento(
             orcamento,
+          );
+
+          this.carregarPagamentosSeNecessario(
+            ordem,
           );
         },
 
@@ -654,6 +774,10 @@ export class DetailComponent
         next: ordemAtualizada => {
 
           this.ordem.set(
+            ordemAtualizada,
+          );
+
+          this.carregarPagamentosSeNecessario(
             ordemAtualizada,
           );
 
@@ -1754,6 +1878,10 @@ export class DetailComponent
             ordemAtualizada,
           );
 
+          this.carregarPagamentosSeNecessario(
+            ordemAtualizada,
+          );
+
           this.mostrarConclusao.set(
             false,
           );
@@ -1792,79 +1920,398 @@ export class DetailComponent
 
 
   /*
+   * PAGAMENTOS
+   */
+
+  private carregarPagamentosSeNecessario(
+    ordem: OrdemServicoDetalheDTO,
+  ): void {
+
+    if (
+      ordem.statusCodigo !== 'CONCLUIDA' &&
+      ordem.statusCodigo !== 'ENTREGUE'
+    ) {
+      this.pagamentoResumo.set(null);
+      this.mostrarFormularioPagamento.set(false);
+      return;
+    }
+
+    this.carregarPagamentos(
+      ordem.ordemServicoId,
+    );
+  }
+
+
+  carregarPagamentos(
+    ordemServicoId?: number,
+  ): void {
+
+    const id =
+      ordemServicoId ??
+      this.ordem()?.ordemServicoId;
+
+    if (!id) {
+      return;
+    }
+
+    this.carregandoPagamentos.set(true);
+    this.erroPagamento.set('');
+
+    this.pagamentoService
+      .buscarResumo(id)
+      .pipe(
+        finalize(() =>
+          this.carregandoPagamentos.set(false),
+        ),
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+      )
+      .subscribe({
+        next: resumo => {
+          this.pagamentoResumo.set(resumo);
+        },
+        error: (
+          erro: HttpErrorResponse,
+        ) => {
+          console.error(
+            'Erro ao carregar pagamentos:',
+            erro,
+          );
+
+          this.pagamentoResumo.set(null);
+          this.erroPagamento.set(
+            erro.error?.detail ??
+            erro.error?.message ??
+            'Não foi possível carregar os pagamentos.',
+          );
+        },
+      });
+  }
+
+
+  abrirFormularioPagamento(): void {
+
+    const resumo =
+      this.pagamentoResumo();
+
+    if (
+      !resumo ||
+      resumo.quitado ||
+      !this.podeEditarPagamentos()
+    ) {
+      return;
+    }
+
+    this.erroPagamento.set('');
+    this.sucessoPagamento.set('');
+
+    this.formPagamento.reset({
+      formaPagamento: '',
+      valor: resumo.saldoPendente,
+      parcelas: 1,
+      observacao: '',
+    });
+
+    this.mostrarFormularioPagamento.set(true);
+  }
+
+
+  cancelarFormularioPagamento(): void {
+
+    if (this.salvandoPagamento()) {
+      return;
+    }
+
+    this.mostrarFormularioPagamento.set(false);
+    this.erroPagamento.set('');
+
+    this.formPagamento.reset({
+      formaPagamento: '',
+      valor: 0,
+      parcelas: 1,
+      observacao: '',
+    });
+  }
+
+
+  alterarFormaPagamento(): void {
+
+    if (
+      this.formPagamento.controls.formaPagamento.value !==
+      'CARTAO_CREDITO'
+    ) {
+      this.formPagamento.controls.parcelas.setValue(1);
+    }
+  }
+
+
+  salvarPagamento(): void {
+
+    const ordem =
+      this.ordem();
+
+    const resumo =
+      this.pagamentoResumo();
+
+    if (
+      !ordem ||
+      !resumo ||
+      !this.podeEditarPagamentos()
+    ) {
+      return;
+    }
+
+    if (this.formPagamento.invalid) {
+      this.formPagamento.markAllAsTouched();
+      return;
+    }
+
+    const valor =
+      this.formPagamento.getRawValue();
+
+    const formaPagamento =
+      valor.formaPagamento as FormaPagamento;
+
+    const valorPagamento =
+      Number(valor.valor ?? 0);
+
+    if (
+      !Number.isFinite(valorPagamento) ||
+      valorPagamento <= 0
+    ) {
+      this.erroPagamento.set(
+        'Informe um valor de pagamento válido.',
+      );
+      return;
+    }
+
+    if (
+      valorPagamento >
+      resumo.saldoPendente
+    ) {
+      this.erroPagamento.set(
+        'O pagamento não pode ser maior que o saldo pendente.',
+      );
+      return;
+    }
+
+    const parcelas =
+      formaPagamento === 'CARTAO_CREDITO'
+        ? Math.max(
+            1,
+            Number(valor.parcelas ?? 1),
+          )
+        : 1;
+
+    this.salvandoPagamento.set(true);
+    this.erroPagamento.set('');
+    this.sucessoPagamento.set('');
+
+    this.pagamentoService
+      .adicionar(
+        ordem.ordemServicoId,
+        {
+          formaPagamento,
+          valor: valorPagamento,
+          parcelas,
+          observacao:
+            valor.observacao?.trim() ||
+            null,
+        },
+      )
+      .pipe(
+        finalize(() =>
+          this.salvandoPagamento.set(false),
+        ),
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+      )
+      .subscribe({
+        next: () => {
+          this.mostrarFormularioPagamento.set(false);
+          this.sucessoPagamento.set(
+            'Pagamento registrado com sucesso.',
+          );
+
+          this.formPagamento.reset({
+            formaPagamento: '',
+            valor: 0,
+            parcelas: 1,
+            observacao: '',
+          });
+
+          this.carregarPagamentos(
+            ordem.ordemServicoId,
+          );
+        },
+        error: (
+          erro: HttpErrorResponse,
+        ) => {
+          console.error(
+            'Erro ao registrar pagamento:',
+            erro,
+          );
+
+          this.erroPagamento.set(
+            erro.error?.detail ??
+            erro.error?.message ??
+            'Não foi possível registrar o pagamento.',
+          );
+        },
+      });
+  }
+
+
+  cancelarPagamento(
+    pagamentoId: number,
+  ): void {
+
+    const ordem =
+      this.ordem();
+
+    if (
+      !ordem ||
+      !this.podeEditarPagamentos() ||
+      this.cancelandoPagamentoId() !== null
+    ) {
+      return;
+    }
+
+    const confirmado = window.confirm(
+      'Deseja cancelar este pagamento?',
+    );
+
+    if (!confirmado) {
+      return;
+    }
+
+    this.cancelandoPagamentoId.set(
+      pagamentoId,
+    );
+    this.erroPagamento.set('');
+    this.sucessoPagamento.set('');
+
+    this.pagamentoService
+      .cancelar(
+        ordem.ordemServicoId,
+        pagamentoId,
+      )
+      .pipe(
+        finalize(() =>
+          this.cancelandoPagamentoId.set(null),
+        ),
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+      )
+      .subscribe({
+        next: () => {
+          this.sucessoPagamento.set(
+            'Pagamento cancelado com sucesso.',
+          );
+
+          this.carregarPagamentos(
+            ordem.ordemServicoId,
+          );
+        },
+        error: (
+          erro: HttpErrorResponse,
+        ) => {
+          console.error(
+            'Erro ao cancelar pagamento:',
+            erro,
+          );
+
+          this.erroPagamento.set(
+            erro.error?.detail ??
+            erro.error?.message ??
+            'Não foi possível cancelar o pagamento.',
+          );
+        },
+      });
+  }
+
+
+  nomeFormaPagamento(
+    formaPagamento: FormaPagamento,
+  ): string {
+
+    return this.formasPagamento
+      .find(
+        item =>
+          item.value === formaPagamento,
+      )
+      ?.label ?? formaPagamento;
+  }
+
+
+  /*
    * ENTREGA
    */
 
   entregar(): void {
 
-  const ordem =
-    this.ordem();
+    const ordem =
+      this.ordem();
 
-  if (!ordem) {
-    return;
-  }
+    if (!ordem) {
+      return;
+    }
 
-  if (
-    ordem.statusCodigo !==
-    'CONCLUIDA'
-  ) {
-    return;
-  }
+    if (
+      ordem.statusCodigo !==
+      'CONCLUIDA'
+    ) {
+      return;
+    }
 
-  this.registrandoEntrega.set(
-    true,
-  );
+    if (!this.pagamentoQuitado()) {
+      this.erroPagamento.set(
+        'Quite o saldo da ordem de serviço antes de registrar a entrega.',
+      );
+      return;
+    }
 
-  this.erro.set(
-    '',
-  );
+    this.registrandoEntrega.set(true);
+    this.erro.set('');
+    this.erroPagamento.set('');
 
-  this.ordemServicoService
-    .entregar(
-      ordem.ordemServicoId,
-    )
-    .pipe(
-
-      finalize(() =>
-        this.registrandoEntrega.set(
-          false,
+    this.ordemServicoService
+      .entregar(
+        ordem.ordemServicoId,
+      )
+      .pipe(
+        finalize(() =>
+          this.registrandoEntrega.set(false),
         ),
-      ),
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+      )
+      .subscribe({
+        next: ordemAtualizada => {
+          this.ordem.set(
+            ordemAtualizada,
+          );
+        },
+        error: (
+          erro: HttpErrorResponse,
+        ) => {
+          console.error(
+            'Erro ao registrar entrega:',
+            erro,
+          );
 
-      takeUntilDestroyed(
-        this.destroyRef,
-      ),
-
-    )
-    .subscribe({
-
-      next: ordemAtualizada => {
-
-        this.ordem.set(
-          ordemAtualizada,
-        );
-
-      },
-
-      error: (
-        erro: HttpErrorResponse,
-      ) => {
-
-        console.error(
-          'Erro ao registrar entrega:',
-          erro,
-        );
-
-        this.erro.set(
-          erro.error?.detail ??
-          erro.error?.message ??
-          'Não foi possível registrar a entrega.',
-        );
-
-      },
-
-    });
-}
+          this.erro.set(
+            erro.error?.detail ??
+            erro.error?.message ??
+            'Não foi possível registrar a entrega.',
+          );
+        },
+      });
+  }
 
 
   /*

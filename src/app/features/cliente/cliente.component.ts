@@ -12,7 +12,6 @@ import { SearchGenericComponent } from '../../shared/search-generic/search-gener
 import { SearchEvent } from '../../shared/search-generic/models/search-event.model';
 
 // 🔹 Feature components (mesmo módulo)
-import { CreateComponent } from './pages/create/create.component';
 import { ListComponent } from './pages/list/list.component';
 import { EditComponent } from './pages/edit/edit.component';
 
@@ -24,7 +23,6 @@ import { EditComponent } from './pages/edit/edit.component';
     SearchGenericComponent,
     Button,
     DialogModule,
-    EditComponent,
     Panel,
     ListComponent,
     RouterModule,

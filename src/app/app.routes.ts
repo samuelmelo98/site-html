@@ -37,6 +37,14 @@ export const routes: Routes = [
   },
 
   {
+  path: 'relatorios',
+  canActivate: [authGuard],
+  loadChildren: () =>
+    import('./features/relatorios/relatorios.routes')
+      .then(m => m.RELATORIOS_ROUTES),
+},
+
+  {
     path: 'cliente',
     canActivate: [authGuard],
     loadChildren: () =>

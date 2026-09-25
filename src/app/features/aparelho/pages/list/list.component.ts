@@ -57,9 +57,6 @@ import {
   Cliente,
 } from '../../../cliente/model/cliente-listar.dto';
 
-import {
-  CpfPipe,
-} from '../../../../shared/pipes/cpf.pipe';
 
 import {
   OrdemServicoService,
@@ -111,7 +108,6 @@ tipoAparelho?: string | null;
 
   imports: [
     DatePipe,
-    CpfPipe,
     TableModule,
     ButtonModule,
     TooltipModule,

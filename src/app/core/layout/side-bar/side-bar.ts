@@ -2,13 +2,9 @@ import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HttpClient  } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-
 import { UserPanel } from '../user-panel/user-panel';
-import { MenuComponent } from '../menu/menu.component';
-
 import { KeycloakService } from '../../auth/keycloak.service';
 import { UserProfile } from '../../auth/models/user-profile';
-
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -17,7 +13,6 @@ import { environment } from '../../../../environments/environment';
   imports: [
     RouterModule,
     UserPanel,
-    MenuComponent,
 	CommonModule
   ],
   templateUrl: './side-bar.html',
