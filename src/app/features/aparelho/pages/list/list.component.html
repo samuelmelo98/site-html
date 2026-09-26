@@ -1,150 +1,187 @@
 <!-- DADOS DO CLIENTE -->
 @if (carregandoCliente()) {
 
-<div class="
-  mb-4
-  rounded-lg
-  border
-  border-gray-200
-  bg-gray-50
-  p-4
-  ">
-  <span class="text-sm text-gray-500">
-    Carregando dados do cliente...
-  </span>
-</div>
+  <div
+    class="
+      mb-4
+      rounded-lg
+      border
+      border-gray-200
+      bg-gray-50
+      p-4
+    "
+  >
+    <span class="text-sm text-gray-500">
+      Carregando dados do cliente...
+    </span>
+  </div>
 
 } @else if (cliente(); as cliente) {
 
-<div class="
-  mb-4
-  rounded-lg
-  border
-  border-gray-200
-  bg-gray-50
-  p-4
-  ">
+  <div
+    class="
+      mb-4
+      rounded-lg
+      border
+      border-gray-200
+      bg-gray-50
+      p-4
+    "
+  >
 
-  <span class="
-  block
-  text-sm
-  text-gray-500
-  ">
-    Cliente selecionado
-  </span>
-
-  <strong class="
-mt-2
-block
-text-lg
-text-gray-800
-">
-    {{ cliente.nome || 'Cliente' }}
-  </strong>
-
-  <div class="
-mt-2
-flex
-flex-wrap
-gap-x-6
-gap-y-2
-text-sm
-text-gray-700
-">
-
-    <span>
-      <strong>CPF:</strong>
-      {{
-      cliente.cpf
-      ? (cliente.cpf | cpf)
-      : '—'
-      }}
+    <span
+      class="
+        block
+        text-sm
+        text-gray-500
+      "
+    >
+      Cliente selecionado
     </span>
 
-    <span>
-      <strong>Telefone:</strong>
-      {{
-      formatarTelefone(
-      cliente.telefone
-      )
-      }}
-    </span>
+    <strong
+      class="
+        mt-2
+        block
+        text-lg
+        text-gray-800
+      "
+    >
+      {{ cliente.nome || 'Cliente' }}
+    </strong>
 
-    <span>
-      <strong>ID:</strong>
-      {{ cliente.clienteId }}
-    </span>
+    <div
+      class="
+        mt-2
+        flex
+        flex-wrap
+        gap-x-6
+        gap-y-2
+        text-sm
+        text-gray-700
+      "
+    >
+
+      <span>
+        <strong>CPF:</strong>
+        {{
+          cliente.cpf
+            ? (cliente.cpf | cpf)
+            : '—'
+        }}
+      </span>
+
+      <span>
+        <strong>Telefone:</strong>
+        {{
+          formatarTelefone(
+            cliente.telefone
+          )
+        }}
+      </span>
+
+      <span>
+        <strong>ID:</strong>
+        {{ cliente.clienteId }}
+      </span>
+
+    </div>
 
   </div>
 
-</div>
-
 } @else if (erroCliente()) {
 
-<div class="
-  mb-4
-  rounded-lg
-  border
-  border-red-200
-  bg-red-50
-  p-4
-  text-sm
-  text-red-700
-  " role="alert">
-  {{ erroCliente() }}
-</div>
+  <div
+    class="
+      mb-4
+      rounded-lg
+      border
+      border-red-200
+      bg-red-50
+      p-4
+      text-sm
+      text-red-700
+    "
+    role="alert"
+  >
+    {{ erroCliente() }}
+  </div>
 
 }
 
 
 <!-- TABELA -->
-<div class="
-w-full
-overflow-hidden
-rounded-lg
-border
-border-gray-200
-bg-white
-">
+<div
+  class="
+    w-full
+    overflow-hidden
+    rounded-lg
+    border
+    border-gray-200
+    bg-white
+  "
+>
 
-  <p-table #tabela [value]="dados2()" dataKey="aparelhoId" [lazy]="true" (onLazyLoad)="carregar($event)"
-    [paginator]="true" [rows]="10" [totalRecords]="total()" [loading]="loading()" [rowsPerPageOptions]="[10, 20, 50]"
-    sortField="aparelhoId" [sortOrder]="1" [showCurrentPageReport]="true"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}" responsiveLayout="scroll"
-    styleClass="p-datatable-sm">
+  <p-table
+    #tabela
+    [value]="dados2()"
+    dataKey="aparelhoId"
+    [lazy]="true"
+    (onLazyLoad)="carregar($event)"
+    [paginator]="true"
+    [rows]="10"
+    [totalRecords]="total()"
+    [loading]="loading()"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    sortField="aparelhoId"
+    [sortOrder]="1"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-sm"
+  >
 
     <!-- CABEÇALHO -->
     <ng-template #header>
 
-      <tr class="
-  border-b
-  border-gray-200
-  bg-gray-50
-  ">
+      <tr
+        class="
+          border-b
+          border-gray-200
+          bg-gray-50
+        "
+      >
 
         <!-- ID -->
-        <th pSortableColumn="aparelhoId" class="
-  w-16
-  px-2
-  py-3
-  text-left
-  text-sm
-  font-semibold
-  text-gray-600
-  
-  sm:w-20
-  sm:px-4
-  ">
+        <th
+          pSortableColumn="aparelhoId"
+          class="
+            w-16
+            px-2
+            py-3
+            text-left
+            text-sm
+            font-semibold
+            text-gray-600
 
-          <div class="
-  flex
-  items-center
-  gap-1
-  ">
+            sm:w-20
+            sm:px-4
+          "
+        >
+
+          <div
+            class="
+              flex
+              items-center
+              gap-1
+            "
+          >
 
             ID
 
-            <p-sortIcon field="aparelhoId">
+            <p-sortIcon
+              field="aparelhoId"
+            >
             </p-sortIcon>
 
           </div>
@@ -153,26 +190,33 @@ bg-white
 
 
         <!-- MARCA -->
-        <th pSortableColumn="marca" class="
-px-2
-py-3
-text-left
-text-sm
-font-semibold
-text-gray-600
+        <th
+          pSortableColumn="marca"
+          class="
+            px-2
+            py-3
+            text-left
+            text-sm
+            font-semibold
+            text-gray-600
 
-sm:px-4
-">
+            sm:px-4
+          "
+        >
 
-          <div class="
-flex
-items-center
-gap-1
-">
+          <div
+            class="
+              flex
+              items-center
+              gap-1
+            "
+          >
 
             Marca
 
-            <p-sortIcon field="marca">
+            <p-sortIcon
+              field="marca"
+            >
             </p-sortIcon>
 
           </div>
@@ -181,42 +225,51 @@ gap-1
 
 
         <!-- TIPO DE APARELHO -->
-        <th class="
-hidden
+        <th
+          class="
+            hidden
 
-md:table-cell
-md:px-4
-md:py-3
-md:text-left
-md:text-sm
-md:font-semibold
-md:text-gray-600
-">
+            md:table-cell
+            md:px-4
+            md:py-3
+            md:text-left
+            md:text-sm
+            md:font-semibold
+            md:text-gray-600
+          "
+        >
           Tipo
         </th>
 
 
         <!-- MODELO -->
-        <th pSortableColumn="modelo" class="
-px-2
-py-3
-text-left
-text-sm
-font-semibold
-text-gray-600
+        <th
+          pSortableColumn="modelo"
+          class="
+            px-2
+            py-3
+            text-left
+            text-sm
+            font-semibold
+            text-gray-600
 
-sm:px-4
-">
+            sm:px-4
+          "
+        >
 
-          <div class="
-flex
-items-center
-gap-1
-">
+          <div
+            class="
+              flex
+              items-center
+              gap-1
+            "
+          >
 
             Modelo
 
-            <p-sortIcon field="modelo">
+            <p-sortIcon
+              field="modelo"
+            >
             </p-sortIcon>
 
           </div>
@@ -225,27 +278,34 @@ gap-1
 
 
         <!-- MODELO COMERCIAL -->
-        <th pSortableColumn="modeloComercial" class="
-hidden
+        <th
+          pSortableColumn="modeloComercial"
+          class="
+            hidden
 
-lg:table-cell
-lg:px-4
-lg:py-3
-lg:text-left
-lg:text-sm
-lg:font-semibold
-lg:text-gray-600
-">
+            lg:table-cell
+            lg:px-4
+            lg:py-3
+            lg:text-left
+            lg:text-sm
+            lg:font-semibold
+            lg:text-gray-600
+          "
+        >
 
-          <div class="
-flex
-items-center
-gap-2
-">
+          <div
+            class="
+              flex
+              items-center
+              gap-2
+            "
+          >
 
             Modelo comercial
 
-            <p-sortIcon field="modeloComercial">
+            <p-sortIcon
+              field="modeloComercial"
+            >
             </p-sortIcon>
 
           </div>
@@ -253,66 +313,91 @@ gap-2
         </th>
 
 
-        <!-- NUMERO DE SERIE -->
-        <th class="
-hidden
+        <!-- NÚMERO DE SÉRIE -->
+        <th
+          class="
+            hidden
 
-xl:table-cell
-xl:px-4
-xl:py-3
-xl:text-left
-xl:text-sm
-xl:font-semibold
-xl:text-gray-600
-">
+            xl:table-cell
+            xl:px-4
+            xl:py-3
+            xl:text-left
+            xl:text-sm
+            xl:font-semibold
+            xl:text-gray-600
+          "
+        >
           Número de série
         </th>
 
 
         <!-- STATUS -->
-        <th class="
-px-2
-py-3
-text-left
-text-sm
-font-semibold
-text-gray-600
+        <th
+          class="
+            px-2
+            py-3
+            text-left
+            text-sm
+            font-semibold
+            text-gray-600
 
-sm:px-4
-">
+            sm:px-4
+          "
+        >
           Status
         </th>
 
 
-        <!-- DATA -->
-        <th class="
-hidden
+        <!-- NÚMERO DA OS -->
+        <th
+          class="
+            px-2
+            py-3
+            text-left
+            text-sm
+            font-semibold
+            text-gray-600
 
-xl:table-cell
-xl:px-4
-xl:py-3
-xl:text-left
-xl:text-sm
-xl:font-semibold
-xl:text-gray-600
-">
+            sm:px-4
+          "
+        >
+          Nº OS
+        </th>
+
+
+        <!-- DATA DE ENTRADA -->
+        <th
+          class="
+            hidden
+
+            xl:table-cell
+            xl:px-4
+            xl:py-3
+            xl:text-left
+            xl:text-sm
+            xl:font-semibold
+            xl:text-gray-600
+          "
+        >
           Data de entrada
         </th>
 
 
         <!-- AÇÕES -->
-        <th class="
-w-20
-px-2
-py-3
-text-center
-text-sm
-font-semibold
-text-gray-600
+        <th
+          class="
+            w-20
+            px-2
+            py-3
+            text-center
+            text-sm
+            font-semibold
+            text-gray-600
 
-sm:w-28
-sm:px-4
-">
+            sm:w-28
+            sm:px-4
+          "
+        >
           Ações
         </th>
 
@@ -322,49 +407,60 @@ sm:px-4
 
 
     <!-- CORPO -->
-    <ng-template #body let-item>
+    <ng-template
+      #body
+      let-item
+    >
 
-      <tr class="
-  group
-  border-b
-  border-gray-100
-  
-  transition-[background-color,box-shadow]
-  duration-200
-  
-  hover:!bg-green-50
-  hover:shadow-[inset_4px_0_0_#22c55e]
-  ">
+      <tr
+        class="
+          group
+          border-b
+          border-gray-100
+
+          transition-[background-color,box-shadow]
+          duration-200
+
+          hover:!bg-green-50
+          hover:shadow-[inset_4px_0_0_#22c55e]
+        "
+      >
 
         <!-- ID -->
-        <td class="
-  px-2
-  py-4
-  text-sm
-  text-gray-500
-  
-  sm:px-4
-  ">
+        <td
+          class="
+            px-2
+            py-4
+            text-sm
+            text-gray-500
+
+            sm:px-4
+          "
+        >
           {{ item.aparelhoId }}
         </td>
 
 
         <!-- MARCA -->
-        <td class="
-px-2
-py-4
-text-sm
+        <td
+          class="
+            px-2
+            py-4
+            text-sm
 
-sm:px-4
-">
+            sm:px-4
+          "
+        >
 
-          <span class="
-font-medium
-text-gray-800
-transition-colors
-duration-200
-group-hover:text-green-800
-">
+          <span
+            class="
+              font-medium
+              text-gray-800
+              transition-colors
+              duration-200
+              group-hover:text-green-800
+            "
+          >
             {{ item.marca || '—' }}
           </span>
 
@@ -372,95 +468,109 @@ group-hover:text-green-800
 
 
         <!-- TIPO DE APARELHO -->
-        <td class="
-hidden
+        <td
+          class="
+            hidden
 
-md:table-cell
-md:px-4
-md:py-4
-md:text-sm
-md:text-gray-600
-">
+            md:table-cell
+            md:px-4
+            md:py-4
+            md:text-sm
+            md:text-gray-600
+          "
+        >
           {{ item.tipoAparelho || '—' }}
         </td>
 
 
         <!-- MODELO -->
-        <td class="
-px-2
-py-4
-text-sm
-text-gray-600
+        <td
+          class="
+            px-2
+            py-4
+            text-sm
+            text-gray-600
 
-sm:px-4
-">
+            sm:px-4
+          "
+        >
           {{ item.modelo || '—' }}
         </td>
 
 
         <!-- MODELO COMERCIAL -->
-        <td class="
-hidden
+        <td
+          class="
+            hidden
 
-lg:table-cell
-lg:px-4
-lg:py-4
-lg:text-sm
-lg:text-gray-600
-">
+            lg:table-cell
+            lg:px-4
+            lg:py-4
+            lg:text-sm
+            lg:text-gray-600
+          "
+        >
           {{ item.modeloComercial || '—' }}
         </td>
 
 
-        <!-- NUMERO DE SERIE -->
-        <td class="
-hidden
+        <!-- NÚMERO DE SÉRIE -->
+        <td
+          class="
+            hidden
 
-xl:table-cell
-xl:px-4
-xl:py-4
-xl:text-sm
-xl:text-gray-600
-">
+            xl:table-cell
+            xl:px-4
+            xl:py-4
+            xl:text-sm
+            xl:text-gray-600
+          "
+        >
           {{ item.numeroSerie || '—' }}
         </td>
 
 
         <!-- STATUS -->
-        <td class="
-px-2
-py-4
+        <td
+          class="
+            px-2
+            py-4
 
-sm:px-4
-">
+            sm:px-4
+          "
+        >
 
-          <span class="
-inline-flex
-max-w-28
-items-center
-overflow-hidden
-text-ellipsis
-whitespace-nowrap
-rounded-full
-bg-gray-100
-px-2
-py-1
-text-xs
-font-medium
-text-gray-700
+          <span
+            class="
+              inline-flex
+              max-w-28
+              items-center
+              overflow-hidden
+              text-ellipsis
+              whitespace-nowrap
+              rounded-full
+              bg-gray-100
+              px-2
+              py-1
+              text-xs
+              font-medium
+              text-gray-700
 
-sm:max-w-40
-sm:px-3
-" [pTooltip]="
-textoStatus(
-item.statusAparelho
-)
-" tooltipPosition="top">
+              sm:max-w-40
+              sm:px-3
+            "
+            [pTooltip]="
+              textoStatus(
+                item.statusAparelho
+              )
+            "
+            tooltipPosition="top"
+          >
 
             {{
-            textoStatus(
-            item.statusAparelho
-            )
+              textoStatus(
+                item.statusAparelho
+              )
             }}
 
           </span>
@@ -468,69 +578,116 @@ item.statusAparelho
         </td>
 
 
-        <!-- DATA DE ENTRADA -->
-        <td class="
-hidden
+        <!-- NÚMERO DA OS -->
+        <td
+          class="
+            px-2
+            py-4
+            text-sm
+            font-medium
+            text-gray-700
 
-xl:table-cell
-xl:px-4
-xl:py-4
-xl:text-sm
-xl:text-gray-600
-">
+            sm:px-4
+          "
+        >
+          {{ item.numeroOrdemServico || '—' }}
+        </td>
+
+
+        <!-- DATA DE ENTRADA -->
+        <td
+          class="
+            hidden
+
+            xl:table-cell
+            xl:px-4
+            xl:py-4
+            xl:text-sm
+            xl:text-gray-600
+          "
+        >
 
           {{
-          (
-          item.dataEntradaAparelho
-          | date:'dd/MM/yyyy HH:mm:ss'
-          ) || '—'
+            (
+              item.dataEntradaAparelho
+              | date:'dd/MM/yyyy HH:mm:ss'
+            ) || '—'
           }}
 
         </td>
 
 
         <!-- AÇÕES -->
-        <td class="
-px-2
-py-4
-text-center
+        <td
+          class="
+            px-2
+            py-4
+            text-center
 
-sm:px-4
-">
+            sm:px-4
+          "
+        >
 
-          <div class="
-flex
-items-center
-justify-center
-gap-1
-">
+          <div
+            class="
+              flex
+              items-center
+              justify-center
+              gap-1
+            "
+          >
 
             <!-- EDITAR -->
-            <p-button icon="pi pi-pencil" severity="secondary" rounded text ariaLabel="Editar aparelho"
-              pTooltip="Editar aparelho" tooltipPosition="top" (onClick)="
-editarAparelho(
-item.aparelhoId
-)
-">
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              rounded
+              text
+              ariaLabel="Editar aparelho"
+              pTooltip="Editar aparelho"
+              tooltipPosition="top"
+              (onClick)="
+                editarAparelho(
+                  item.aparelhoId
+                )
+              "
+            >
             </p-button>
 
 
             <!-- ORDEM DE SERVIÇO -->
-            <p-button icon="pi pi-eye" severity="secondary" rounded text ariaLabel="Ver ordens de serviço"
-              pTooltip="Ver ordens de serviço" tooltipPosition="top" (onClick)="
-verOrdemServico(
-item.aparelhoId
-)
-">
+            <p-button
+              icon="pi pi-eye"
+              severity="secondary"
+              rounded
+              text
+              ariaLabel="Ver ordens de serviço"
+              pTooltip="Ver ordens de serviço"
+              tooltipPosition="top"
+              (onClick)="
+                verOrdemServico(
+                  item.aparelhoId
+                )
+              "
+            >
             </p-button>
 
+
             <!-- IMPRIMIR ORDEM DE SERVIÇO -->
-            <p-button icon="pi pi-print" severity="secondary" rounded text ariaLabel="Imprimir ordem de serviço"
-              pTooltip="Imprimir ordem de serviço" tooltipPosition="top" (onClick)="
-imprimirOrdemServico(
-item.aparelhoId
-)
-">
+            <p-button
+              icon="pi pi-print"
+              severity="secondary"
+              rounded
+              text
+              ariaLabel="Imprimir ordem de serviço"
+              pTooltip="Imprimir ordem de serviço"
+              tooltipPosition="top"
+              (onClick)="
+                imprimirOrdemServico(
+                  item.aparelhoId
+                )
+              "
+            >
             </p-button>
 
           </div>
@@ -547,40 +704,47 @@ item.aparelhoId
 
       <tr>
 
-        <td colspan="9" class="
-    py-12
-    text-center
-    text-sm
-    text-gray-500
-    ">
+        <td
+          colspan="10"
+          class="
+            py-12
+            text-center
+            text-sm
+            text-gray-500
+          "
+        >
 
           @if (erro()) {
 
-          <i class="
-      pi
-      pi-exclamation-circle
-      mb-3
-      block
-      text-3xl
-      text-red-300
-      ">
-          </i>
+            <i
+              class="
+                pi
+                pi-exclamation-circle
+                mb-3
+                block
+                text-3xl
+                text-red-300
+              "
+            >
+            </i>
 
-          Não foi possível consultar os aparelhos.
+            Não foi possível consultar os aparelhos.
 
           } @else {
 
-          <i class="
-    pi
-    pi-mobile
-    mb-3
-    block
-    text-3xl
-    text-gray-300
-    ">
-          </i>
+            <i
+              class="
+                pi
+                pi-mobile
+                mb-3
+                block
+                text-3xl
+                text-gray-300
+              "
+            >
+            </i>
 
-          Nenhum aparelho encontrado para este cliente.
+            Nenhum aparelho encontrado para este cliente.
 
           }
 
@@ -596,6 +760,10 @@ item.aparelhoId
 
 
 <!-- MODAL DE EDIÇÃO -->
-<app-aparelho-edit [visible]="modalEdicaoVisivel()" (visibleChange)="modalEdicaoVisivel.set($event)"
-  [aparelhoId]="aparelhoEdicaoId()" (atualizado)="aparelhoAtualizado()">
+<app-aparelho-edit
+  [visible]="modalEdicaoVisivel()"
+  (visibleChange)="modalEdicaoVisivel.set($event)"
+  [aparelhoId]="aparelhoEdicaoId()"
+  (atualizado)="aparelhoAtualizado()"
+>
 </app-aparelho-edit>
