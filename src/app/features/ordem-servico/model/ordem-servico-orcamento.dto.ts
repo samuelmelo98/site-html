@@ -1,8 +1,9 @@
 export interface OrdemServicoOrcamentoRequestDTO {
+  diagnostico: string;
   servicoProposto: string;
-  valorMaoObra: number | null;
-  valorPecas: number | null;
-  desconto: number | null;
+  valorMaoObra: number;
+  valorPecas: number;
+  desconto: number;
   observacao: string | null;
 }
 

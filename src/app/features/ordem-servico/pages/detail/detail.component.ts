@@ -53,6 +53,18 @@ import {
 } from '../../services/tecnico.service';
 
 import {
+  ClienteService,
+} from '../../../cliente/services/cliente.service';
+
+import {
+  Cliente,
+} from '../../../cliente/model/cliente-listar.dto';
+
+import {
+  CpfPipe,
+} from '../../../../shared/pipes/cpf.pipe';
+
+import {
   FormaPagamento,
   OrdemServicoPagamentoResumoDTO,
   OrdemServicoPagamentoService,
@@ -86,6 +98,7 @@ interface EtapaOS {
   imports: [
     DatePipe,
     CurrencyPipe,
+    CpfPipe,
     ReactiveFormsModule,
     ButtonModule,
     TagModule,
@@ -120,6 +133,9 @@ export class DetailComponent
 
   private readonly tecnicoService =
     inject(TecnicoService);
+
+  private readonly clienteService =
+    inject(ClienteService);
 
   private readonly pagamentoService =
     inject(OrdemServicoPagamentoService);
@@ -162,6 +178,22 @@ export class DetailComponent
 
   readonly registrandoEntrega =
     signal(false);
+
+
+  /*
+   * CLIENTE
+   */
+
+  readonly cliente =
+    signal<Cliente | null>(
+      null,
+    );
+
+  readonly carregandoCliente =
+    signal(false);
+
+  readonly erroCliente =
+    signal('');
 
 
   /*
@@ -265,6 +297,13 @@ export class DetailComponent
 
   readonly formOrcamento =
     this.formBuilder.group({
+
+      diagnostico: [
+        '',
+        [
+          Validators.required,
+        ],
+      ],
 
       servicoProposto: [
         '',
@@ -583,6 +622,10 @@ export class DetailComponent
         this.ordemRecebidaNaNavegacao,
       );
 
+      this.carregarCliente(
+        this.ordemRecebidaNaNavegacao.clienteId,
+      );
+
       this.carregarSomenteOrcamento(
         id,
       );
@@ -666,6 +709,10 @@ export class DetailComponent
             ordem,
           );
 
+          this.carregarCliente(
+            ordem.clienteId,
+          );
+
           this.aplicarOrcamento(
             orcamento,
           );
@@ -704,6 +751,127 @@ export class DetailComponent
    * QUANDO A OS JA VEIO DA NAVEGACAO,
    * BUSCAMOS APENAS O ORCAMENTO.
    */
+
+  private carregarCliente(
+    clienteId: number,
+  ): void {
+
+    if (
+      !Number.isSafeInteger(
+        clienteId,
+      ) ||
+      clienteId <= 0
+    ) {
+
+      this.cliente.set(
+        null,
+      );
+
+      this.erroCliente.set(
+        'Identificador do cliente inválido.',
+      );
+
+      return;
+    }
+
+    this.carregandoCliente.set(
+      true,
+    );
+
+    this.erroCliente.set(
+      '',
+    );
+
+    this.clienteService
+      .buscarPorId(
+        clienteId,
+      )
+      .pipe(
+
+        finalize(() =>
+          this.carregandoCliente.set(
+            false,
+          ),
+        ),
+
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+
+      )
+      .subscribe({
+
+        next: cliente => {
+
+          this.cliente.set(
+            cliente,
+          );
+        },
+
+        error: (
+          erro: HttpErrorResponse,
+        ) => {
+
+          console.error(
+            'Erro ao carregar cliente da OS:',
+            erro,
+          );
+
+          this.cliente.set(
+            null,
+          );
+
+          this.erroCliente.set(
+            erro.error?.detail ??
+            erro.error?.message ??
+            'Não foi possível carregar os dados do cliente.',
+          );
+        },
+
+      });
+  }
+
+
+  formatarTelefone(
+    telefone:
+      string |
+      null |
+      undefined,
+  ): string {
+
+    if (!telefone) {
+      return '—';
+    }
+
+    const numeros =
+      telefone.replace(
+        /\D/g,
+        '',
+      );
+
+    if (
+      numeros.length === 11
+    ) {
+
+      return numeros.replace(
+        /(\d{2})(\d{5})(\d{4})/,
+        '($1) $2-$3',
+      );
+    }
+
+    if (
+      numeros.length === 10
+    ) {
+
+      return numeros.replace(
+        /(\d{2})(\d{4})(\d{4})/,
+        '($1) $2-$3',
+      );
+    }
+
+    return telefone;
+  }
+
 
   private carregarSomenteOrcamento(
     ordemServicoId: number,
@@ -827,14 +995,24 @@ export class DetailComponent
       return;
     }
 
-
     this.orcamentoSalvo.set(
       orcamento,
     );
 
+    const diagnosticoAtual =
+      this.formOrcamento
+        .controls
+        .diagnostico
+        .value
+        ?.trim();
 
     this.formOrcamento
       .patchValue({
+
+        diagnostico:
+          diagnosticoAtual ||
+          this.ordem()?.diagnostico ||
+          '',
 
         servicoProposto:
           orcamento.servicoProposto,
@@ -852,7 +1030,6 @@ export class DetailComponent
           orcamento.observacao ?? '',
 
       });
-
 
     /*
      * Apenas orçamento RASCUNHO
@@ -1067,9 +1244,24 @@ export class DetailComponent
 
   criarOrcamento(): void {
 
+    const ordem =
+      this.ordem();
+
+    if (!ordem) {
+      return;
+    }
+
     this.erro.set(
       '',
     );
+
+    this.formOrcamento
+      .patchValue({
+
+        diagnostico:
+          ordem.diagnostico ?? '',
+
+      });
 
     this.mostrarFormularioOrcamento.set(
       true,
@@ -1080,7 +1272,6 @@ export class DetailComponent
   /*
    * SALVAR RASCUNHO
    */
-
   salvarOrcamento(): void {
 
     const ordem =
@@ -1104,6 +1295,46 @@ export class DetailComponent
       this.formOrcamento
         .getRawValue();
 
+    const diagnostico =
+      valor.diagnostico?.trim() ?? '';
+
+    const servicoProposto =
+      valor.servicoProposto?.trim() ?? '';
+
+    if (!diagnostico) {
+
+      this.formOrcamento
+        .controls
+        .diagnostico
+        .setErrors({
+          required: true,
+        });
+
+      this.formOrcamento
+        .controls
+        .diagnostico
+        .markAsTouched();
+
+      return;
+    }
+
+    if (!servicoProposto) {
+
+      this.formOrcamento
+        .controls
+        .servicoProposto
+        .setErrors({
+          required: true,
+        });
+
+      this.formOrcamento
+        .controls
+        .servicoProposto
+        .markAsTouched();
+
+      return;
+    }
+
     this.salvandoOrcamento.set(
       true,
     );
@@ -1117,8 +1348,9 @@ export class DetailComponent
         ordem.ordemServicoId,
         {
 
-          servicoProposto:
-            valor.servicoProposto ?? '',
+          diagnostico,
+
+          servicoProposto,
 
           valorMaoObra:
             valor.valorMaoObra ?? 0,
@@ -1130,7 +1362,8 @@ export class DetailComponent
             valor.desconto ?? 0,
 
           observacao:
-            valor.observacao || null,
+            valor.observacao?.trim() ||
+            null,
 
         },
       )
@@ -1150,6 +1383,28 @@ export class DetailComponent
       .subscribe({
 
         next: orcamento => {
+
+          /*
+           * O diagnóstico é persistido na OS
+           * pelo mesmo fluxo que salva o orçamento.
+           *
+           * Atualizamos o signal local e evitamos
+           * um GET adicional somente para refletir
+           * o valor que acabou de ser salvo.
+           */
+          this.ordem.update(
+            ordemAtual => {
+
+              if (!ordemAtual) {
+                return ordemAtual;
+              }
+
+              return {
+                ...ordemAtual,
+                diagnostico,
+              };
+            },
+          );
 
           this.aplicarOrcamento(
             orcamento,

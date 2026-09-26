@@ -36,8 +36,6 @@
 
       </div>
 
-
-
       <div class="cabecalho-acoes">
 
         <p-tag
@@ -65,8 +63,6 @@
       </div>
 
     </div>
-
-
 
     <!-- ERRO -->
 
@@ -103,8 +99,6 @@
       </div>
 
     }
-
-
 
     <!-- TIMELINE -->
 
@@ -156,8 +150,6 @@
 
               </div>
 
-
-
               @if (i < etapas.length - 1) {
 
                 <div
@@ -169,8 +161,6 @@
               }
 
             </div>
-
-
 
             <div class="timeline-titulo">
 
@@ -210,13 +200,9 @@
 
     }
 
-
-
     <!-- CONTEUDO -->
 
     <div class="conteudo-os">
-
-
 
       <!-- CLIENTE -->
 
@@ -228,47 +214,173 @@
 
         </h2>
 
-        <div class="grid-info">
+        @if (carregandoCliente()) {
 
-          <div>
+          <p class="text-sm text-gray-500">
 
-            <span>
+            Carregando dados do cliente...
 
-              Nome
+          </p>
 
-            </span>
+        } @else if (cliente(); as cliente) {
 
-            <strong>
+          <div class="grid-info">
 
-              {{ os.clienteNome || '-' }}
+            <div>
 
-            </strong>
+              <span>
+
+                Nome
+
+              </span>
+
+              <strong>
+
+                {{
+
+                  cliente.nome ||
+
+                  os.clienteNome ||
+
+                  '-'
+
+                }}
+
+              </strong>
+
+            </div>
+
+            <div>
+
+              <span>
+
+                CPF
+
+              </span>
+
+              <strong>
+
+                {{
+
+                  cliente.cpf
+
+                    ? (cliente.cpf | cpf)
+
+                    : '—'
+
+                }}
+
+              </strong>
+
+            </div>
+
+            <div>
+
+              <span>
+
+                Telefone
+
+              </span>
+
+              <strong>
+
+                {{
+
+                  formatarTelefone(
+
+                    cliente.telefone
+
+                  )
+
+                }}
+
+              </strong>
+
+            </div>
+
+            <div>
+
+              <span>
+
+                ID do cliente
+
+              </span>
+
+              <strong>
+
+                {{ os.clienteId }}
+
+              </strong>
+
+            </div>
 
           </div>
 
+        } @else {
 
+          <div class="grid-info">
 
-          <div>
+            <div>
 
-            <span>
+              <span>
 
-              ID do cliente
+                Nome
 
-            </span>
+              </span>
 
-            <strong>
+              <strong>
 
-              {{ os.clienteId }}
+                {{ os.clienteNome || '-' }}
 
-            </strong>
+              </strong>
+
+            </div>
+
+            <div>
+
+              <span>
+
+                ID do cliente
+
+              </span>
+
+              <strong>
+
+                {{ os.clienteId }}
+
+              </strong>
+
+            </div>
 
           </div>
 
-        </div>
+          @if (erroCliente()) {
+
+            <p
+
+              class="
+
+                mt-3
+
+                text-sm
+
+                text-red-600
+
+              "
+
+              role="alert"
+
+            >
+
+              {{ erroCliente() }}
+
+            </p>
+
+          }
+
+        }
 
       </section>
-
-
 
       <!-- EQUIPAMENTO -->
 
@@ -298,8 +410,6 @@
 
           </div>
 
-
-
           <div>
 
             <span>
@@ -315,8 +425,6 @@
             </strong>
 
           </div>
-
-
 
           <div>
 
@@ -334,8 +442,6 @@
 
           </div>
 
-
-
           <div>
 
             <span>
@@ -351,8 +457,6 @@
             </strong>
 
           </div>
-
-
 
           <div>
 
@@ -373,8 +477,6 @@
         </div>
 
       </section>
-
-
 
       <!-- DEFEITO -->
 
@@ -400,8 +502,6 @@
 
       </section>
 
-
-
       <!-- FORMULARIO DO ORCAMENTO -->
 
       @if (mostrarFormularioOrcamento()) {
@@ -409,325 +509,221 @@
         <section class="card-os">
 
           <h2>
-
             Orçamento
-
           </h2>
 
-
-
           <form
-
             [formGroup]="formOrcamento"
-
             (ngSubmit)="salvarOrcamento()"
-
             class="space-y-4"
-
           >
+
+            <!-- DIAGNOSTICO -->
 
             <div>
 
               <label
-
-                for="servicoProposto"
-
+                for="diagnostico"
                 class="block mb-1 font-medium"
-
               >
-
-                Serviço proposto *
-
+                Diagnóstico *
               </label>
 
               <textarea
-
-                id="servicoProposto"
-
-                formControlName="servicoProposto"
-
+                id="diagnostico"
+                formControlName="diagnostico"
                 rows="4"
-
                 class="w-full border rounded-lg p-3"
-
-                placeholder="Descreva o serviço que será executado"
-
+                placeholder="Descreva o diagnóstico técnico do equipamento"
               ></textarea>
 
-
-
               @if (
-
-                formOrcamento
-
-                  .controls
-
-                  .servicoProposto
-
-                  .touched
-
-                &&
-
-                formOrcamento
-
-                  .controls
-
-                  .servicoProposto
-
-                  .invalid
-
+                formOrcamento.controls.diagnostico.touched &&
+                formOrcamento.controls.diagnostico.invalid
               ) {
 
                 <small class="text-red-600">
-
-                  Informe o serviço proposto.
-
+                  Informe o diagnóstico técnico.
                 </small>
 
               }
 
             </div>
 
-
-
-            <div
-
-              class="
-
-                grid
-
-                grid-cols-1
-
-                md:grid-cols-3
-
-                gap-4
-
-              "
-
-            >
-
-              <div>
-
-                <label
-
-                  for="valorMaoObra"
-
-                  class="block mb-1 font-medium"
-
-                >
-
-                  Mão de obra
-
-                </label>
-
-                <input
-
-                  id="valorMaoObra"
-
-                  type="number"
-
-                  min="0"
-
-                  step="0.01"
-
-                  formControlName="valorMaoObra"
-
-                  class="w-full border rounded-lg p-3"
-
-                />
-
-              </div>
-
-
-
-              <div>
-
-                <label
-
-                  for="valorPecas"
-
-                  class="block mb-1 font-medium"
-
-                >
-
-                  Peças
-
-                </label>
-
-                <input
-
-                  id="valorPecas"
-
-                  type="number"
-
-                  min="0"
-
-                  step="0.01"
-
-                  formControlName="valorPecas"
-
-                  class="w-full border rounded-lg p-3"
-
-                />
-
-              </div>
-
-
-
-              <div>
-
-                <label
-
-                  for="desconto"
-
-                  class="block mb-1 font-medium"
-
-                >
-
-                  Desconto
-
-                </label>
-
-                <input
-
-                  id="desconto"
-
-                  type="number"
-
-                  min="0"
-
-                  step="0.01"
-
-                  formControlName="desconto"
-
-                  class="w-full border rounded-lg p-3"
-
-                />
-
-              </div>
-
-            </div>
-
-
+            <!-- SERVICO PROPOSTO -->
 
             <div>
 
               <label
-
-                for="observacaoOrcamento"
-
+                for="servicoProposto"
                 class="block mb-1 font-medium"
-
               >
-
-                Observações
-
+                Serviço proposto *
               </label>
 
               <textarea
-
-                id="observacaoOrcamento"
-
-                formControlName="observacao"
-
-                rows="3"
-
+                id="servicoProposto"
+                formControlName="servicoProposto"
+                rows="4"
                 class="w-full border rounded-lg p-3"
+                placeholder="Descreva o serviço que será executado"
+              ></textarea>
 
+              @if (
+                formOrcamento.controls.servicoProposto.touched &&
+                formOrcamento.controls.servicoProposto.invalid
+              ) {
+
+                <small class="text-red-600">
+                  Informe o serviço proposto.
+                </small>
+
+              }
+
+            </div>
+
+            <!-- VALORES -->
+
+            <div
+              class="
+                grid
+                grid-cols-1
+                md:grid-cols-3
+                gap-4
+              "
+            >
+
+              <div>
+
+                <label
+                  for="valorMaoObra"
+                  class="block mb-1 font-medium"
+                >
+                  Mão de obra
+                </label>
+
+                <input
+                  id="valorMaoObra"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="valorMaoObra"
+                  class="w-full border rounded-lg p-3"
+                />
+
+              </div>
+
+              <div>
+
+                <label
+                  for="valorPecas"
+                  class="block mb-1 font-medium"
+                >
+                  Peças
+                </label>
+
+                <input
+                  id="valorPecas"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="valorPecas"
+                  class="w-full border rounded-lg p-3"
+                />
+
+              </div>
+
+              <div>
+
+                <label
+                  for="desconto"
+                  class="block mb-1 font-medium"
+                >
+                  Desconto
+                </label>
+
+                <input
+                  id="desconto"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="desconto"
+                  class="w-full border rounded-lg p-3"
+                />
+
+              </div>
+
+            </div>
+
+            <!-- OBSERVACAO -->
+
+            <div>
+
+              <label
+                for="observacaoOrcamento"
+                class="block mb-1 font-medium"
+              >
+                Observações
+              </label>
+
+              <textarea
+                id="observacaoOrcamento"
+                formControlName="observacao"
+                rows="3"
+                class="w-full border rounded-lg p-3"
+                placeholder="Observações adicionais sobre o orçamento"
               ></textarea>
 
             </div>
 
-
+            <!-- ACOES DO ORCAMENTO -->
 
             <div
-
               class="
-
                 flex
-
                 flex-col
-
                 sm:flex-row
-
                 justify-end
-
                 gap-2
-
               "
-
             >
 
               @if (
-
                 !orcamentoSalvo() ||
-
                 orcamentoSalvo()?.status === 'RASCUNHO'
-
               ) {
 
                 <p-button
-
                   type="submit"
-
                   label="Salvar rascunho"
-
                   icon="pi pi-save"
-
                   severity="secondary"
-
                   [outlined]="true"
-
                   [loading]="salvandoOrcamento()"
-
                   [disabled]="
-
                     salvandoOrcamento() ||
-
                     enviandoOrcamento()
-
                   "
-
                 ></p-button>
 
               }
 
-
-
               @if (
-
                 orcamentoSalvo()?.status === 'RASCUNHO'
-
               ) {
 
                 <p-button
-
                   type="button"
-
                   label="Enviar para aprovação"
-
                   icon="pi pi-send"
-
                   iconPos="right"
-
                   severity="success"
-
                   [loading]="enviandoOrcamento()"
-
                   [disabled]="
-
                     salvandoOrcamento() ||
-
                     enviandoOrcamento()
-
                   "
-
-                  (onClick)="
-
-                    enviarOrcamentoParaAprovacao()
-
-                  "
-
+                  (onClick)="enviarOrcamentoParaAprovacao()"
                 ></p-button>
 
               }
@@ -739,8 +735,6 @@
         </section>
 
       }
-
-
 
       <!-- RESUMO DO ORCAMENTO -->
 
@@ -778,8 +772,6 @@
 
             </div>
 
-
-
             <div>
 
               <span>
@@ -795,8 +787,6 @@
               </strong>
 
             </div>
-
-
 
             <div>
 
@@ -828,8 +818,6 @@
 
             </div>
 
-
-
             <div>
 
               <span>
@@ -860,8 +848,6 @@
 
             </div>
 
-
-
             <div>
 
               <span>
@@ -891,8 +877,6 @@
               </strong>
 
             </div>
-
-
 
             <div>
 
@@ -926,8 +910,6 @@
 
           </div>
 
-
-
           <div class="mt-4">
 
             <span class="block text-sm text-gray-500">
@@ -949,8 +931,6 @@
             </strong>
 
           </div>
-
-
 
           @if (orcamento.observacao) {
 
@@ -976,8 +956,6 @@
 
       }
 
-
-
       <!-- DIAGNOSTICO -->
 
       @if (os.diagnostico) {
@@ -999,8 +977,6 @@
         </section>
 
       }
-
-
 
       <!-- SOLUCAO -->
 
@@ -1024,8 +1000,6 @@
 
       }
 
-
-
       <!-- OBSERVACAO DA OS -->
 
       @if (os.observacao) {
@@ -1047,8 +1021,6 @@
         </section>
 
       }
-
-
 
       <!-- VALORES -->
 
@@ -1112,8 +1084,6 @@
 
             </div>
 
-
-
             <div>
 
               <span>
@@ -1162,359 +1132,642 @@
 
       }
 
-
-
-
       <!-- PAGAMENTOS -->
+
       @if (exibirPagamentos()) {
+
         <section class="card-os card-pagamentos">
+
           <div class="pagamentos-cabecalho">
+
             <div>
+
               <span class="subtitulo-card">
+
                 Financeiro
+
               </span>
+
               <h2>Pagamentos</h2>
+
             </div>
 
             @if (pagamentoResumo(); as resumo) {
+
               <p-tag
+
                 [value]="resumo.quitado ? 'Quitado' : 'Pendente'"
+
                 [severity]="resumo.quitado ? 'success' : 'warn'"
+
               ></p-tag>
+
             }
+
           </div>
 
           @if (erroPagamento()) {
+
             <div class="mensagem mensagem-erro" role="alert">
+
               <i class="pi pi-exclamation-circle"></i>
+
               <span>{{ erroPagamento() }}</span>
+
             </div>
+
           }
 
           @if (sucessoPagamento()) {
+
             <div class="mensagem mensagem-sucesso" role="status">
+
               <i class="pi pi-check-circle"></i>
+
               <span>{{ sucessoPagamento() }}</span>
+
             </div>
+
           }
 
           @if (carregandoPagamentos()) {
+
             <div class="pagamentos-carregando" role="status">
+
               <i class="pi pi-spin pi-spinner"></i>
+
               <span>Carregando pagamentos...</span>
+
             </div>
+
           } @else if (pagamentoResumo(); as resumo) {
+
             <div class="resumo-financeiro">
+
               <div class="resumo-financeiro-item">
+
                 <span>Valor da OS</span>
+
                 <strong>
+
                   {{
+
                     resumo.valorOrdemServico
+
                       | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+
                   }}
+
                 </strong>
+
               </div>
 
               <div class="resumo-financeiro-item">
+
                 <span>Total pago</span>
+
                 <strong>
+
                   {{
+
                     resumo.totalPago
+
                       | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+
                   }}
+
                 </strong>
+
               </div>
 
               <div class="resumo-financeiro-item">
+
                 <span>Saldo pendente</span>
+
                 <strong
+
                   [class.saldo-quitado]="resumo.quitado"
+
                   [class.saldo-pendente]="!resumo.quitado"
+
                 >
+
                   {{
+
                     resumo.saldoPendente
+
                       | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+
                   }}
+
                 </strong>
+
               </div>
 
               <div class="resumo-financeiro-item">
+
                 <span>Situação</span>
+
                 <strong>
+
                   {{ resumo.quitado ? 'Quitada' : 'Pendente' }}
+
                 </strong>
+
               </div>
+
             </div>
 
             <div class="pagamentos-lista">
+
               <div class="pagamentos-lista-cabecalho">
+
                 <h3>Pagamentos registrados</h3>
 
                 @if (
+
                   podeEditarPagamentos() &&
+
                   !resumo.quitado &&
+
                   !mostrarFormularioPagamento()
+
                 ) {
+
                   <p-button
+
                     type="button"
+
                     label="Adicionar pagamento"
+
                     icon="pi pi-plus"
+
                     severity="success"
+
                     [disabled]="
+
                       salvandoPagamento() ||
+
                       cancelandoPagamentoId() !== null
+
                     "
+
                     (onClick)="abrirFormularioPagamento()"
+
                   ></p-button>
+
                 }
+
               </div>
 
               @if (resumo.pagamentos.length === 0) {
+
                 <div class="pagamentos-vazio">
+
                   <i class="pi pi-wallet"></i>
+
                   <div>
+
                     <strong>Nenhum pagamento registrado</strong>
+
                     <span>
+
                       Registre o pagamento para liberar a entrega do equipamento.
+
                     </span>
+
                   </div>
+
                 </div>
+
               } @else {
+
                 <div class="pagamentos-itens">
+
                   @for (
+
                     pagamento of resumo.pagamentos;
+
                     track pagamento.pagamentoId
+
                   ) {
+
                     <div class="pagamento-item">
+
                       <div class="pagamento-item-principal">
+
                         <div class="pagamento-icone">
+
                           <i class="pi pi-credit-card"></i>
+
                         </div>
 
                         <div class="pagamento-dados">
+
                           <strong>
+
                             {{ nomeFormaPagamento(pagamento.formaPagamento) }}
+
                           </strong>
 
                           <span>
+
                             {{ pagamento.dataPagamento | date:'dd/MM/yyyy HH:mm' }}
 
                             @if (
+
                               pagamento.formaPagamento === 'CARTAO_CREDITO' &&
+
                               pagamento.parcelas > 1
+
                             ) {
+
                               · {{ pagamento.parcelas }}x
+
                             }
+
                           </span>
 
                           @if (pagamento.observacao) {
+
                             <small>{{ pagamento.observacao }}</small>
+
                           }
+
                         </div>
+
                       </div>
 
                       <div class="pagamento-item-acoes">
+
                         <strong class="pagamento-valor">
+
                           {{
+
                             pagamento.valor
+
                               | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+
                           }}
+
                         </strong>
 
                         @if (podeEditarPagamentos()) {
+
                           <p-button
+
                             type="button"
+
                             icon="pi pi-trash"
+
                             severity="danger"
+
                             [text]="true"
+
                             [rounded]="true"
+
                             [loading]="
+
                               cancelandoPagamentoId() === pagamento.pagamentoId
+
                             "
+
                             [disabled]="
+
                               salvandoPagamento() ||
+
                               (
+
                                 cancelandoPagamentoId() !== null &&
+
                                 cancelandoPagamentoId() !== pagamento.pagamentoId
+
                               )
+
                             "
+
                             ariaLabel="Cancelar pagamento"
+
                             (onClick)="cancelarPagamento(pagamento.pagamentoId)"
+
                           ></p-button>
+
                         }
+
                       </div>
+
                     </div>
+
                   }
+
                 </div>
+
               }
+
             </div>
 
             @if (
+
               mostrarFormularioPagamento() &&
+
               podeEditarPagamentos() &&
+
               !resumo.quitado
+
             ) {
+
               <form
+
                 [formGroup]="formPagamento"
+
                 (ngSubmit)="salvarPagamento()"
+
                 class="pagamento-form"
+
               >
+
                 <div class="pagamento-form-cabecalho">
+
                   <div>
+
                     <h3>Novo pagamento</h3>
+
                     <span>
+
                       Saldo disponível:
+
                       <strong>
+
                         {{
+
                           resumo.saldoPendente
+
                             | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+
                         }}
+
                       </strong>
+
                     </span>
+
                   </div>
+
                 </div>
 
                 <div class="pagamento-form-grid">
+
                   <div class="campo-form">
+
                     <label for="formaPagamento">
+
                       Forma de pagamento *
+
                     </label>
 
                     <select
+
                       id="formaPagamento"
+
                       formControlName="formaPagamento"
+
                       (change)="alterarFormaPagamento()"
+
                     >
+
                       <option value="">Selecione...</option>
 
                       @for (
+
                         forma of formasPagamento;
+
                         track forma.value
+
                       ) {
+
                         <option [value]="forma.value">
+
                           {{ forma.label }}
+
                         </option>
+
                       }
+
                     </select>
 
                     @if (
+
                       formPagamento.controls.formaPagamento.touched &&
+
                       formPagamento.controls.formaPagamento.invalid
+
                     ) {
+
                       <small class="campo-erro">
+
                         Informe a forma de pagamento.
+
                       </small>
+
                     }
+
                   </div>
 
                   <div class="campo-form">
+
                     <label for="valorPagamento">
+
                       Valor *
+
                     </label>
 
                     <input
+
                       id="valorPagamento"
+
                       type="number"
+
                       min="0.01"
+
                       step="0.01"
+
                       [max]="resumo.saldoPendente"
+
                       formControlName="valor"
+
                     />
 
                     @if (
+
                       formPagamento.controls.valor.touched &&
+
                       formPagamento.controls.valor.invalid
+
                     ) {
+
                       <small class="campo-erro">
+
                         Informe um valor maior que zero.
+
                       </small>
+
                     }
+
                   </div>
 
                   @if (
+
                     formPagamento.controls.formaPagamento.value ===
+
                     'CARTAO_CREDITO'
+
                   ) {
+
                     <div class="campo-form">
+
                       <label for="parcelasPagamento">
+
                         Parcelas *
+
                       </label>
 
                       <input
+
                         id="parcelasPagamento"
+
                         type="number"
+
                         min="1"
+
                         step="1"
+
                         formControlName="parcelas"
+
                       />
 
                       @if (
+
                         formPagamento.controls.parcelas.touched &&
+
                         formPagamento.controls.parcelas.invalid
+
                       ) {
+
                         <small class="campo-erro">
+
                           Informe ao menos uma parcela.
+
                         </small>
+
                       }
+
                     </div>
+
                   }
+
                 </div>
 
                 <div class="campo-form">
+
                   <label for="observacaoPagamento">
+
                     Observação
+
                   </label>
 
                   <textarea
+
                     id="observacaoPagamento"
+
                     formControlName="observacao"
+
                     rows="3"
+
                     placeholder="Informação opcional sobre o pagamento"
+
                   ></textarea>
+
                 </div>
 
                 <div class="pagamento-form-acoes">
+
                   <p-button
+
                     type="button"
+
                     label="Cancelar"
+
                     severity="secondary"
+
                     [outlined]="true"
+
                     [disabled]="salvandoPagamento()"
+
                     (onClick)="cancelarFormularioPagamento()"
+
                   ></p-button>
 
                   <p-button
+
                     type="submit"
+
                     label="Registrar pagamento"
+
                     icon="pi pi-check"
+
                     severity="success"
+
                     [loading]="salvandoPagamento()"
+
                     [disabled]="salvandoPagamento()"
+
                   ></p-button>
+
                 </div>
+
               </form>
+
             }
 
             @if (resumo.quitado) {
+
               <div class="pagamento-quitado">
+
                 <i class="pi pi-check-circle"></i>
+
                 <div>
+
                   <strong>Pagamento concluído</strong>
+
                   <span>
+
                     O saldo está zerado e a entrega pode ser registrada.
+
                   </span>
+
                 </div>
+
               </div>
+
             } @else if (podeEditarPagamentos()) {
+
               <div class="pagamento-pendente-aviso">
+
                 <i class="pi pi-lock"></i>
+
                 <span>
+
                   A entrega ficará bloqueada até a quitação do saldo pendente.
+
                 </span>
+
               </div>
+
             }
+
           }
+
         </section>
+
       }
 
       <!-- TECNICO JA ATRIBUIDO -->
@@ -1552,8 +1805,6 @@
               </strong>
 
             </div>
-
-
 
             <div>
 
@@ -1657,8 +1908,6 @@
 
 }
 
-
-
       <!-- SELECAO DO TECNICO -->
 
       @else if (
@@ -1674,8 +1923,6 @@
             Técnico responsável
 
           </h2>
-
-
 
           @if (
 
@@ -1765,8 +2012,6 @@
 
             </div>
 
-
-
             <div
 
               class="
@@ -1805,8 +2050,6 @@
 
               ></p-button>
 
-
-
               <p-button
 
                 label="Confirmar técnico"
@@ -1842,8 +2085,6 @@
       }
 
     </div>
-
-
 
     <!-- APROVACAO DO ORCAMENTO -->
 
@@ -1883,8 +2124,6 @@
 
           </div>
 
-
-
           <div>
 
             <span>
@@ -1916,8 +2155,6 @@
           </div>
 
         </div>
-
-
 
         <div
 
@@ -1961,8 +2198,6 @@
 
           ></p-button>
 
-
-
           <p-button
 
             label="Reprovar orçamento"
@@ -1992,8 +2227,6 @@
             "
 
           ></p-button>
-
-
 
           <p-button
 
@@ -2026,8 +2259,6 @@
         </div>
 
       </section>
-
-
 
     }
 
@@ -2097,8 +2328,6 @@
 
       </div>
 
-
-
       <div>
 
         <label
@@ -2131,8 +2360,6 @@
 
       </div>
 
-
-
       <div>
 
         <label
@@ -2161,8 +2388,6 @@
 
       </div>
 
-
-
       <div
 
         class="flex justify-end gap-2"
@@ -2184,8 +2409,6 @@
           (onClick)="mostrarConclusao.set(false)"
 
         ></p-button>
-
-
 
         <p-button
 
@@ -2211,8 +2434,6 @@
 
 }
 
-
-
     <!-- ACOES -->
 
     <div class="rodape-acoes">
@@ -2230,8 +2451,6 @@
         (onClick)="voltar()"
 
       ></p-button>
-
-
 
       @if (
 
@@ -2260,10 +2479,15 @@
   "
 
   [disabled]="
+
     carregando() ||
+
     registrandoEntrega() ||
+
     carregandoPagamentos() ||
+
     entregaBloqueada()
+
   "
 
   (onClick)="executarAcaoPrincipal()"

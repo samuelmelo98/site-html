@@ -59,6 +59,10 @@ import {
 
 
 import {
+  CpfPipe,
+} from '../../../../shared/pipes/cpf.pipe';
+
+import {
   OrdemServicoService,
 } from '../../../ordem-servico/services/ordem-servico.service';
 
@@ -108,6 +112,7 @@ tipoAparelho?: string | null;
 
   imports: [
     DatePipe,
+    CpfPipe,
     TableModule,
     ButtonModule,
     TooltipModule,
@@ -1005,4 +1010,78 @@ export class ListComponent
 
       });
   }
-}
+
+  /*
+  * IMPRIMIR ULTIMA ORDEM DE SERVICO
+  */
+  imprimirOrdemServico(
+    aparelhoId: number,
+  ): void {
+
+    if (
+      !Number.isSafeInteger(
+        aparelhoId,
+      ) ||
+      aparelhoId <= 0
+    ) {
+
+      this.erro.set(
+        'Identificador do aparelho inválido.',
+      );
+
+      return;
+    }
+
+    this.erro.set(
+      '',
+    );
+
+    this.ordemServicoService
+      .buscarUltimaPorAparelho(
+        aparelhoId,
+      )
+      .pipe(
+
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+
+      )
+      .subscribe({
+
+        next: ordem => {
+
+          if (!ordem) {
+
+            this.erro.set(
+              'Este aparelho ainda não possui ordem de serviço.',
+            );
+
+            return;
+          }
+
+          this.ordemServicoService
+            .imprimir(
+              ordem.ordemServicoId,
+            );
+        },
+
+        error: (
+          erro: HttpErrorResponse,
+        ) => {
+
+          console.error(
+            'Erro ao consultar OS para impressão:',
+            erro,
+          );
+
+          this.erro.set(
+            erro.error?.detail ??
+            erro.error?.message ??
+            'Não foi possível localizar a ordem de serviço para impressão.',
+          );
+        },
+
+      });
+  }
+  }
