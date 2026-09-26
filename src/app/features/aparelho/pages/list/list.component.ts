@@ -101,6 +101,8 @@ interface AparelhoLinha {
 
   tipoAparelhoId?: number | null;
 
+  numeroOrdemServico?: string | null;
+
 tipoAparelho?: string | null;
 }
 
