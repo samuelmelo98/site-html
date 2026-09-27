@@ -24,6 +24,14 @@ import {
   OrdemServicoOrcamentoResponseDTO,
 } from '../model/ordem-servico-orcamento.dto';
 
+import {
+  Page,
+} from '../../../shared/search-generic/models/page.model';
+
+import {
+  OrdemServicoAbertaDTO,
+} from '../model/ordem-servico-aberta.dto';
+
 export interface AbrirOrdemServicoRequest {
   aparelhoId: number;
 }
@@ -353,6 +361,25 @@ buscarUltimaPorAparelho(
     OrdemServicoDetalheDTO | null
   >(
     `${this.API}/aparelho/${aparelhoId}/ultima`,
+  );
+}
+
+listarAbertas(
+  page: number,
+  size: number,
+  sortField = 'ordemServicoId',
+  sortOrder = 'desc',
+): Observable<Page<OrdemServicoAbertaDTO>> {
+
+  const params =
+    `page=${page}` +
+    `&size=${size}` +
+    `&sort=${sortField},${sortOrder}`;
+
+  return this.http.get<
+    Page<OrdemServicoAbertaDTO>
+  >(
+    `${this.API}/abertas?${params}`,
   );
 }
 

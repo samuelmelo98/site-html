@@ -1,12 +1,31 @@
-import { Routes } from '@angular/router';
+import {
+  Routes,
+} from '@angular/router';
 
 export const ORDEM_SERVICO_ROUTES: Routes = [
 
   {
-    path: ':id',
+    path: 'abertas',
+
     loadComponent: () =>
-      import('./pages/detail/detail.component')
-        .then(m => m.DetailComponent)
-  }
+      import(
+        './pages/ordens/ordens-abertas'
+      )
+        .then(
+          m => m.OrdensAbertasComponent,
+        ),
+  },
+
+  {
+    path: ':id',
+
+    loadComponent: () =>
+      import(
+        './pages/detail/detail.component'
+      )
+        .then(
+          m => m.DetailComponent,
+        ),
+  },
 
 ];
