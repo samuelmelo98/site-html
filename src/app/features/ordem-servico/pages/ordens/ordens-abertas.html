@@ -1,0 +1,252 @@
+<section class="pagina">
+
+  <header class="cabecalho">
+
+    <div>
+
+      <h1>
+        Ordens de Serviço
+      </h1>
+
+      <p>
+        Ordens de serviço em andamento
+      </p>
+
+    </div>
+
+
+    <p-button
+      label="Atualizar"
+      icon="pi pi-refresh"
+      severity="secondary"
+      [outlined]="true"
+      [loading]="carregando()"
+      (onClick)="carregar()">
+    </p-button>
+
+  </header>
+
+
+  <div class="tabela-container">
+
+    <p-table
+      [value]="ordens()"
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="tamanhoPagina()"
+      [totalRecords]="totalRegistros()"
+      [loading]="carregando()"
+      [rowsPerPageOptions]="[
+        10,
+        20,
+        50
+      ]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="
+        Mostrando {first} a {last}
+        de {totalRecords} ordens
+      "
+      [tableStyle]="{
+        'min-width': '70rem'
+      }"
+      (onLazyLoad)="carregarPagina($event)">
+
+
+      <ng-template
+        pTemplate="header">
+
+        <tr>
+
+          <th>
+            OS
+          </th>
+
+          <th>
+            Cliente
+          </th>
+
+          <th>
+            Telefone
+          </th>
+
+          <th>
+            Aparelho
+          </th>
+
+          <th>
+            Número de série
+          </th>
+
+          <th>
+            Status
+          </th>
+
+          <th>
+            Data de entrada
+          </th>
+
+          <th class="coluna-acoes">
+            Ações
+          </th>
+
+        </tr>
+
+      </ng-template>
+
+
+      <ng-template
+        pTemplate="body"
+        let-ordem>
+
+        <tr>
+
+          <td>
+
+            <strong class="numero-os">
+              {{ ordem.numero }}
+            </strong>
+
+          </td>
+
+
+          <td>
+
+            <div class="informacao">
+
+              <strong>
+                {{ ordem.clienteNome }}
+              </strong>
+
+              @if (ordem.clienteCpf) {
+
+                <small>
+                  CPF:
+                  {{ ordem.clienteCpf }}
+                </small>
+
+              }
+
+            </div>
+
+          </td>
+
+
+          <td>
+
+            {{
+              ordem.clienteTelefone
+                || '-'
+            }}
+
+          </td>
+
+
+          <td>
+
+            <div class="informacao">
+
+              <strong>
+                {{
+                  descricaoAparelho(
+                    ordem
+                  ) || '-'
+                }}
+              </strong>
+
+              <small>
+                Aparelho #{{ ordem.aparelhoId }}
+              </small>
+
+            </div>
+
+          </td>
+
+
+          <td>
+
+            {{
+              ordem.numeroSerie
+                || '-'
+            }}
+
+          </td>
+
+
+          <td>
+
+            <p-tag
+              [value]="
+                ordem.statusDescricao
+              "
+              [severity]="
+                statusSeverity(
+                  ordem.statusCodigo
+                )
+              ">
+            </p-tag>
+
+          </td>
+
+
+          <td>
+
+            {{
+              ordem.dataAbertura
+                | date:
+                    'dd/MM/yyyy HH:mm'
+            }}
+
+          </td>
+
+
+          <td class="coluna-acoes">
+
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              [text]="true"
+              pTooltip="
+                Visualizar ordem de serviço
+              "
+              tooltipPosition="left"
+              (onClick)="
+                abrir(
+                  ordem.ordemServicoId
+                )
+              ">
+            </p-button>
+
+          </td>
+
+        </tr>
+
+      </ng-template>
+
+
+      <ng-template
+        pTemplate="emptymessage">
+
+        <tr>
+
+          <td
+            colspan="8"
+            class="sem-registros">
+
+            <i class="pi pi-inbox"></i>
+
+            <strong>
+              Nenhuma ordem de serviço
+              em andamento.
+            </strong>
+
+          </td>
+
+        </tr>
+
+      </ng-template>
+
+    </p-table>
+
+  </div>
+
+</section>
