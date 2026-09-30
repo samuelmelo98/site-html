@@ -53,6 +53,17 @@ export const routes: Routes = [
   },
 
   {
+  path: 'vendas',
+
+  loadChildren: () =>
+    import(
+      './features/vendas/venda.routes'
+    ).then(
+      m => m.VENDA_ROUTES,
+    ),
+},
+
+  {
     path: 'cliente-cpf',
     canActivate: [authGuard],
     loadChildren: () =>

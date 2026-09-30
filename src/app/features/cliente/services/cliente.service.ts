@@ -34,6 +34,10 @@ import {
 
 import { ClienteAtualizarDTO } from '../model/cliente-atualizar.dto';
 
+import {
+  ClienteOpcaoDTO,
+} from '../../vendas/model/cliente-opcao.dto';
+
 
 
 @Injectable({
@@ -232,6 +236,15 @@ export class ClienteService {
 
       );
   }
+
+  listarOpcoes():
+  Observable<ClienteOpcaoDTO[]> {
+
+  return this.http
+    .get<ClienteOpcaoDTO[]>(
+      `${environment.apiUrl}/clientes/opcoes2`,
+    );
+}
 
   
 }
