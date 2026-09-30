@@ -13,6 +13,7 @@ import {
 } from './model/dashboard-ordem-servico.dto';
 
 
+
 @Component({
   selector: 'app-dashboard-metrica',
 
@@ -193,5 +194,7 @@ somenteEntregues = false;
   formatarMoeda(valor: number): string {
     return this.formatoMoeda.format(valor);
   }
+
+  
 
 }

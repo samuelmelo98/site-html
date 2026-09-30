@@ -1,0 +1,219 @@
+.vendas-card {
+  width: 100%;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow:
+    0 8px 24px
+    rgba(15, 23, 42, 0.06);
+}
+
+
+.vendas-header {
+  margin-bottom: 24px;
+}
+
+
+.titulo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+
+.icone-wrapper {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 18px;
+}
+
+
+.categoria {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #059669;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+
+.vendas-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+
+.vendas-header p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+
+.periodos-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+}
+
+
+.periodo-card {
+  position: relative;
+  padding: 8px 24px 4px;
+}
+
+
+.periodo-card:not(:last-child) {
+  border-right: 1px solid #e5e7eb;
+}
+
+
+.periodo-header {
+  min-height: 44px;
+}
+
+
+.periodo-titulo {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+
+.periodo-data {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+
+.valor-principal {
+  margin-top: 18px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #047857;
+}
+
+
+.quantidade {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+
+.quantidade strong {
+  font-size: 17px;
+  color: #0f172a;
+}
+
+
+.quantidade span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+
+.cancelamento {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #fff7f7;
+}
+
+
+.cancelamento-linha {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+
+.cancelamento-linha + .cancelamento-linha {
+  margin-top: 6px;
+}
+
+
+.cancelamento-linha span {
+  font-size: 11px;
+  color: #64748b;
+}
+
+
+.cancelamento-linha strong {
+  font-size: 11px;
+  color: #dc2626;
+}
+
+
+.cancelamento-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+
+@media (
+  max-width: 1100px
+) {
+
+  .periodos-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+    gap: 20px 0;
+  }
+
+
+  .periodo-card:nth-child(2) {
+    border-right: none;
+  }
+
+}
+
+
+@media (
+  max-width: 640px
+) {
+
+  .periodos-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .periodo-card {
+    padding:
+      18px
+      4px;
+    border-right: none !important;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+
+  .periodo-card:last-child {
+    border-bottom: none;
+  }
+
+}
