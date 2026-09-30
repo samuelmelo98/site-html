@@ -119,4 +119,16 @@ export class VendaService {
       );
   }
 
+  emitirCupom(
+    vendaId: number,
+  ): Observable<string> {
+
+    return this.http.get(
+      `${this.baseUrl}/${vendaId}/cupom`,
+      {
+        responseType: 'text',
+      },
+    );
+  }
+
 }

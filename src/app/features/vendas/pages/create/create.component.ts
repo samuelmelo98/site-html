@@ -70,14 +70,19 @@ import {
 } from 'primeng/textarea';
 
 import {
-  ClienteOpcaoDTO,
-} from '../../model/cliente-opcao.dto';
+  Cliente,
+} from '../../../cliente/model/cliente-listar.dto';
 
 import {
   ClienteService,
 } from '../../../cliente/services/cliente.service';
 
 import {
+  ClienteOpcaoDTO,
+} from '../../model/cliente-opcao.dto';
+
+import {
+  VendaDetalheDTO,
   VendaRequestDTO,
 } from '../../model/venda.dto';
 
@@ -87,27 +92,24 @@ import {
 
 
 interface VendaItemForm {
+  descricao: FormControl<string>;
+  quantidade: FormControl<number>;
+  valorUnitario: FormControl<number>;
+  desconto: FormControl<number>;
+}
 
-  descricao:
-    FormControl<string>;
 
-  quantidade:
-    FormControl<number>;
-
-  valorUnitario:
-    FormControl<number>;
-
-  desconto:
-    FormControl<number>;
-
+interface VendaItemValor {
+  descricao: string;
+  quantidade: number;
+  valorUnitario: number;
+  desconto: number;
 }
 
 
 @Component({
   selector: 'app-venda-create',
-
   standalone: true,
-
   imports: [
     CurrencyPipe,
     ReactiveFormsModule,
@@ -118,22 +120,25 @@ interface VendaItemForm {
     ProgressSpinnerModule,
     TextareaModule,
   ],
-
   templateUrl:
     './create.component.html',
-
   styleUrl:
     './create.component.css',
-
   changeDetection:
     ChangeDetectionStrategy.OnPush,
 })
 export class CreateComponent
   implements OnInit {
 
+  private static readonly MIN_CARACTERES_CLIENTE =
+    2;
+
+  private static readonly LIMITE_CLIENTES =
+    20;
+
 
   /*
-   * DEPENDENCIAS
+   * DEPENDÊNCIAS
    */
 
   private readonly fb =
@@ -181,11 +186,6 @@ export class CreateComponent
    * CLIENTES
    */
 
-  readonly clientes =
-    signal<ClienteOpcaoDTO[]>(
-      [],
-    );
-
   readonly clientesFiltrados =
     signal<ClienteOpcaoDTO[]>(
       [],
@@ -204,7 +204,7 @@ export class CreateComponent
 
 
   /*
-   * FORMULARIO
+   * FORMULÁRIO
    */
 
   readonly form =
@@ -268,6 +268,7 @@ export class CreateComponent
         this.vendaId() !== null,
     );
 
+
   readonly titulo =
     computed(
       () =>
@@ -276,73 +277,26 @@ export class CreateComponent
           : 'Nova venda',
     );
 
+
   readonly subtotal =
-    computed(() => {
+    computed(
+      () =>
+        this.calcularSubtotal(),
+    );
 
-      const itens =
-        this.formValue().itens ?? [];
-
-      return itens.reduce(
-        (
-          total,
-          item,
-        ) => {
-
-          const quantidade =
-            Number(
-              item.quantidade ?? 0,
-            );
-
-          const valorUnitario =
-            Number(
-              item.valorUnitario ?? 0,
-            );
-
-          return (
-            total +
-            quantidade *
-            valorUnitario
-          );
-        },
-        0,
-      );
-    });
 
   readonly descontoItens =
-    computed(() => {
+    computed(
+      () =>
+        this.calcularDescontoItens(),
+    );
 
-      const itens =
-        this.formValue().itens ?? [];
-
-      return itens.reduce(
-        (
-          total,
-          item,
-        ) =>
-          total +
-          Number(
-            item.desconto ?? 0,
-          ),
-        0,
-      );
-    });
 
   readonly total =
-    computed(() => {
-
-      const descontoVenda =
-        Number(
-          this.formValue()
-            .desconto ?? 0,
-        );
-
-      return Math.max(
-        0,
-        this.subtotal() -
-          this.descontoItens() -
-          descontoVenda,
-      );
-    });
+    computed(
+      () =>
+        this.calcularTotalVenda(),
+    );
 
 
   get itens():
@@ -353,19 +307,13 @@ export class CreateComponent
 
 
   /*
-   * INICIALIZACAO
+   * INICIALIZAÇÃO
    */
 
   ngOnInit(): void {
 
-    this.carregarClientes();
-
     const parametro =
-      this.route.snapshot
-        .paramMap
-        .get(
-          'vendaId',
-        );
+      this.obterParametroVendaId();
 
     if (
       parametro === null
@@ -373,28 +321,13 @@ export class CreateComponent
       return;
     }
 
-    if (
-      !/^[1-9]\d*$/.test(
-        parametro,
-      )
-    ) {
-
-      this.erro.set(
-        'Identificador da venda inválido.',
-      );
-
-      return;
-    }
-
     const vendaId =
-      Number(
+      this.converterVendaId(
         parametro,
       );
 
     if (
-      !Number.isSafeInteger(
-        vendaId,
-      )
+      vendaId === null
     ) {
 
       this.erro.set(
@@ -404,11 +337,7 @@ export class CreateComponent
       return;
     }
 
-    this.vendaId.set(
-      vendaId,
-    );
-
-    this.carregarVenda(
+    this.inicializarEdicao(
       vendaId,
     );
   }
@@ -424,33 +353,24 @@ export class CreateComponent
     },
   ): void {
 
-    const termo =
-      this.normalizar(
-        event.query,
-      );
+    const nome =
+      event.query.trim();
 
-    if (!termo) {
+    this.erroClientes.set('');
 
-      this.clientesFiltrados.set(
-        this.clientes(),
-      );
+    if (
+      !this.podePesquisarCliente(
+        nome,
+      )
+    ) {
+
+      this.limparSugestoesClientes();
 
       return;
     }
 
-    const filtrados =
-      this.clientes()
-        .filter(
-          cliente =>
-            this.normalizar(
-              cliente.nome,
-            ).includes(
-              termo,
-            ),
-        );
-
-    this.clientesFiltrados.set(
-      filtrados,
+    this.pesquisarClientes(
+      nome,
     );
   }
 
@@ -459,49 +379,27 @@ export class CreateComponent
     cliente: ClienteOpcaoDTO,
   ): void {
 
-    this.clienteSelecionadoControl
-      .setValue(
-        cliente,
-        {
-          emitEvent: false,
-        },
-      );
-
-    this.form.controls
-      .clienteId
-      .setValue(
-        cliente.clienteId,
-      );
-
-    this.form.controls
-      .clienteId
-      .markAsDirty();
-
-    this.erroClientes.set(
-      '',
+    this.definirClienteSelecionado(
+      cliente,
     );
+
+    this.definirClienteId(
+      cliente.clienteId,
+    );
+
+    this.erroClientes.set('');
   }
 
 
   limparCliente(): void {
 
-    this.clienteSelecionadoControl
-      .setValue(
-        null,
-        {
-          emitEvent: false,
-        },
-      );
+    this.definirClienteSelecionado(
+      null,
+    );
 
-    this.form.controls
-      .clienteId
-      .setValue(
-        null,
-      );
-
-    this.form.controls
-      .clienteId
-      .markAsDirty();
+    this.definirClienteId(
+      null,
+    );
   }
 
 
@@ -530,18 +428,9 @@ export class CreateComponent
   ): void {
 
     if (
-      this.salvando() ||
-      this.itens.length <= 1
-    ) {
-      return;
-    }
-
-    if (
-      !Number.isInteger(
+      !this.podeRemoverItem(
         index,
-      ) ||
-      index < 0 ||
-      index >= this.itens.length
+      )
     ) {
       return;
     }
@@ -566,121 +455,29 @@ export class CreateComponent
       return;
     }
 
+    const mensagemValidacao =
+      this.validarVendaParaSalvar();
+
     if (
-      this.form.invalid ||
-      this.itens.length === 0
+      mensagemValidacao
     ) {
 
-      this.form.markAllAsTouched();
-
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Atenção',
-        detail:
-          'Preencha os campos obrigatórios da venda.',
-      });
+      this.notificarAviso(
+        mensagemValidacao,
+      );
 
       return;
     }
 
-    const validacao =
-      this.validarValores();
-
-    if (validacao) {
-
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Atenção',
-        detail: validacao,
-      });
-
-      return;
-    }
-
-    const payload =
-      this.mapearPayload();
-
-    const vendaId =
-      this.vendaId();
-
-    const requisicao =
-      vendaId === null
-        ? this.vendaService
-            .criar(
-              payload,
-            )
-        : this.vendaService
-            .atualizar(
-              vendaId,
-              payload,
-            );
-
-    this.salvando.set(
-      true,
+    this.persistirVenda(
+      this.mapearPayload(),
     );
-
-    this.erro.set(
-      '',
-    );
-
-    requisicao
-      .pipe(
-        finalize(
-          () =>
-            this.salvando.set(
-              false,
-            ),
-        ),
-
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
-      )
-      .subscribe({
-
-        next: venda => {
-
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail:
-              this.modoEdicao()
-                ? 'Venda atualizada com sucesso.'
-                : 'Venda registrada com sucesso.',
-          });
-
-          this.router.navigate(
-            [
-              '/vendas',
-              venda.vendaId,
-            ],
-          );
-        },
-
-        error: (
-          erro: HttpErrorResponse,
-        ) => {
-
-          const mensagem =
-            this.mensagemErro(
-              erro,
-              'Não foi possível salvar a venda.',
-            );
-
-          this.erro.set(
-            mensagem,
-          );
-
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: mensagem,
-          });
-        },
-
-      });
   }
 
+
+  /*
+   * NAVEGAÇÃO
+   */
 
   voltar(): void {
 
@@ -742,50 +539,207 @@ export class CreateComponent
       return 0;
     }
 
-    const quantidade =
-      Number(
-        item.controls
-          .quantidade
-          .value ?? 0,
-      );
-
-    const valorUnitario =
-      Number(
-        item.controls
-          .valorUnitario
-          .value ?? 0,
-      );
-
-    const desconto =
-      Number(
-        item.controls
-          .desconto
-          .value ?? 0,
-      );
-
-    return Math.max(
-      0,
-      quantidade *
-        valorUnitario -
-        desconto,
+    return this.calcularTotalItem(
+      item.getRawValue(),
     );
   }
 
 
   /*
-   * FORM ITEM
+   * INICIALIZAÇÃO DA EDIÇÃO
    */
 
+  private obterParametroVendaId():
+    string | null {
+
+    return this.route.snapshot
+      .paramMap
+      .get(
+        'vendaId',
+      );
+  }
+
+
+  private converterVendaId(
+    parametro: string,
+  ): number | null {
+
+    if (
+      !/^[1-9]\d*$/.test(
+        parametro,
+      )
+    ) {
+      return null;
+    }
+
+    const vendaId =
+      Number(
+        parametro,
+      );
+
+    return Number.isSafeInteger(
+      vendaId,
+    )
+      ? vendaId
+      : null;
+  }
+
+
+  private inicializarEdicao(
+    vendaId: number,
+  ): void {
+
+    this.vendaId.set(
+      vendaId,
+    );
+
+    this.carregarVenda(
+      vendaId,
+    );
+  }
+
+
+  /*
+   * PESQUISA DE CLIENTES
+   */
+
+  private podePesquisarCliente(
+    nome: string,
+  ): boolean {
+
+    return (
+      nome.length >=
+      CreateComponent
+        .MIN_CARACTERES_CLIENTE
+    );
+  }
+
+
+  private pesquisarClientes(
+    nome: string,
+  ): void {
+
+    this.carregandoClientes.set(
+      true,
+    );
+
+    this.clienteService
+      .buscarOpcoes(
+        nome,
+        0,
+        CreateComponent
+          .LIMITE_CLIENTES,
+      )
+      .pipe(
+        finalize(
+          () =>
+            this.carregandoClientes.set(
+              false,
+            ),
+        ),
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+      )
+      .subscribe({
+        next:
+          pagina =>
+            this.clientesFiltrados.set(
+              pagina.content,
+            ),
+
+        error:
+          erro =>
+            this.tratarErroPesquisaClientes(
+              erro,
+            ),
+      });
+  }
+
+
+  private tratarErroPesquisaClientes(
+    erro: HttpErrorResponse,
+  ): void {
+
+    this.limparSugestoesClientes();
+
+    this.erroClientes.set(
+      this.mensagemErro(
+        erro,
+        'Não foi possível pesquisar os clientes.',
+      ),
+    );
+  }
+
+
+  private limparSugestoesClientes():
+    void {
+
+    this.clientesFiltrados.set(
+      [],
+    );
+  }
+
+
+  private definirClienteSelecionado(
+    cliente:
+      ClienteOpcaoDTO | null,
+  ): void {
+
+    this.clienteSelecionadoControl
+      .setValue(
+        cliente,
+        {
+          emitEvent: false,
+        },
+      );
+  }
+
+
+  private definirClienteId(
+    clienteId:
+      number | null,
+  ): void {
+
+    this.form.controls
+      .clienteId
+      .setValue(
+        clienteId,
+      );
+
+    this.form.controls
+      .clienteId
+      .markAsDirty();
+  }
+
+
+  /*
+   * REGRAS DOS ITENS
+   */
+
+  private podeRemoverItem(
+    index: number,
+  ): boolean {
+
+    return (
+      !this.salvando() &&
+      this.itens.length > 1 &&
+      Number.isInteger(
+        index,
+      ) &&
+      index >= 0 &&
+      index < this.itens.length
+    );
+  }
+
+
   private criarItemForm(
-    item?: {
-      descricao?: string;
-      quantidade?: number;
-      valorUnitario?: number;
-      desconto?: number;
-    },
+    item?:
+      Partial<VendaItemValor>,
   ): FormGroup<VendaItemForm> {
 
     return this.fb.group({
+
       descricao:
         this.fb.nonNullable.control(
           item?.descricao ?? '',
@@ -828,6 +782,239 @@ export class CreateComponent
             ),
           ],
         ),
+
+    });
+  }
+
+
+  /*
+   * CÁLCULOS
+   */
+
+  private calcularSubtotal():
+    number {
+
+    return (
+      this.formValue().itens ?? []
+    ).reduce(
+      (
+        total,
+        item,
+      ) =>
+        total +
+        this.calcularValorBrutoItem(
+          item,
+        ),
+      0,
+    );
+  }
+
+
+  private calcularDescontoItens():
+    number {
+
+    return (
+      this.formValue().itens ?? []
+    ).reduce(
+      (
+        total,
+        item,
+      ) =>
+        total +
+        Number(
+          item.desconto ?? 0,
+        ),
+      0,
+    );
+  }
+
+
+  private calcularTotalVenda():
+    number {
+
+    const descontoVenda =
+      Number(
+        this.formValue()
+          .desconto ?? 0,
+      );
+
+    return Math.max(
+      0,
+      this.subtotal() -
+        this.descontoItens() -
+        descontoVenda,
+    );
+  }
+
+
+  private calcularValorBrutoItem(
+    item: {
+      quantidade?: number | null;
+      valorUnitario?: number | null;
+    },
+  ): number {
+
+    return (
+      Number(
+        item.quantidade ?? 0,
+      ) *
+      Number(
+        item.valorUnitario ?? 0,
+      )
+    );
+  }
+
+
+  private calcularTotalItem(
+    item: VendaItemValor,
+  ): number {
+
+    return Math.max(
+      0,
+      this.calcularValorBrutoItem(
+        item,
+      ) -
+        Number(
+          item.desconto ?? 0,
+        ),
+    );
+  }
+
+
+  /*
+   * PERSISTÊNCIA DA VENDA
+   */
+
+  private validarVendaParaSalvar():
+    string | null {
+
+    if (
+      this.form.invalid ||
+      this.itens.length === 0
+    ) {
+
+      this.form.markAllAsTouched();
+
+      return (
+        'Preencha os campos obrigatórios ' +
+        'da venda.'
+      );
+    }
+
+    return this.validarValores();
+  }
+
+
+  private persistirVenda(
+    payload: VendaRequestDTO,
+  ): void {
+
+    const vendaId =
+      this.vendaId();
+
+    const requisicao =
+      vendaId === null
+        ? this.vendaService.criar(
+            payload,
+          )
+        : this.vendaService.atualizar(
+            vendaId,
+            payload,
+          );
+
+    this.iniciarSalvamento();
+
+    requisicao
+      .pipe(
+        finalize(
+          () =>
+            this.salvando.set(
+              false,
+            ),
+        ),
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+      )
+      .subscribe({
+        next:
+          venda =>
+            this.tratarVendaSalva(
+              venda,
+            ),
+
+        error:
+          erro =>
+            this.tratarErroSalvarVenda(
+              erro,
+            ),
+      });
+  }
+
+
+  private iniciarSalvamento():
+    void {
+
+    this.salvando.set(
+      true,
+    );
+
+    this.erro.set('');
+  }
+
+
+  private tratarVendaSalva(
+    venda: VendaDetalheDTO,
+  ): void {
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Sucesso',
+      detail:
+        this.modoEdicao()
+          ? 'Venda atualizada com sucesso.'
+          : 'Venda registrada com sucesso.',
+    });
+
+    this.router.navigate(
+      [
+        '/vendas',
+        venda.vendaId,
+      ],
+    );
+  }
+
+
+  private tratarErroSalvarVenda(
+    erro: HttpErrorResponse,
+  ): void {
+
+    const mensagem =
+      this.mensagemErro(
+        erro,
+        'Não foi possível salvar a venda.',
+      );
+
+    this.erro.set(
+      mensagem,
+    );
+
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: mensagem,
+    });
+  }
+
+
+  private notificarAviso(
+    mensagem: string,
+  ): void {
+
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Atenção',
+      detail: mensagem,
     });
   }
 
@@ -840,13 +1027,7 @@ export class CreateComponent
     vendaId: number,
   ): void {
 
-    this.carregando.set(
-      true,
-    );
-
-    this.erro.set(
-      '',
-    );
+    this.iniciarCarregamentoVenda();
 
     this.vendaService
       .buscar(
@@ -859,161 +1040,151 @@ export class CreateComponent
               false,
             ),
         ),
-
         takeUntilDestroyed(
           this.destroyRef,
         ),
       )
       .subscribe({
-
-        next: venda => {
-
-          if (
-            venda.status !== 'ABERTA'
-          ) {
-
-            this.erro.set(
-              'Somente vendas abertas podem ser editadas.',
-            );
-
-            return;
-          }
-
-          this.form.patchValue({
-            clienteId:
-              venda.clienteId,
-
-            desconto:
-              venda.desconto,
-
-            observacao:
-              venda.observacao ?? '',
-          });
-
-          this.sincronizarClienteSelecionado();
-
-          this.itens.clear();
-
-          for (
-            const item of venda.itens
-          ) {
-
-            this.itens.push(
-              this.criarItemForm({
-                descricao:
-                  item.descricao,
-
-                quantidade:
-                  item.quantidade,
-
-                valorUnitario:
-                  item.valorUnitario,
-
-                desconto:
-                  item.desconto,
-              }),
-            );
-          }
-
-          if (
-            this.itens.length === 0
-          ) {
-
-            this.itens.push(
-              this.criarItemForm(),
-            );
-          }
-
-          this.form.markAsPristine();
-        },
-
-        error: (
-          erro: HttpErrorResponse,
-        ) => {
-
-          this.erro.set(
-            this.mensagemErro(
-              erro,
-              'Não foi possível carregar a venda.',
+        next:
+          venda =>
+            this.aplicarVendaCarregada(
+              venda,
             ),
-          );
-        },
 
+        error:
+          erro =>
+            this.tratarErroCarregarVenda(
+              erro,
+            ),
       });
+  }
+
+
+  private iniciarCarregamentoVenda():
+    void {
+
+    this.carregando.set(
+      true,
+    );
+
+    this.erro.set('');
+  }
+
+
+  private aplicarVendaCarregada(
+    venda: VendaDetalheDTO,
+  ): void {
+
+    if (
+      !this.vendaPodeSerEditada(
+        venda,
+      )
+    ) {
+      return;
+    }
+
+    this.preencherDadosVenda(
+      venda,
+    );
+
+    this.sincronizarClienteSelecionado();
+
+    this.substituirItensVenda(
+      venda.itens,
+    );
+
+    this.form.markAsPristine();
+  }
+
+
+  private vendaPodeSerEditada(
+    venda: VendaDetalheDTO,
+  ): boolean {
+
+    if (
+      venda.status === 'ABERTA'
+    ) {
+      return true;
+    }
+
+    this.erro.set(
+      'Somente vendas abertas podem ser editadas.',
+    );
+
+    return false;
+  }
+
+
+  private preencherDadosVenda(
+    venda: VendaDetalheDTO,
+  ): void {
+
+    this.form.patchValue({
+      clienteId:
+        venda.clienteId,
+
+      desconto:
+        venda.desconto,
+
+      observacao:
+        venda.observacao ?? '',
+    });
+  }
+
+
+  private substituirItensVenda(
+    itensVenda:
+      VendaDetalheDTO['itens'],
+  ): void {
+
+    this.itens.clear();
+
+    for (
+      const item of itensVenda
+    ) {
+
+      this.itens.push(
+        this.criarItemForm(
+          item,
+        ),
+      );
+    }
+
+    this.garantirItemInicial();
+  }
+
+
+  private garantirItemInicial():
+    void {
+
+    if (
+      this.itens.length > 0
+    ) {
+      return;
+    }
+
+    this.itens.push(
+      this.criarItemForm(),
+    );
+  }
+
+
+  private tratarErroCarregarVenda(
+    erro: HttpErrorResponse,
+  ): void {
+
+    this.erro.set(
+      this.mensagemErro(
+        erro,
+        'Não foi possível carregar a venda.',
+      ),
+    );
   }
 
 
   /*
-   * CARREGAR CLIENTES
+   * CLIENTE DA VENDA EM EDIÇÃO
    */
-
-  private carregarClientes(): void {
-
-    this.carregandoClientes.set(
-      true,
-    );
-
-    this.erroClientes.set(
-      '',
-    );
-
-    this.clienteService
-      .listarOpcoes()
-      .pipe(
-        finalize(
-          () =>
-            this.carregandoClientes.set(
-              false,
-            ),
-        ),
-
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
-      )
-      .subscribe({
-
-        next: clientes => {
-
-          this.clientes.set(
-            clientes,
-          );
-
-          this.clientesFiltrados.set(
-            clientes,
-          );
-
-          /*
-           * Em edição, venda e clientes
-           * podem terminar de carregar
-           * em qualquer ordem.
-           */
-          this.sincronizarClienteSelecionado();
-        },
-
-        error: (
-          erro: HttpErrorResponse,
-        ) => {
-
-          this.clientes.set(
-            [],
-          );
-
-          this.clientesFiltrados.set(
-            [],
-          );
-
-          this.erroClientes.set(
-            this.mensagemErro(
-              erro,
-              'Não foi possível carregar os clientes.',
-            ),
-          );
-        },
-
-      });
-  }
-
 
   private sincronizarClienteSelecionado():
     void {
@@ -1023,81 +1194,153 @@ export class CreateComponent
         .clienteId.value;
 
     if (
-      clienteId === null ||
-      clienteId === undefined
+      clienteId == null
     ) {
 
-      this.clienteSelecionadoControl
-        .setValue(
-          null,
-          {
-            emitEvent: false,
-          },
-        );
+      this.definirClienteSelecionado(
+        null,
+      );
 
       return;
     }
 
-    const cliente =
-      this.clientes()
-        .find(
-          item =>
-            item.clienteId ===
-            clienteId,
-        ) ?? null;
+    this.carregarClienteSelecionado(
+      clienteId,
+    );
+  }
 
-    this.clienteSelecionadoControl
-      .setValue(
-        cliente,
-        {
-          emitEvent: false,
-        },
-      );
+
+  private carregarClienteSelecionado(
+    clienteId: number,
+  ): void {
+
+    this.clienteService
+      .buscarPorId(
+        clienteId,
+      )
+      .pipe(
+        takeUntilDestroyed(
+          this.destroyRef,
+        ),
+      )
+      .subscribe({
+        next:
+          cliente =>
+            this.definirClienteSelecionado(
+              this.mapearClienteOpcao(
+                cliente,
+              ),
+            ),
+
+        error:
+          erro =>
+            this.tratarErroCarregarCliente(
+              erro,
+            ),
+      });
+  }
+
+
+  private mapearClienteOpcao(
+    cliente: Cliente,
+  ): ClienteOpcaoDTO {
+
+    return {
+      clienteId:
+        cliente.clienteId,
+
+      nome:
+        cliente.nome,
+
+      cpf:
+        cliente.cpf ?? null,
+
+      telefone:
+        cliente.telefone ?? null,
+    };
+  }
+
+
+  private tratarErroCarregarCliente(
+    erro: HttpErrorResponse,
+  ): void {
+
+    this.definirClienteSelecionado(
+      null,
+    );
+
+    this.erroClientes.set(
+      this.mensagemErro(
+        erro,
+        'Não foi possível carregar o cliente da venda.',
+      ),
+    );
   }
 
 
   /*
-   * VALIDACOES
+   * VALIDAÇÕES DE VALORES
    */
 
   private validarValores():
+    string | null {
+
+    return (
+      this.validarDescontosItens() ??
+      this.validarDescontoGeral()
+    );
+  }
+
+
+  private validarDescontosItens():
     string | null {
 
     const itens =
       this.itens.getRawValue();
 
     for (
-      let i = 0;
-      i < itens.length;
-      i++
+      let index = 0;
+      index < itens.length;
+      index++
     ) {
 
-      const item =
-        itens[i];
-
-      const bruto =
-        Number(
-          item.quantidade ?? 0,
-        ) *
-        Number(
-          item.valorUnitario ?? 0,
-        );
-
-      const desconto =
-        Number(
-          item.desconto ?? 0,
-        );
-
       if (
-        desconto > bruto
+        this.descontoItemValido(
+          itens[index],
+        )
       ) {
-
-        return (
-          `O desconto do item ${i + 1} ` +
-          'não pode ser maior que seu valor bruto.'
-        );
+        continue;
       }
+
+      return (
+        `O desconto do item ${index + 1} ` +
+        'não pode ser maior que seu valor bruto.'
+      );
     }
+
+    return null;
+  }
+
+
+  private descontoItemValido(
+    item: VendaItemValor,
+  ): boolean {
+
+    const valorBruto =
+      this.calcularValorBrutoItem(
+        item,
+      );
+
+    return (
+      Number(
+        item.desconto ?? 0,
+      ) <= valorBruto
+    );
+  }
+
+
+  private validarDescontoGeral():
+    string | null {
 
     const totalAposItens =
       this.subtotal() -
@@ -1110,17 +1353,16 @@ export class CreateComponent
       );
 
     if (
-      descontoVenda >
+      descontoVenda <=
       totalAposItens
     ) {
-
-      return (
-        'O desconto geral não pode ser maior ' +
-        'que o valor dos itens.'
-      );
+      return null;
     }
 
-    return null;
+    return (
+      'O desconto geral não pode ser maior ' +
+      'que o valor dos itens.'
+    );
   }
 
 
@@ -1149,58 +1391,45 @@ export class CreateComponent
 
       itens:
         raw.itens.map(
-          item => ({
-            descricao:
-              String(
-                item.descricao ?? '',
-              ).trim(),
+          item =>
+            this.mapearItemPayload(
+              item,
+            ),
+        ),
+    };
+  }
 
-            quantidade:
-              Number(
-                item.quantidade ?? 0,
-              ),
 
-            valorUnitario:
-              Number(
-                item.valorUnitario ?? 0,
-              ),
+  private mapearItemPayload(
+    item: VendaItemValor,
+  ): VendaRequestDTO['itens'][number] {
 
-            desconto:
-              Number(
-                item.desconto ?? 0,
-              ),
-          }),
+    return {
+      descricao:
+        String(
+          item.descricao ?? '',
+        ).trim(),
+
+      quantidade:
+        Number(
+          item.quantidade ?? 0,
+        ),
+
+      valorUnitario:
+        Number(
+          item.valorUnitario ?? 0,
+        ),
+
+      desconto:
+        Number(
+          item.desconto ?? 0,
         ),
     };
   }
 
 
   /*
-   * NORMALIZACAO
-   */
-
-  private normalizar(
-    valor:
-      string | null | undefined,
-  ): string {
-
-    return (
-      valor ?? ''
-    )
-      .normalize(
-        'NFD',
-      )
-      .replace(
-        /[\u0300-\u036f]/g,
-        '',
-      )
-      .toLowerCase()
-      .trim();
-  }
-
-
-  /*
-   * ERROS
+   * ERROS HTTP
    */
 
   private mensagemErro(
@@ -1208,20 +1437,49 @@ export class CreateComponent
     padrao: string,
   ): string {
 
+    const mensagemApi =
+      this.obterMensagemApi(
+        erro,
+      );
+
+    if (
+      mensagemApi
+    ) {
+      return mensagemApi;
+    }
+
+    return this.mensagemPorStatus(
+      erro.status,
+      padrao,
+    );
+  }
+
+
+  private obterMensagemApi(
+    erro: HttpErrorResponse,
+  ): string | null {
+
     const mensagem =
       erro.error?.message ??
       erro.error?.mensagem ??
       erro.error?.detail;
 
-    if (
+    return (
       typeof mensagem === 'string' &&
       mensagem.trim()
-    ) {
-      return mensagem;
-    }
+    )
+      ? mensagem
+      : null;
+  }
+
+
+  private mensagemPorStatus(
+    status: number,
+    padrao: string,
+  ): string {
 
     switch (
-      erro.status
+      status
     ) {
 
       case 401:

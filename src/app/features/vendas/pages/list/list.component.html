@@ -5,6 +5,7 @@
   <div class="cabecalho-pagina">
 
     <div>
+
       <span class="subtitulo">
         Comercial
       </span>
@@ -16,6 +17,7 @@
       <p>
         Consulte, acompanhe e registre as vendas da String Tecnologia.
       </p>
+
     </div>
 
     <p-button
@@ -25,6 +27,7 @@
     ></p-button>
 
   </div>
+
 
   @if (erro()) {
 
@@ -45,6 +48,7 @@
     </div>
 
   }
+
 
   <div
     class="
@@ -86,6 +90,7 @@
           "
         >
 
+          <!-- NÚMERO -->
           <th
             pSortableColumn="numero"
             class="
@@ -97,12 +102,21 @@
               text-gray-600
             "
           >
+
             <div class="flex items-center gap-1">
+
               Número
-              <p-sortIcon field="numero"></p-sortIcon>
+
+              <p-sortIcon
+                field="numero"
+              ></p-sortIcon>
+
             </div>
+
           </th>
 
+
+          <!-- CLIENTE -->
           <th
             class="
               px-3
@@ -116,6 +130,8 @@
             Cliente
           </th>
 
+
+          <!-- DATA -->
           <th
             pSortableColumn="dataVenda"
             class="
@@ -129,12 +145,21 @@
               md:text-gray-600
             "
           >
+
             <div class="flex items-center gap-1">
+
               Data
-              <p-sortIcon field="dataVenda"></p-sortIcon>
+
+              <p-sortIcon
+                field="dataVenda"
+              ></p-sortIcon>
+
             </div>
+
           </th>
 
+
+          <!-- STATUS -->
           <th
             pSortableColumn="status"
             class="
@@ -146,12 +171,21 @@
               text-gray-600
             "
           >
+
             <div class="flex items-center gap-1">
+
               Status
-              <p-sortIcon field="status"></p-sortIcon>
+
+              <p-sortIcon
+                field="status"
+              ></p-sortIcon>
+
             </div>
+
           </th>
 
+
+          <!-- ITENS -->
           <th
             class="
               hidden
@@ -167,6 +201,8 @@
             Itens
           </th>
 
+
+          <!-- TOTAL -->
           <th
             pSortableColumn="valorTotal"
             class="
@@ -178,15 +214,31 @@
               text-gray-600
             "
           >
-            <div class="flex items-center justify-end gap-1">
+
+            <div
+              class="
+                flex
+                items-center
+                justify-end
+                gap-1
+              "
+            >
+
               Total
-              <p-sortIcon field="valorTotal"></p-sortIcon>
+
+              <p-sortIcon
+                field="valorTotal"
+              ></p-sortIcon>
+
             </div>
+
           </th>
 
+
+          <!-- AÇÕES -->
           <th
             class="
-              w-36
+              w-44
               px-3
               py-3
               text-center
@@ -201,6 +253,7 @@
         </tr>
 
       </ng-template>
+
 
       <ng-template
         #body
@@ -219,6 +272,7 @@
           "
         >
 
+          <!-- NÚMERO -->
           <td
             class="
               px-3
@@ -226,6 +280,7 @@
               text-sm
             "
           >
+
             <strong
               class="
                 font-semibold
@@ -236,8 +291,11 @@
             >
               {{ venda.numero }}
             </strong>
+
           </td>
 
+
+          <!-- CLIENTE -->
           <td
             class="
               px-3
@@ -249,6 +307,8 @@
             {{ venda.clienteNome || 'Venda de balcão' }}
           </td>
 
+
+          <!-- DATA -->
           <td
             class="
               hidden
@@ -265,18 +325,24 @@
             }}
           </td>
 
+
+          <!-- STATUS -->
           <td
             class="
               px-3
               py-4
             "
           >
+
             <p-tag
               [value]="textoStatus(venda.status)"
               [severity]="severityStatus(venda.status)"
             ></p-tag>
+
           </td>
 
+
+          <!-- ITENS -->
           <td
             class="
               hidden
@@ -291,6 +357,8 @@
             {{ venda.quantidadeItens }}
           </td>
 
+
+          <!-- TOTAL -->
           <td
             class="
               px-3
@@ -307,6 +375,8 @@
             }}
           </td>
 
+
+          <!-- AÇÕES -->
           <td
             class="
               px-3
@@ -321,9 +391,11 @@
                 items-center
                 justify-center
                 gap-1
+                whitespace-nowrap
               "
             >
 
+              <!-- VISUALIZAR -->
               <p-button
                 icon="pi pi-eye"
                 severity="secondary"
@@ -335,6 +407,25 @@
                 (onClick)="visualizar(venda.vendaId)"
               ></p-button>
 
+
+              <!-- IMPRIMIR CUPOM -->
+              @if (venda.status === 'FINALIZADA') {
+
+                <p-button
+                  icon="pi pi-print"
+                  severity="secondary"
+                  rounded
+                  text
+                  ariaLabel="Imprimir cupom"
+                  pTooltip="Imprimir cupom"
+                  tooltipPosition="top"
+                  (onClick)="emitirCupom(venda)"
+                ></p-button>
+
+              }
+
+
+              <!-- AÇÕES DE VENDA ABERTA -->
               @if (venda.status === 'ABERTA') {
 
                 <p-button
@@ -345,6 +436,9 @@
                   ariaLabel="Editar venda"
                   pTooltip="Editar venda"
                   tooltipPosition="top"
+                  [disabled]="
+                    processandoVendaId() !== null
+                  "
                   (onClick)="editar(venda.vendaId)"
                 ></p-button>
 
@@ -360,11 +454,18 @@
                     processandoVendaId() ===
                     venda.vendaId
                   "
+                  [disabled]="
+                    processandoVendaId() !== null &&
+                    processandoVendaId() !==
+                    venda.vendaId
+                  "
                   (onClick)="confirmarFinalizacao(venda)"
                 ></p-button>
 
               }
 
+
+              <!-- CANCELAR -->
               @if (venda.status !== 'CANCELADA') {
 
                 <p-button
@@ -390,6 +491,7 @@
         </tr>
 
       </ng-template>
+
 
       <ng-template #emptymessage>
 

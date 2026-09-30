@@ -468,4 +468,113 @@ export class ListComponent {
         return padrao;
     }
   }
+
+  emitirCupom(
+    venda: VendaResponseDTO,
+  ): void {
+
+    if (
+      venda.status !== 'FINALIZADA'
+    ) {
+
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail:
+          'Somente vendas finalizadas podem emitir o cupom.',
+      });
+
+      return;
+    }
+
+    /*
+     * Abrimos a janela antes da requisição.
+     *
+     * Isso evita que o navegador bloqueie
+     * a nova aba como popup.
+     */
+    const janela =
+      window.open(
+        '',
+        '_blank',
+      );
+
+    if (!janela) {
+
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Popup bloqueado',
+        detail:
+          'Permita popups para imprimir o cupom.',
+      });
+
+      return;
+    }
+
+    janela.document.write(
+      `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Carregando cupom...</title>
+          </head>
+
+          <body
+            style="
+              font-family: Arial, sans-serif;
+              padding: 20px;
+            "
+          >
+            Carregando cupom...
+          </body>
+        </html>
+      `,
+    );
+
+    janela.document.close();
+
+    this.vendaService
+      .emitirCupom(
+        venda.vendaId,
+      )
+      .subscribe({
+
+        next: html => {
+
+          janela.document.open();
+
+          janela.document.write(
+            html,
+          );
+
+          janela.document.close();
+
+          janela.focus();
+
+          setTimeout(
+            () => {
+              janela.print();
+            },
+            300,
+          );
+        },
+
+        error: (
+          erro: HttpErrorResponse,
+        ) => {
+
+          janela.close();
+
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail:
+              erro.error?.detail ??
+              erro.error?.message ??
+              'Não foi possível emitir o cupom.',
+          });
+        },
+
+      });
+  }
 }

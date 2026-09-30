@@ -237,14 +237,24 @@ export class ClienteService {
       );
   }
 
-  listarOpcoes():
-  Observable<ClienteOpcaoDTO[]> {
+  buscarOpcoes(
+    nome: string,
+    page = 0,
+    size = 20,
+  ): Observable<Page<ClienteOpcaoDTO>> {
 
-  return this.http
-    .get<ClienteOpcaoDTO[]>(
-      `${environment.apiUrl}/clientes/opcoes2`,
+    return this.http.get<Page<ClienteOpcaoDTO>>(
+      `${this.API}/opcoes2`,
+      {
+        params: {
+          nome,
+          page: page.toString(),
+          size: size.toString(),
+          sort: 'nome,asc',
+        },
+      },
     );
-}
+  }
 
-  
+
 }
