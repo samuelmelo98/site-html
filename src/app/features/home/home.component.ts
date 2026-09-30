@@ -21,6 +21,10 @@ import {
 } from '../dash-board/dash-board.component';
 
 import {
+  DashboardVendasCardComponent,
+} from '../dash-board/components/dashboard-vendas-card/dashboard-vendas-card.component';
+
+import {
   DashboardService,
 } from '../dash-board/services/dashboard';
 
@@ -28,6 +32,10 @@ import {
   DashboardOrdemServicoDTO,
   MetricaOrdemServicoDTO,
 } from '../dash-board/model/dashboard-ordem-servico.dto';
+
+import {
+  DashboardVendaDTO,
+} from '../dash-board/model/dashboard-venda.dto';
 
 
 @Component({
@@ -38,11 +46,14 @@ import {
   imports: [
     RouterModule,
     DashboardComponent,
+    DashboardVendasCardComponent,
   ],
 
-  templateUrl: './home.component.html',
+  templateUrl:
+    './home.component.html',
 
-  styleUrl: './home.component.css',
+  styleUrl:
+    './home.component.css',
 })
 export class HomeComponent
   implements OnInit {
@@ -54,123 +65,202 @@ export class HomeComponent
     inject(DashboardService);
 
 
+  /*
+   * ORDENS DE SERVIÇO
+   */
+
   metricas:
     DashboardOrdemServicoDTO | null =
     null;
 
-
-  carregandoMetricas =
+  carregandoOrdens =
     false;
 
-  erroMetricas:
+  erroOrdens:
     string | null =
     null;
+
+
+  /*
+   * VENDAS
+   */
+
+  metricasVendas:
+    DashboardVendaDTO | null =
+    null;
+
+  carregandoVendas =
+    false;
+
+  erroVendas:
+    string | null =
+    null;
+
+
+  /*
+   * ESTADO GERAL
+   */
+
+  get carregandoMetricas():
+    boolean {
+
+    return (
+      this.carregandoOrdens ||
+      this.carregandoVendas
+    );
+  }
 
 
   ngOnInit(): void {
 
     this.carregarMetricas();
-
   }
 
 
   carregarMetricas(): void {
 
-    this.carregandoMetricas =
-      true;
+    this.carregarMetricasOrdensServico();
 
-    this.erroMetricas =
-      null;
+    this.carregarMetricasVendas();
+  }
 
+
+  /*
+   * ORDENS DE SERVIÇO
+   */
+
+  private carregarMetricasOrdensServico():
+    void {
+
+    this.iniciarCarregamentoOrdens();
 
     this.dashboardService
       .buscarMetricasOrdensServico()
       .pipe(
-        finalize(() => {
-
-          this.carregandoMetricas =
-            false;
-
-        }),
+        finalize(
+          () =>
+            this.carregandoOrdens =
+              false,
+        ),
       )
       .subscribe({
 
-        next: (
-          response:
-            DashboardOrdemServicoDTO,
-        ) => {
+        next:
+          response =>
+            this.metricas =
+              response,
 
-          this.metricas =
-            response;
-
-        },
-
-        error: (
-          error: unknown,
-        ) => {
-
-          console.error(
-            'Erro ao carregar métricas do dashboard:',
-            error,
-          );
-
-          this.erroMetricas =
-            'Não foi possível carregar as métricas.';
-
-        },
+        error:
+          error =>
+            this.tratarErroOrdens(
+              error,
+            ),
 
       });
-
   }
 
+
+  private iniciarCarregamentoOrdens():
+    void {
+
+    this.carregandoOrdens =
+      true;
+
+    this.erroOrdens =
+      null;
+  }
+
+
+  private tratarErroOrdens(
+    error: unknown,
+  ): void {
+
+    console.error(
+      'Erro ao carregar métricas de ordens de serviço:',
+      error,
+    );
+
+    this.erroOrdens =
+      'Não foi possível carregar as métricas de ordens de serviço.';
+  }
+
+
+  /*
+   * VENDAS
+   */
+
+  private carregarMetricasVendas():
+    void {
+
+    this.iniciarCarregamentoVendas();
+
+    this.dashboardService
+      .buscarMetricasVendas()
+      .pipe(
+        finalize(
+          () =>
+            this.carregandoVendas =
+              false,
+        ),
+      )
+      .subscribe({
+
+        next:
+          response =>
+            this.metricasVendas =
+              response,
+
+        error:
+          error =>
+            this.tratarErroVendas(
+              error,
+            ),
+
+      });
+  }
+
+
+  private iniciarCarregamentoVendas():
+    void {
+
+    this.carregandoVendas =
+      true;
+
+    this.erroVendas =
+      null;
+  }
+
+
+  private tratarErroVendas(
+    error: unknown,
+  ): void {
+
+    console.error(
+      'Erro ao carregar métricas de vendas:',
+      error,
+    );
+
+    this.erroVendas =
+      'Não foi possível carregar as métricas de vendas.';
+  }
+
+
+  /*
+   * PERÍODOS
+   */
 
   formatarPeriodo(
     metrica:
       MetricaOrdemServicoDTO,
   ): string {
 
-    return `${this.formatarData(
-      metrica.inicio,
-    )} a ${this.formatarData(
-      metrica.fim,
-    )}`;
-
-  }
-
-
-  gerarPdf(): void {
-
-    this.pdfService
-      .downloadPdf()
-      .subscribe(
-        (blob: Blob) => {
-
-          this.baixarArquivo(
-            blob,
-            'relatorio.pdf',
-          );
-
-        },
-      );
-
-  }
-
-
-  gerarPdfTeste(): void {
-
-    this.pdfService
-      .downloadPdfTeste()
-      .subscribe(
-        (blob: Blob) => {
-
-          this.baixarArquivo(
-            blob,
-            'relatorio-teste.pdf',
-          );
-
-        },
-      );
-
+    return (
+      `${this.formatarData(
+        metrica.inicio,
+      )} a ${this.formatarData(
+        metrica.fim,
+      )}`
+    );
   }
 
 
@@ -198,7 +288,38 @@ export class HomeComponent
     }
 
     return `${dia}/${mes}/${ano}`;
+  }
 
+
+  /*
+   * PDF
+   */
+
+  gerarPdf(): void {
+
+    this.pdfService
+      .downloadPdf()
+      .subscribe(
+        blob =>
+          this.baixarArquivo(
+            blob,
+            'relatorio.pdf',
+          ),
+      );
+  }
+
+
+  gerarPdfTeste(): void {
+
+    this.pdfService
+      .downloadPdfTeste()
+      .subscribe(
+        blob =>
+          this.baixarArquivo(
+            blob,
+            'relatorio-teste.pdf',
+          ),
+      );
   }
 
 
@@ -234,7 +355,6 @@ export class HomeComponent
     window.URL.revokeObjectURL(
       fileURL,
     );
-
   }
 
 }

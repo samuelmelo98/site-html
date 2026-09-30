@@ -5,11 +5,11 @@
     <div class="dashboard-title">
 
       <h1>
-        Painel de Métricas de Ordens de Serviço
+        Painel de Métricas
       </h1>
 
       <p>
-        Visão consolidada das ordens de serviço por período
+        Visão consolidada de ordens de serviço e vendas
       </p>
 
     </div>
@@ -20,14 +20,16 @@
       <button
         type="button"
         class="btn-secondary"
-        routerLink="/cliente">
+        routerLink="/cliente"
+      >
         Cadastrar Cliente
       </button>
 
       <button
         type="button"
         class="btn-secondary"
-         routerLink="/cliente">
+        routerLink="/cliente"
+      >
         Listar Usuário
       </button>
 
@@ -36,7 +38,11 @@
   </header>
 
 
-  @if (carregandoMetricas) {
+  @if (
+    carregandoMetricas &&
+    !metricas &&
+    !metricasVendas
+  ) {
 
     <div class="dashboard-loading">
 
@@ -48,81 +54,206 @@
 
     </div>
 
-  } @else if (erroMetricas) {
-
-    <div class="dashboard-error">
-
-      <span>
-        {{ erroMetricas }}
-      </span>
-
-      <button
-        type="button"
-        (click)="carregarMetricas()">
-        Tentar novamente
-      </button>
-
-    </div>
-
-  } @else if (metricas; as dados) {
-
-    <div class="dashboard-grid">
+  } @else {
 
 
-      <!-- ÚLTIMA SEMANA -->
+    <!-- ===================================== -->
+    <!-- ERRO ORDENS DE SERVIÇO -->
+    <!-- ===================================== -->
 
-      <app-dashboard-metrica
-        titulo="Última semana"
-        [subtitulo]="
-          'Segunda a sábado • ' +
-          formatarPeriodo(dados.semana)
-        "
-        [abertas]="dados.semana.abertas"
-        [autorizadas]="dados.semana.autorizadas"
-        [entregues]="dados.semana.entregues"
-        [naoAutorizadas]="dados.semana.naoAutorizadas">
-      </app-dashboard-metrica>
+    @if (
+      erroOrdens &&
+      !metricas
+    ) {
 
+      <div class="dashboard-error">
 
-      <!-- ÚLTIMOS 30 DIAS -->
+        <span>
+          {{ erroOrdens }}
+        </span>
 
-      <app-dashboard-metrica
-        titulo="Últimos 30 dias"
-        [subtitulo]="
-          formatarPeriodo(dados.trintaDias)
-        "
-        [abertas]="dados.trintaDias.abertas"
-        [autorizadas]="dados.trintaDias.autorizadas"
-        [entregues]="dados.trintaDias.entregues"
-        [naoAutorizadas]="dados.trintaDias.naoAutorizadas">
-      </app-dashboard-metrica>
+        <button
+          type="button"
+          (click)="carregarMetricas()"
+        >
+          Tentar novamente
+        </button>
+
+      </div>
+
+    }
 
 
-      <!-- ÚLTIMOS 365 DIAS -->
+    <!-- ===================================== -->
+    <!-- MÉTRICAS PRINCIPAIS DE OS -->
+    <!-- ===================================== -->
 
-      <app-dashboard-metrica
-        titulo="Últimos 365 dias"
-        [subtitulo]="
-          formatarPeriodo(dados.ano)
-        "
-        [abertas]="dados.ano.abertas"
-        [autorizadas]="dados.ano.autorizadas"
-        [entregues]="dados.ano.entregues"
-        [naoAutorizadas]="dados.ano.naoAutorizadas">
-      </app-dashboard-metrica>
+    @if (
+      metricas;
+      as dados
+    ) {
 
-            <!-- ENTREGUES NOS ÚLTIMOS 6 DIAS -->
+      <div class="dashboard-grid">
 
-            <app-dashboard-metrica
-  titulo="Entregues nos últimos 6 dias"
-  [subtitulo]="formatarPeriodo(dados.entreguesSeisDias)"
-  [somenteEntregues]="true"
-  [entregues]="dados.entreguesSeisDias.entregues"
-  [tecnicos]="dados.entreguesPorTecnico">
-</app-dashboard-metrica>
+        <!-- ÚLTIMA SEMANA -->
+
+        <app-dashboard-metrica
+          titulo="Última semana"
+          [subtitulo]="
+            'Segunda a sábado • ' +
+            formatarPeriodo(
+              dados.semana
+            )
+          "
+          [abertas]="
+            dados.semana.abertas
+          "
+          [autorizadas]="
+            dados.semana.autorizadas
+          "
+          [entregues]="
+            dados.semana.entregues
+          "
+          [naoAutorizadas]="
+            dados.semana.naoAutorizadas
+          "
+        >
+        </app-dashboard-metrica>
 
 
-    </div>
+        <!-- ÚLTIMOS 30 DIAS -->
+
+        <app-dashboard-metrica
+          titulo="Últimos 30 dias"
+          [subtitulo]="
+            formatarPeriodo(
+              dados.trintaDias
+            )
+          "
+          [abertas]="
+            dados.trintaDias.abertas
+          "
+          [autorizadas]="
+            dados.trintaDias.autorizadas
+          "
+          [entregues]="
+            dados.trintaDias.entregues
+          "
+          [naoAutorizadas]="
+            dados.trintaDias.naoAutorizadas
+          "
+        >
+        </app-dashboard-metrica>
+
+
+        <!-- ÚLTIMOS 365 DIAS -->
+
+        <app-dashboard-metrica
+          titulo="Últimos 365 dias"
+          [subtitulo]="
+            formatarPeriodo(
+              dados.ano
+            )
+          "
+          [abertas]="
+            dados.ano.abertas
+          "
+          [autorizadas]="
+            dados.ano.autorizadas
+          "
+          [entregues]="
+            dados.ano.entregues
+          "
+          [naoAutorizadas]="
+            dados.ano.naoAutorizadas
+          "
+        >
+        </app-dashboard-metrica>
+
+      </div>
+
+    }
+
+
+    <!-- ===================================== -->
+    <!-- ERRO VENDAS -->
+    <!-- ===================================== -->
+
+    @if (
+      erroVendas &&
+      !metricasVendas
+    ) {
+
+      <div class="dashboard-error dashboard-section">
+
+        <span>
+          {{ erroVendas }}
+        </span>
+
+        <button
+          type="button"
+          (click)="carregarMetricas()"
+        >
+          Tentar novamente
+        </button>
+
+      </div>
+
+    }
+
+
+    <!-- ===================================== -->
+    <!-- RESUMO DE VENDAS -->
+    <!-- ===================================== -->
+
+    @if (
+      metricasVendas;
+      as vendas
+    ) {
+
+      <div class="dashboard-vendas-wrapper">
+
+        <app-dashboard-vendas-card
+          [dados]="vendas"
+        >
+        </app-dashboard-vendas-card>
+
+      </div>
+
+    }
+
+
+    <!-- ===================================== -->
+    <!-- ENTREGAS DOS ÚLTIMOS 6 DIAS -->
+    <!-- ===================================== -->
+
+    @if (
+      metricas;
+      as dados
+    ) {
+
+      <div class="dashboard-entregas-wrapper">
+
+        <app-dashboard-metrica
+          titulo="Entregues nos últimos 6 dias"
+          [subtitulo]="
+            formatarPeriodo(
+              dados.entreguesSeisDias
+            )
+          "
+          [somenteEntregues]="true"
+          [entregues]="
+            dados.entreguesSeisDias.entregues
+          "
+          [tecnicos]="
+            dados.entreguesPorTecnico
+          "
+        >
+        </app-dashboard-metrica>
+
+      </div>
+
+    }
 
   }
 

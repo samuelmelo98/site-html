@@ -1,0 +1,133 @@
+<article class="vendas-card">
+
+  <header class="vendas-header">
+
+    <div class="titulo-wrapper">
+
+      <div class="icone-wrapper">
+        <i class="pi pi-shopping-cart"></i>
+      </div>
+
+      <div>
+
+        <span class="categoria">
+          Comercial
+        </span>
+
+        <h3>
+          Resumo de vendas
+        </h3>
+
+        <p>
+          Vendas finalizadas e canceladas por período
+        </p>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <div class="periodos-grid">
+
+    @for (
+      linha of linhas;
+      track linha.titulo
+    ) {
+
+      <section class="periodo-card">
+
+        <header class="periodo-header">
+
+          <span class="periodo-titulo">
+            {{ linha.titulo }}
+          </span>
+
+          <span class="periodo-data">
+            {{ linha.metrica.inicio }}
+            a
+            {{ linha.metrica.fim }}
+          </span>
+
+        </header>
+
+
+        <div class="valor-principal">
+
+          {{
+            formatarMoeda(
+              linha.metrica.valorTotal
+            )
+          }}
+
+        </div>
+
+
+        <div class="quantidade">
+
+          <strong>
+            {{ linha.metrica.quantidade }}
+          </strong>
+
+          <span>
+            {{
+              linha.metrica.quantidade === 1
+                ? 'venda'
+                : 'vendas'
+            }}
+          </span>
+
+        </div>
+
+
+        <div class="cancelamento">
+
+          <div class="cancelamento-linha">
+
+            <span class="cancelamento-label">
+
+              <i class="pi pi-times-circle"></i>
+
+              Canceladas
+
+            </span>
+
+            <strong>
+              {{
+                linha
+                  .metrica
+                  .quantidadeCanceladas
+              }}
+            </strong>
+
+          </div>
+
+
+          <div class="cancelamento-linha">
+
+            <span>
+              Valor cancelado
+            </span>
+
+            <strong>
+              {{
+                formatarMoeda(
+                  linha
+                    .metrica
+                    .valorCancelado
+                )
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    }
+
+  </div>
+
+</article>

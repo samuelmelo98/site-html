@@ -15,8 +15,14 @@ import {
   DashboardOrdemServicoDTO,
 } from '../model/dashboard-ordem-servico.dto';
 
+import {
+  DashboardVendaDTO,
+} from '../model/dashboard-venda.dto';
 
-import { environment } from '../../../../environments/environment';
+import {
+  environment,
+} from '../../../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +35,8 @@ export class DashboardService {
   private readonly baseUrl =
     `${environment.apiUrl}/dashboard`;
 
+    
+
 
   buscarMetricasOrdensServico():
     Observable<DashboardOrdemServicoDTO> {
@@ -36,7 +44,15 @@ export class DashboardService {
     return this.http.get<DashboardOrdemServicoDTO>(
       `${this.baseUrl}/ordens-servico`,
     );
+  }
 
+
+  buscarMetricasVendas():
+    Observable<DashboardVendaDTO> {
+
+    return this.http.get<DashboardVendaDTO>(
+      `${this.baseUrl}/vendas`,
+    );
   }
 
 }
