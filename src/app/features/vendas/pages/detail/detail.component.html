@@ -1,0 +1,373 @@
+<p-confirmDialog></p-confirmDialog>
+
+@if (carregando()) {
+
+  <div class="estado-carregamento">
+
+    <p-progressSpinner
+      strokeWidth="4"
+      ariaLabel="Carregando venda"
+    ></p-progressSpinner>
+
+    <span>
+      Carregando venda...
+    </span>
+
+  </div>
+
+} @else if (venda(); as venda) {
+
+  <div class="pagina-venda">
+
+    <div class="cabecalho-venda">
+
+      <div>
+
+        <span class="subtitulo">
+          Venda
+        </span>
+
+        <h1>
+          {{ venda.numero }}
+        </h1>
+
+        <span class="data-venda">
+          Registrada em
+          {{
+            venda.dataVenda
+              | date:'dd/MM/yyyy HH:mm'
+          }}
+        </span>
+
+      </div>
+
+      <div class="cabecalho-acoes">
+
+        <p-tag
+          [value]="textoStatus(venda.status)"
+          [severity]="severityStatus(venda.status)"
+        ></p-tag>
+
+        @if (venda.status === 'ABERTA') {
+
+          <p-button
+            label="Editar"
+            icon="pi pi-pencil"
+            severity="secondary"
+            [outlined]="true"
+            [disabled]="processando()"
+            (onClick)="editar()"
+          ></p-button>
+
+          <p-button
+            label="Finalizar"
+            icon="pi pi-check"
+            severity="success"
+            [loading]="processando()"
+            (onClick)="confirmarFinalizacao()"
+          ></p-button>
+
+        }
+
+        @if (venda.status !== 'CANCELADA') {
+
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="danger"
+            [outlined]="true"
+            [disabled]="processando()"
+            (onClick)="confirmarCancelamento()"
+          ></p-button>
+
+        }
+
+        <p-button
+          label="Voltar"
+          icon="pi pi-arrow-left"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="processando()"
+          (onClick)="voltar()"
+        ></p-button>
+
+      </div>
+
+    </div>
+
+    <div class="conteudo-venda">
+
+      <section class="card-venda">
+
+        <h2>
+          Cliente
+        </h2>
+
+        <div class="grid-info">
+
+          <div>
+            <span>
+              Nome
+            </span>
+
+            <strong>
+              {{
+                venda.clienteNome ||
+                'Venda de balcão'
+              }}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              ID do cliente
+            </span>
+
+            <strong>
+              {{ venda.clienteId || '—' }}
+            </strong>
+          </div>
+
+        </div>
+
+      </section>
+
+      <section class="card-venda">
+
+        <h2>
+          Valores
+        </h2>
+
+        <div class="grid-info valores">
+
+          <div>
+            <span>
+              Subtotal
+            </span>
+
+            <strong>
+              {{
+                venda.valorSubtotal
+                  | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+              }}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Desconto nos itens
+            </span>
+
+            <strong>
+              {{
+                venda.descontoItens
+                  | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+              }}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Desconto geral
+            </span>
+
+            <strong>
+              {{
+                venda.desconto
+                  | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+              }}
+            </strong>
+          </div>
+
+          <div class="valor-total">
+            <span>
+              Total
+            </span>
+
+            <strong>
+              {{
+                venda.valorTotal
+                  | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+              }}
+            </strong>
+          </div>
+
+        </div>
+
+      </section>
+
+      <section class="card-venda">
+
+        <div class="titulo-secao">
+
+          <div>
+            <h2>
+              Itens
+            </h2>
+
+            <p>
+              {{ venda.itens.length }}
+              item(ns) registrado(s)
+            </p>
+          </div>
+
+        </div>
+
+        <div class="tabela-itens">
+
+          <p-table
+            [value]="venda.itens"
+            dataKey="vendaItemId"
+            responsiveLayout="scroll"
+            styleClass="p-datatable-sm"
+          >
+
+            <ng-template #header>
+              <tr>
+                <th>
+                  Descrição
+                </th>
+
+                <th class="text-right">
+                  Quantidade
+                </th>
+
+                <th class="text-right">
+                  Unitário
+                </th>
+
+                <th class="text-right">
+                  Desconto
+                </th>
+
+                <th class="text-right">
+                  Total
+                </th>
+              </tr>
+            </ng-template>
+
+            <ng-template
+              #body
+              let-item
+            >
+              <tr>
+                <td>
+                  <strong>
+                    {{ item.descricao }}
+                  </strong>
+                </td>
+
+                <td class="text-right">
+                  {{ item.quantidade }}
+                </td>
+
+                <td class="text-right">
+                  {{
+                    item.valorUnitario
+                      | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+                  }}
+                </td>
+
+                <td class="text-right">
+                  {{
+                    item.desconto
+                      | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+                  }}
+                </td>
+
+                <td class="text-right font-semibold">
+                  {{
+                    item.valorTotal
+                      | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+                  }}
+                </td>
+              </tr>
+            </ng-template>
+
+          </p-table>
+
+        </div>
+
+      </section>
+
+      @if (venda.observacao) {
+
+        <section class="card-venda">
+
+          <h2>
+            Observações
+          </h2>
+
+          <p class="observacao">
+            {{ venda.observacao }}
+          </p>
+
+        </section>
+
+      }
+
+      <section class="card-venda">
+
+        <h2>
+          Registro
+        </h2>
+
+        <div class="grid-info">
+
+          <div>
+            <span>
+              Criada em
+            </span>
+
+            <strong>
+              {{
+                venda.dataCriacao
+                  | date:'dd/MM/yyyy HH:mm:ss'
+              }}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Última atualização
+            </span>
+
+            <strong>
+              {{
+                (
+                  venda.dataAtualizacao
+                    | date:'dd/MM/yyyy HH:mm:ss'
+                ) || '—'
+              }}
+            </strong>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </div>
+
+} @else {
+
+  <div
+    class="
+      rounded-lg
+      border
+      border-red-200
+      bg-red-50
+      p-4
+      text-sm
+      text-red-700
+    "
+    role="alert"
+  >
+    {{
+      erro() ||
+      'Não foi possível carregar a venda.'
+    }}
+  </div>
+
+}

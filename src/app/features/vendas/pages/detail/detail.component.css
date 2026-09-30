@@ -1,0 +1,162 @@
+:host {
+  display: block;
+}
+
+.pagina-venda {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.cabecalho-venda {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cabecalho-venda h1 {
+  margin: 0.15rem 0 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.subtitulo {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #10b981;
+}
+
+.data-venda {
+  color: #6b7280;
+  font-size: 0.88rem;
+}
+
+.cabecalho-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.conteudo-venda {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card-venda {
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: #ffffff;
+}
+
+.card-venda h2 {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.grid-info {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.grid-info.valores {
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+}
+
+.grid-info > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.grid-info span {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.grid-info strong {
+  color: #111827;
+}
+
+.valor-total {
+  padding: 0.8rem;
+  border-radius: 0.65rem;
+  background: #ecfdf5;
+}
+
+.valor-total strong {
+  font-size: 1.25rem;
+  color: #047857;
+}
+
+.titulo-secao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.titulo-secao h2 {
+  margin-bottom: 0.15rem;
+}
+
+.titulo-secao p {
+  margin: 0 0 1rem;
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.tabela-itens {
+  overflow-x: auto;
+}
+
+.observacao {
+  margin: 0;
+  white-space: pre-wrap;
+  color: #4b5563;
+}
+
+.estado-carregamento {
+  display: flex;
+  min-height: 18rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #6b7280;
+}
+
+@media (max-width: 900px) {
+  .grid-info.valores {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .cabecalho-venda {
+    flex-direction: column;
+  }
+
+  .cabecalho-acoes {
+    justify-content: flex-start;
+  }
+
+  .grid-info,
+  .grid-info.valores {
+    grid-template-columns: 1fr;
+  }
+}

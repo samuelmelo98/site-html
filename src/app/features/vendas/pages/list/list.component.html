@@ -1,0 +1,552 @@
+<p-confirmDialog></p-confirmDialog>
+
+<div class="pagina-vendas">
+
+  <div class="cabecalho-pagina">
+
+    <div>
+
+      <span class="subtitulo">
+        Comercial
+      </span>
+
+      <h1>
+        Vendas
+      </h1>
+
+      <p>
+        Consulte, acompanhe e registre as vendas da String Tecnologia.
+      </p>
+
+    </div>
+
+    <p-button
+      label="Nova venda"
+      icon="pi pi-plus"
+      (onClick)="novaVenda()"
+    ></p-button>
+
+  </div>
+
+
+  @if (erro()) {
+
+    <div
+      class="
+        mb-4
+        rounded-lg
+        border
+        border-red-200
+        bg-red-50
+        p-4
+        text-sm
+        text-red-700
+      "
+      role="alert"
+    >
+      {{ erro() }}
+    </div>
+
+  }
+
+
+  <div
+    class="
+      w-full
+      overflow-hidden
+      rounded-lg
+      border
+      border-gray-200
+      bg-white
+    "
+  >
+
+    <p-table
+      #tabela
+      [value]="vendas()"
+      dataKey="vendaId"
+      [lazy]="true"
+      (onLazyLoad)="carregar($event)"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="total()"
+      [loading]="loading()"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      sortField="dataVenda"
+      [sortOrder]="-1"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-sm"
+    >
+
+      <ng-template #header>
+
+        <tr
+          class="
+            border-b
+            border-gray-200
+            bg-gray-50
+          "
+        >
+
+          <!-- NÚMERO -->
+          <th
+            pSortableColumn="numero"
+            class="
+              px-3
+              py-3
+              text-left
+              text-sm
+              font-semibold
+              text-gray-600
+            "
+          >
+
+            <div class="flex items-center gap-1">
+
+              Número
+
+              <p-sortIcon
+                field="numero"
+              ></p-sortIcon>
+
+            </div>
+
+          </th>
+
+
+          <!-- CLIENTE -->
+          <th
+            class="
+              px-3
+              py-3
+              text-left
+              text-sm
+              font-semibold
+              text-gray-600
+            "
+          >
+            Cliente
+          </th>
+
+
+          <!-- DATA -->
+          <th
+            pSortableColumn="dataVenda"
+            class="
+              hidden
+              md:table-cell
+              md:px-3
+              md:py-3
+              md:text-left
+              md:text-sm
+              md:font-semibold
+              md:text-gray-600
+            "
+          >
+
+            <div class="flex items-center gap-1">
+
+              Data
+
+              <p-sortIcon
+                field="dataVenda"
+              ></p-sortIcon>
+
+            </div>
+
+          </th>
+
+
+          <!-- STATUS -->
+          <th
+            pSortableColumn="status"
+            class="
+              px-3
+              py-3
+              text-left
+              text-sm
+              font-semibold
+              text-gray-600
+            "
+          >
+
+            <div class="flex items-center gap-1">
+
+              Status
+
+              <p-sortIcon
+                field="status"
+              ></p-sortIcon>
+
+            </div>
+
+          </th>
+
+
+          <!-- ITENS -->
+          <th
+            class="
+              hidden
+              lg:table-cell
+              lg:px-3
+              lg:py-3
+              lg:text-center
+              lg:text-sm
+              lg:font-semibold
+              lg:text-gray-600
+            "
+          >
+            Itens
+          </th>
+
+
+          <!-- TOTAL -->
+          <th
+            pSortableColumn="valorTotal"
+            class="
+              px-3
+              py-3
+              text-right
+              text-sm
+              font-semibold
+              text-gray-600
+            "
+          >
+
+            <div
+              class="
+                flex
+                items-center
+                justify-end
+                gap-1
+              "
+            >
+
+              Total
+
+              <p-sortIcon
+                field="valorTotal"
+              ></p-sortIcon>
+
+            </div>
+
+          </th>
+
+
+          <!-- AÇÕES -->
+          <th
+            class="
+              w-44
+              px-3
+              py-3
+              text-center
+              text-sm
+              font-semibold
+              text-gray-600
+            "
+          >
+            Ações
+          </th>
+
+        </tr>
+
+      </ng-template>
+
+
+      <ng-template
+        #body
+        let-venda
+      >
+
+        <tr
+          class="
+            group
+            border-b
+            border-gray-100
+            transition-[background-color,box-shadow]
+            duration-200
+            hover:!bg-green-50
+            hover:shadow-[inset_4px_0_0_#22c55e]
+          "
+        >
+
+          <!-- NÚMERO -->
+          <td
+            class="
+              px-3
+              py-4
+              text-sm
+            "
+          >
+
+            <strong
+              class="
+                font-semibold
+                text-gray-800
+                transition-colors
+                group-hover:text-green-800
+              "
+            >
+              {{ venda.numero }}
+            </strong>
+
+          </td>
+
+
+          <!-- CLIENTE -->
+          <td
+            class="
+              px-3
+              py-4
+              text-sm
+              text-gray-600
+            "
+          >
+            {{ venda.clienteNome || 'Venda de balcão' }}
+          </td>
+
+
+          <!-- DATA -->
+          <td
+            class="
+              hidden
+              md:table-cell
+              md:px-3
+              md:py-4
+              md:text-sm
+              md:text-gray-600
+            "
+          >
+            {{
+              venda.dataVenda
+                | date:'dd/MM/yyyy HH:mm'
+            }}
+          </td>
+
+
+          <!-- STATUS -->
+          <td
+            class="
+              px-3
+              py-4
+            "
+          >
+
+            <p-tag
+              [value]="textoStatus(venda.status)"
+              [severity]="severityStatus(venda.status)"
+            ></p-tag>
+
+          </td>
+
+
+          <!-- ITENS -->
+          <td
+            class="
+              hidden
+              lg:table-cell
+              lg:px-3
+              lg:py-4
+              lg:text-center
+              lg:text-sm
+              lg:text-gray-600
+            "
+          >
+            {{ venda.quantidadeItens }}
+          </td>
+
+
+          <!-- TOTAL -->
+          <td
+            class="
+              px-3
+              py-4
+              text-right
+              text-sm
+              font-semibold
+              text-gray-800
+            "
+          >
+            {{
+              venda.valorTotal
+                | currency:'BRL':'symbol':'1.2-2':'pt-BR'
+            }}
+          </td>
+
+
+          <!-- AÇÕES -->
+          <td
+            class="
+              px-3
+              py-4
+              text-center
+            "
+          >
+
+            <div
+              class="
+                flex
+                items-center
+                justify-center
+                gap-1
+                whitespace-nowrap
+              "
+            >
+
+              <!-- VISUALIZAR -->
+              <p-button
+                icon="pi pi-eye"
+                severity="secondary"
+                rounded
+                text
+                ariaLabel="Visualizar venda"
+                pTooltip="Visualizar venda"
+                tooltipPosition="top"
+                (onClick)="visualizar(venda.vendaId)"
+              ></p-button>
+
+
+              <!-- IMPRIMIR CUPOM -->
+              @if (venda.status === 'FINALIZADA') {
+
+                <p-button
+                  icon="pi pi-print"
+                  severity="secondary"
+                  rounded
+                  text
+                  ariaLabel="Imprimir cupom"
+                  pTooltip="Imprimir cupom"
+                  tooltipPosition="top"
+                  (onClick)="emitirCupom(venda)"
+                ></p-button>
+
+              }
+
+
+              <!-- AÇÕES DE VENDA ABERTA -->
+              @if (venda.status === 'ABERTA') {
+
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  rounded
+                  text
+                  ariaLabel="Editar venda"
+                  pTooltip="Editar venda"
+                  tooltipPosition="top"
+                  [disabled]="
+                    processandoVendaId() !== null
+                  "
+                  (onClick)="editar(venda.vendaId)"
+                ></p-button>
+
+                <p-button
+                  icon="pi pi-check"
+                  severity="success"
+                  rounded
+                  text
+                  ariaLabel="Finalizar venda"
+                  pTooltip="Finalizar venda"
+                  tooltipPosition="top"
+                  [loading]="
+                    processandoVendaId() ===
+                    venda.vendaId
+                  "
+                  [disabled]="
+                    processandoVendaId() !== null &&
+                    processandoVendaId() !==
+                    venda.vendaId
+                  "
+                  (onClick)="confirmarFinalizacao(venda)"
+                ></p-button>
+
+              }
+
+
+              <!-- CANCELAR -->
+              @if (venda.status !== 'CANCELADA') {
+
+                <p-button
+                  icon="pi pi-times"
+                  severity="danger"
+                  rounded
+                  text
+                  ariaLabel="Cancelar venda"
+                  pTooltip="Cancelar venda"
+                  tooltipPosition="top"
+                  [disabled]="
+                    processandoVendaId() !== null
+                  "
+                  (onClick)="confirmarCancelamento(venda)"
+                ></p-button>
+
+              }
+
+            </div>
+
+          </td>
+
+        </tr>
+
+      </ng-template>
+
+
+      <ng-template #emptymessage>
+
+        <tr>
+
+          <td
+            colspan="7"
+            class="
+              py-12
+              text-center
+              text-sm
+              text-gray-500
+            "
+          >
+
+            @if (erro()) {
+
+              <i
+                class="
+                  pi
+                  pi-exclamation-circle
+                  mb-3
+                  block
+                  text-3xl
+                  text-red-300
+                "
+              ></i>
+
+              Não foi possível consultar as vendas.
+
+            } @else {
+
+              <i
+                class="
+                  pi
+                  pi-shopping-cart
+                  mb-3
+                  block
+                  text-3xl
+                  text-gray-300
+                "
+              ></i>
+
+              Nenhuma venda encontrada.
+
+            }
+
+          </td>
+
+        </tr>
+
+      </ng-template>
+
+    </p-table>
+
+  </div>
+
+</div>

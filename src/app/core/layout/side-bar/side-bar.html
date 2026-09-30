@@ -1,13 +1,9 @@
 <aside
   class="w-64 h-full flex flex-col bg-gradient-to-b from-sky-900 to-blue-950 text-white transition-all duration-300"
-  [class.-ml-64]="!open"
->
+  [class.-ml-64]="!open">
 
   <!-- USER PANEL -->
-  <app-user-panel
-    [perfilSelecionado]="userProfile()"
-    [vinculoSelecionado]="'teste'"
-    (logout)="onLogout()"
+  <app-user-panel [perfilSelecionado]="userProfile()" [vinculoSelecionado]="'teste'" (logout)="onLogout()"
     (changeVinculo)="onChangeVinculo()">
   </app-user-panel>
 
@@ -15,16 +11,14 @@
   <div class="mx-4 border-t border-white/10"></div>
 
   <!-- MENU -->
-<nav class="flex-1 overflow-y-auto px-3 py-3 custom-scroll">
+  <nav class="flex-1 overflow-y-auto px-3 py-3 custom-scroll">
 
     <div class="text-xs uppercase tracking-wider text-white/50 mb-3 px-2">
       Ana
     </div>
 
     <!-- DASHBOARD -->
-    <a
-      routerLink="/home"
-      routerLinkActive="bg-white/10 text-cyan-300"
+    <a routerLink="/home" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
       <i class="pi pi-home"></i>
@@ -33,8 +27,7 @@
     </a>
 
     <!-- DOCUMENTOS -->
-    <button
-      class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition"
+    <button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition"
       (click)="documentosOpen = !documentosOpen">
 
       <div class="flex items-center gap-3">
@@ -42,37 +35,29 @@
         <span>Documentos</span>
       </div>
 
-      <i
-        class="pi"
-        [ngClass]="documentosOpen ? 'pi-chevron-down' : 'pi-chevron-right'">
+      <i class="pi" [ngClass]="documentosOpen ? 'pi-chevron-down' : 'pi-chevron-right'">
       </i>
 
     </button>
 
     @if(documentosOpen){
 
-      <div class="ml-9 mt-1 space-y-1">
+    <div class="ml-9 mt-1 space-y-1">
 
-        <a
-          routerLink="/documentos"
-          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
-          Consultar
-        </a>
+      <a routerLink="/documentos" class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+        Consultar
+      </a>
 
-        <a
-          routerLink="/templates"
-          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
-          Templates
-        </a>
+      <a routerLink="/templates" class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+        Templates
+      </a>
 
-      </div>
+    </div>
 
     }
 
     <!-- USUÁRIOS -->
-    <a
-      routerLink="/usuarios"
-      routerLinkActive="bg-white/10 text-cyan-300"
+    <a routerLink="/usuarios" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
       <i class="pi pi-users"></i>
@@ -80,10 +65,30 @@
 
     </a>
 
+    <!-- VENDAS -->
+<a
+  routerLink="/vendas"
+  routerLinkActive="bg-white/10 text-cyan-300"
+  class="
+    flex
+    items-center
+    gap-3
+    px-3
+    py-2
+    rounded-lg
+    hover:bg-white/10
+    transition
+  "
+>
+  <i class="pi pi-shopping-cart"></i>
+
+  <span>
+    Vendas
+  </span>
+</a>
+
     <!-- CLIENTES -->
-    <a
-      routerLink="/cliente"
-      routerLinkActive="bg-white/10 text-cyan-300"
+    <a routerLink="/cliente" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
       <i class="pi pi-users"></i>
@@ -92,22 +97,18 @@
     </a>
 
     <!-- ORDENS DE SERVIÇO -->
-<a
-  routerLink="/ordem-servico/abertas"
-  routerLinkActive="bg-white/10 text-cyan-300"
-  class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
+    <a routerLink="/ordem-servico/abertas" routerLinkActive="bg-white/10 text-cyan-300"
+      class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
-  <i class="pi pi-wrench"></i>
+      <i class="pi pi-wrench"></i>
 
-  <span>
-    Ordens de Serviço
-  </span>
+      <span>
+        Ordens de Serviço
+      </span>
 
-</a>
+    </a>
 
-    <a
-      routerLink="/cliente-cpf"
-      routerLinkActive="bg-white/10 text-cyan-300"
+    <a routerLink="/cliente-cpf" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
       <i class="pi pi-users"></i>
@@ -116,9 +117,7 @@
     </a>
 
     <!-- RELATÓRIOS -->
-    <a
-      routerLink="/relatorios"
-      routerLinkActive="bg-white/10 text-cyan-300"
+    <a routerLink="/relatorios" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
       <i class="pi pi-chart-bar"></i>
@@ -127,8 +126,7 @@
     </a>
 
     <!-- ADMIN -->
-    <button
-      class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition"
+    <button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition"
       (click)="adminOpen = !adminOpen">
 
       <div class="flex items-center gap-3">
@@ -136,44 +134,35 @@
         <span>Administração</span>
       </div>
 
-      <i
-        class="pi"
-        [ngClass]="adminOpen ? 'pi-chevron-down' : 'pi-chevron-right'">
+      <i class="pi" [ngClass]="adminOpen ? 'pi-chevron-down' : 'pi-chevron-right'">
       </i>
 
     </button>
 
     @if(adminOpen){
 
-      <div class="ml-9 mt-1 space-y-1">
+    <div class="ml-9 mt-1 space-y-1">
 
-        <a
-          routerLink="/config"
-          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
-          Configurações
-        </a>
+      <a routerLink="/config" class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+        Configurações
+      </a>
 
-        <a
-          routerLink="/integracoes"
-          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
-          Integrações
-        </a>
+      <a routerLink="/integracoes" class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+        Integrações
+      </a>
 
-        <a
-          routerLink="/logs"
-          class="block py-1 text-sm text-white/80 hover:text-cyan-300">
-          Logs
-        </a>
+      <a routerLink="/logs" class="block py-1 text-sm text-white/80 hover:text-cyan-300">
+        Logs
+      </a>
 
-      </div>
+    </div>
 
     }
 
   </nav>
 
   <!-- FOOTER -->
-  <div
-    class="border-t border-white/10 p-3 text-center text-xs text-white/50">
+  <div class="border-t border-white/10 p-3 text-center text-xs text-white/50">
 
     String Tecnologia
     <br>
