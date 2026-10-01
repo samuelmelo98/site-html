@@ -11,18 +11,16 @@ import { initializeKeycloak } from './core/auth/app-init.factory';
 import { authInterceptor } from './core/auth/auth.interceptor';
 import { loaderInterceptor } from './core/auth/loader.interceptor';
 
-import {
-  LOCALE_ID,
-} from '@angular/core';
+import { LOCALE_ID } from '@angular/core';
 
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     {
-  provide: LOCALE_ID,
-  useValue: 'pt-BR',
-},
+      provide: LOCALE_ID,
+      useValue: 'pt-BR',
+    },
     provideRouter(routes),
 
     provideAppInitializer(() => initializeKeycloak()),
@@ -32,22 +30,51 @@ export const appConfig: ApplicationConfig = {
 
       primeng.setTranslation({
         firstDayOfWeek: 1,
-        dayNames: ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'],
-        dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],
-        dayNamesMin: ['D','S','T','Q','Q','S','S'],
-        monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
-        monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+        dayNames: [
+          'Domingo',
+          'Segunda-feira',
+          'Terça-feira',
+          'Quarta-feira',
+          'Quinta-feira',
+          'Sexta-feira',
+          'Sábado',
+        ],
+        dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+        dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+        monthNames: [
+          'Janeiro',
+          'Fevereiro',
+          'Março',
+          'Abril',
+          'Maio',
+          'Junho',
+          'Julho',
+          'Agosto',
+          'Setembro',
+          'Outubro',
+          'Novembro',
+          'Dezembro',
+        ],
+        monthNamesShort: [
+          'Jan',
+          'Fev',
+          'Mar',
+          'Abr',
+          'Mai',
+          'Jun',
+          'Jul',
+          'Ago',
+          'Set',
+          'Out',
+          'Nov',
+          'Dez',
+        ],
         today: 'Hoje',
-        clear: 'Limpar'
+        clear: 'Limpar',
       });
     }),
 
-    provideHttpClient(
-      withInterceptors([
-        authInterceptor,
-        loaderInterceptor
-      ])
-    ),
+    provideHttpClient(withInterceptors([authInterceptor, loaderInterceptor])),
 
     provideAnimationsAsync(),
 
@@ -55,15 +82,13 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Lara,
         options: {
-          darkModeSelector: '.my-app-dark'
-        }
-      }
+          darkModeSelector: '.my-app-dark',
+        },
+      },
     }),
 
     // PrimeNG Services
     MessageService,
-    ConfirmationService
-
-    
-  ]
+    ConfirmationService,
+  ],
 };

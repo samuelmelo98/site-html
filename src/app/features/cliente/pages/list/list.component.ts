@@ -1,49 +1,30 @@
-import {
-  Component,
-  ViewChild,
-  inject,
-} from '@angular/core';
+import { Component, ViewChild, inject, computed } from '@angular/core';
 
-import {
-  CommonModule,
-} from '@angular/common';
+import { CommonModule } from '@angular/common';
 
-import {
-  Table,
-  TableModule,
-} from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 
-import {
-  TagModule,
-} from 'primeng/tag';
+import { TagModule } from 'primeng/tag';
 
-import {
-  ProgressSpinnerModule,
-} from 'primeng/progressspinner';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
-import {
-  ButtonModule,
-} from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 
-import {
-  CpfPipe,
-} from '../../../../shared/pipes/cpf.pipe';
+import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
 
-import {
-  ClienteService,
-} from '../../services/cliente.service';
+import { ClienteService } from '../../services/cliente.service';
 
-import {
-  NavigationService,
-} from '../../../../shared/services/navegation-service';
+import { NavigationService } from '../../../../shared/services/navegation-service';
 
-import {
-  Cliente,
-} from '../../model/cliente-listar.dto';
+import { Cliente } from '../../model/cliente-listar.dto';
 
-import {
-  EditComponent,
-} from '../edit/edit.component';
+import { EditComponent } from '../edit/edit.component';
+
+import { AuthStore } from '../../../security/store/auth.store';
+
+import { PERMISSOES } from '../../../security/model/permissoes';
+
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-list',
@@ -56,12 +37,12 @@ import {
     ButtonModule,
     CpfPipe,
     EditComponent,
+    TooltipModule,
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.css',
 })
 export class ListComponent {
-
   modalEdicaoVisivel = false;
 
   clienteEdicaoId: number | null = null;
@@ -76,11 +57,15 @@ export class ListComponent {
 
   clienteSelecionado: Cliente | null = null;
 
-  private readonly clienteService =
-    inject(ClienteService);
+  private readonly clienteService = inject(ClienteService);
 
-  private readonly navegationService =
-    inject(NavigationService);
+  private readonly authStore = inject(AuthStore);
+
+  readonly podeEditarCliente = computed(() =>
+    this.authStore.possuiPermissao(PERMISSOES.CLIENTE.EDITAR),
+  );
+
+  private readonly navegationService = inject(NavigationService);
 
   @ViewChild('tabela')
   tabela!: Table;
@@ -91,47 +76,28 @@ export class ListComponent {
   }
 
   carregar(event: any): void {
-
     this.loading = true;
 
-    const page =
-      event.first / event.rows;
+    const page = event.first / event.rows;
 
-    const size =
-      event.rows;
+    const size = event.rows;
 
-    const sortField =
-      event.sortField ?? 'clienteId';
+    const sortField = event.sortField ?? 'clienteId';
 
-    const sortOrder =
-      event.sortOrder === 1
-        ? 'asc'
-        : 'desc';
+    const sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
 
     this.clienteService
-      .listarPaginado(
-        page,
-        size,
-        sortField,
-        sortOrder,
-        this.termoBusca,
-      )
+      .listarPaginado(page, size, sortField, sortOrder, this.termoBusca)
       .subscribe({
         next: (res) => {
+          this.dados2 = res.content;
 
-          this.dados2 =
-            res.content;
+          this.total = res.totalElements;
 
-          this.total =
-            res.totalElements;
-
-          this.loading =
-            false;
+          this.loading = false;
         },
         error: () => {
-
-          this.loading =
-            false;
+          this.loading = false;
         },
       });
   }
@@ -140,61 +106,40 @@ export class ListComponent {
     this.tabela.reset();
   }
 
-  public adicionarAparelho(
-    cliente: Cliente,
-  ): void {
+  public adicionarAparelho(cliente: Cliente): void {
+    this.clienteSelecionado = cliente;
 
-    this.clienteSelecionado =
-      cliente;
-
-    this.navegationService.irPara([
-      'aparelho',
-      cliente.clienteId.toString(),
-    ]);
+    this.navegationService.irPara(['aparelho', cliente.clienteId.toString()]);
   }
 
-  formatarTelefone(
-    telefone?: string | null,
-  ): string {
-
+  formatarTelefone(telefone?: string | null): string {
     if (!telefone) {
       return '—';
     }
 
-    const numeros =
-      telefone.replace(/\D/g, '');
+    const numeros = telefone.replace(/\D/g, '');
 
     if (numeros.length === 11) {
-
-      return numeros.replace(
-        /(\d{2})(\d{5})(\d{4})/,
-        '($1) $2-$3',
-      );
+      return numeros.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
     }
 
     if (numeros.length === 10) {
-
-      return numeros.replace(
-        /(\d{2})(\d{4})(\d{4})/,
-        '($1) $2-$3',
-      );
+      return numeros.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
     }
 
     return telefone;
   }
 
-  editarCliente(
-    event: Event,
-    cliente: Cliente,
-  ): void {
+  editarCliente(event: Event, cliente: Cliente): void {
+    if (!this.podeEditarCliente()) {
+      return;
+    }
 
     event.stopPropagation();
 
-    this.clienteEdicaoId =
-      cliente.clienteId;
+    this.clienteEdicaoId = cliente.clienteId;
 
-    this.modalEdicaoVisivel =
-      true;
+    this.modalEdicaoVisivel = true;
   }
 
   clienteAtualizado(): void {

@@ -5,30 +5,18 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class NavigationService {
-
   private readonly router = inject(Router);
 
   public irPara(path: string[]): void {
-
     this.router
       .navigate(path)
       .then((sucesso) => {
-
         if (!sucesso) {
-          console.error(
-            'Erro ao navegar',
-            path
-          );
+          console.error('Erro ao navegar', path);
         }
-
       })
       .catch((err) => {
-
-        console.error(
-          'Erro na navegação',
-          err
-        );
-
+        console.error('Erro na navegação', err);
       });
   }
 
