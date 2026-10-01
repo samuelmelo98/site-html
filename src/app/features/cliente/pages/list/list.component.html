@@ -13,293 +13,109 @@
   currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
   styleClass="p-datatable-sm"
 >
-
   <!-- CABEÇALHO -->
 
   <ng-template pTemplate="header">
+    <tr class="border-b border-gray-200 bg-gray-50">
+      <th class="w-24 px-4 py-3 text-left text-sm font-semibold text-gray-600">ID</th>
 
-    <tr
-      class="
-        border-b
-        border-gray-200
-        bg-gray-50
-      "
-    >
+      <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Nome</th>
 
-      <th
-        class="
-          w-24
-          px-4
-          py-3
-          text-left
-          text-sm
-          font-semibold
-          text-gray-600
-        "
-      >
-        ID
-      </th>
+      <th class="w-52 px-4 py-3 text-left text-sm font-semibold text-gray-600">CPF</th>
 
-      <th
-        class="
-          px-4
-          py-3
-          text-left
-          text-sm
-          font-semibold
-          text-gray-600
-        "
-      >
-        Nome
-      </th>
+      <th class="w-52 px-4 py-3 text-left text-sm font-semibold text-gray-600">Telefone</th>
 
-      <th
-        class="
-          w-52
-          px-4
-          py-3
-          text-left
-          text-sm
-          font-semibold
-          text-gray-600
-        "
-      >
-        CPF
-      </th>
+      <th class="w-48 px-4 py-3 text-left text-sm font-semibold text-gray-600">Cadastro</th>
 
-      <th
-        class="
-          w-52
-          px-4
-          py-3
-          text-left
-          text-sm
-          font-semibold
-          text-gray-600
-        "
-      >
-        Telefone
-      </th>
-
-      <th
-        class="
-          w-48
-          px-4
-          py-3
-          text-left
-          text-sm
-          font-semibold
-          text-gray-600
-        "
-      >
-        Cadastro
-      </th>
-
-      <th
-        class="
-          w-32
-          px-4
-          py-3
-          text-center
-          text-sm
-          font-semibold
-          text-gray-600
-        "
-      >
-        Ações
-      </th>
-
+      <th class="w-32 px-4 py-3 text-center text-sm font-semibold text-gray-600">Ações</th>
     </tr>
-
   </ng-template>
-
 
   <!-- CORPO -->
 
-  <ng-template
-    pTemplate="body"
-    let-item
-  >
-
+  <ng-template pTemplate="body" let-item>
     <tr
       (click)="adicionarAparelho(item)"
-
-      class="
-        group
-        cursor-pointer
-
-        border-b
-        border-gray-100
-
-        transition-[background-color,box-shadow]
-        duration-200
-        ease-out
-
-        hover:!bg-green-50
-        hover:shadow-[inset_4px_0_0_#22c55e]
-      "
-
+      class="group cursor-pointer border-b border-gray-100 transition-[background-color,box-shadow] duration-200 ease-out hover:!bg-green-50 hover:shadow-[inset_4px_0_0_#22c55e]"
       [ngClass]="
         clienteSelecionado?.clienteId === item.clienteId
           ? '!bg-green-100 shadow-[inset_4px_0_0_#16a34a]'
           : ''
       "
     >
-
       <!-- ID -->
 
-      <td
-        class="
-          px-4
-          py-4
-          text-sm
-          text-gray-500
-        "
-      >
+      <td class="px-4 py-4 text-sm text-gray-500">
         {{ item.clienteId }}
       </td>
 
-
       <!-- NOME -->
 
-      <td
-        class="
-          px-4
-          py-4
-        "
-      >
-
+      <td class="px-4 py-4">
         <span
-          class="
-            font-medium
-            text-gray-800
-
-            transition-colors
-            duration-200
-
-            group-hover:text-green-800
-          "
+          class="font-medium text-gray-800 transition-colors duration-200 group-hover:text-green-800"
         >
           {{ item.nome }}
         </span>
-
       </td>
-
 
       <!-- CPF -->
 
-      <td
-        class="
-          px-4
-          py-4
-          text-sm
-          text-gray-600
-        "
-      >
+      <td class="px-4 py-4 text-sm text-gray-600">
         {{ item.cpf | cpf }}
       </td>
 
-
       <!-- TELEFONE -->
 
-      <td
-        class="
-          px-4
-          py-4
-          text-sm
-          text-gray-600
-        "
-      >
+      <td class="px-4 py-4 text-sm text-gray-600">
         {{ formatarTelefone(item.telefone) }}
       </td>
 
-
       <!-- DATA CADASTRO -->
 
-      <td
-        class="
-          px-4
-          py-4
-          text-sm
-          text-gray-600
-          whitespace-nowrap
-        "
-      >
+      <td class="px-4 py-4 text-sm text-gray-600 whitespace-nowrap">
         @if (item.dataCadastro) {
-          {{ item.dataCadastro | date:'dd/MM/yyyy HH:mm' }}
+          {{ item.dataCadastro | date: 'dd/MM/yyyy HH:mm' }}
         } @else {
           —
         }
       </td>
 
-
       <!-- AÇÕES -->
 
-      <td
-        class="
-          px-4
-          py-4
-          text-center
-        "
-      >
-
+      <td class="px-4 py-4 text-center">
         <p-button
           icon="pi pi-pencil"
           severity="secondary"
           rounded
           text
-          pTooltip="Editar cliente"
+          [disabled]="!podeEditarCliente()"
+          [pTooltip]="
+            podeEditarCliente()
+              ? 'Editar cliente'
+              : 'Você não possui permissão para editar clientes'
+          "
           tooltipPosition="top"
-          ariaLabel="Editar cliente"
+          [ariaLabel]="podeEditarCliente() ? 'Editar cliente' : 'Edição de cliente não permitida'"
           (onClick)="editarCliente($event, item)"
         >
         </p-button>
-
       </td>
-
     </tr>
-
   </ng-template>
-
 
   <!-- VAZIO -->
 
   <ng-template pTemplate="emptymessage">
-
     <tr>
-
-      <td
-        colspan="6"
-        class="
-          py-12
-          text-center
-          text-sm
-          text-gray-500
-        "
-      >
-
-        <i
-          class="
-            pi
-            pi-users
-            mb-3
-            block
-            text-3xl
-            text-gray-300
-          "
-        >
-        </i>
+      <td colspan="6" class="py-12 text-center text-sm text-gray-500">
+        <i class="pi pi-users mb-3 block text-3xl text-gray-300"> </i>
 
         Nenhum cliente encontrado.
-
       </td>
-
     </tr>
-
   </ng-template>
-
 </p-table>
-
 
 <!-- MODAL DE EDIÇÃO -->
 

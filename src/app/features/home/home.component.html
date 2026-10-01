@@ -176,49 +176,53 @@
 
 
     <!-- ===================================== -->
-    <!-- ERRO VENDAS -->
+    <!-- DASHBOARD DE VENDAS -->
     <!-- ===================================== -->
 
-    @if (
-      erroVendas &&
-      !metricasVendas
-    ) {
+    @if (podeVisualizarDashboardVendas()) {
 
-      <div class="dashboard-error dashboard-section">
+      <!-- ERRO VENDAS -->
 
-        <span>
-          {{ erroVendas }}
-        </span>
+      @if (
+        erroVendas &&
+        !metricasVendas
+      ) {
 
-        <button
-          type="button"
-          (click)="carregarMetricas()"
-        >
-          Tentar novamente
-        </button>
+        <div class="dashboard-error dashboard-section">
 
-      </div>
+          <span>
+            {{ erroVendas }}
+          </span>
 
-    }
+          <button
+            type="button"
+            (click)="recarregarMetricasVendas()"
+          >
+            Tentar novamente
+          </button>
+
+        </div>
+
+      }
 
 
-    <!-- ===================================== -->
-    <!-- RESUMO DE VENDAS -->
-    <!-- ===================================== -->
+      <!-- RESUMO DE VENDAS -->
 
-    @if (
-      metricasVendas;
-      as vendas
-    ) {
+      @if (
+        metricasVendas;
+        as vendas
+      ) {
 
-      <div class="dashboard-vendas-wrapper">
+        <div class="dashboard-vendas-wrapper">
 
-        <app-dashboard-vendas-card
-          [dados]="vendas"
-        >
-        </app-dashboard-vendas-card>
+          <app-dashboard-vendas-card
+            [dados]="vendas"
+          >
+          </app-dashboard-vendas-card>
 
-      </div>
+        </div>
+
+      }
 
     }
 

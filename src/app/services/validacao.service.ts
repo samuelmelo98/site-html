@@ -4,7 +4,6 @@ import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ValidacaoService {
-
   private http = inject(HttpClient);
 
   private readonly API = `${environment.apiUrl}/api/validacao`;

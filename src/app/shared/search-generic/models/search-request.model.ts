@@ -1,5 +1,4 @@
 export interface SearchRequest {
-
   termo?: string;
 
   page: number;
@@ -7,5 +6,4 @@ export interface SearchRequest {
   size: number;
 
   sort?: string;
-
 }

@@ -1,5 +1,4 @@
 export interface Page<T> {
-
   content: T[];
 
   totalElements: number;
@@ -9,5 +8,4 @@ export interface Page<T> {
   size: number;
 
   number: number;
-
 }

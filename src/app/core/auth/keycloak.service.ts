@@ -69,7 +69,7 @@ export class KeycloakService {
       username: token.preferred_username,
       email: token.email,
       name: token.name,
-      avatar:token.avatarUrl?? '',
+      avatar: token.avatarUrl ?? '',
     };
   }
 

@@ -1,7 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { KeycloakService } from './keycloak.service';
-import { LoaderService } from '../layout/ui/services/loader.service'; 
+import { LoaderService } from '../layout/ui/services/loader.service';
 import { finalize } from 'rxjs/operators';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {

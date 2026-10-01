@@ -2,16 +2,11 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './core/auth/auth.guard';
 
-import {
-  permissionGuard,
-} from '../app/features/security/guards/permission.guard';
+import { permissionGuard } from '../app/features/security/guards/permission.guard';
 
-import {
-  PERMISSOES,
-} from '../app/features/security/model/permissoes';
+import { PERMISSOES } from '../app/features/security/model/permissoes';
 
 export const routes: Routes = [
-
   /*
    * ROTAS PÚBLICAS
    */
@@ -19,29 +14,25 @@ export const routes: Routes = [
   {
     path: 'consulta/os/:numero',
     loadComponent: () =>
-      import(
-        './features/consulta-ordem-servico/pages/consulta-ordem-servico.component'
-      )
-        .then(m => m.ConsultaOrdemServicoComponent),
+      import('./features/consulta-ordem-servico/pages/consulta-ordem-servico.component').then(
+        (m) => m.ConsultaOrdemServicoComponent,
+      ),
   },
 
   {
     path: 'validacao/:codigo',
     loadComponent: () =>
-      import('./features/validacao/validacao-component')
-        .then(m => m.ValidacaoComponent),
+      import('./features/validacao/validacao-component').then((m) => m.ValidacaoComponent),
   },
 
   {
-  path: 'acesso-negado',
+    path: 'acesso-negado',
 
-  loadComponent: () =>
-    import(
-      './features/security/pages/acesso-negado.component'
-    ).then(
-      m => m.AcessoNegadoComponent
-    ),
-},
+    loadComponent: () =>
+      import('./features/security/pages/acesso-negado.component').then(
+        (m) => m.AcessoNegadoComponent,
+      ),
+  },
 
   /*
    * ROTAS AUTENTICADAS
@@ -50,80 +41,55 @@ export const routes: Routes = [
   {
     path: 'home',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/home/home.component')
-        .then(m => m.HomeComponent),
+    loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
   },
 
   {
-  path: 'relatorios',
-  canActivate: [authGuard],
-  loadChildren: () =>
-    import('./features/relatorios/relatorios.routes')
-      .then(m => m.RELATORIOS_ROUTES),
-},
-
-  {
-  path: 'cliente',
-
-  canActivate: [
-    permissionGuard,
-  ],
-
-  data: {
-    permissao:
-      PERMISSOES.CLIENTE.VISUALIZAR,
+    path: 'relatorios',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/relatorios/relatorios.routes').then((m) => m.RELATORIOS_ROUTES),
   },
 
-  loadComponent: () =>
-    import(
-      './features/cliente/pages/list/list.component'
-    ).then(
-      m => m.ListComponent
-    ),
-},
+  {
+    path: 'cliente',
+
+    canActivate: [authGuard],
+
+    loadChildren: () => import('./features/cliente/cliente.routes').then((m) => m.CLIENTE_ROUTES),
+  },
 
   {
-  path: 'vendas',
+    path: 'vendas',
 
-  loadChildren: () =>
-    import(
-      './features/vendas/venda.routes'
-    ).then(
-      m => m.VENDA_ROUTES,
-    ),
-},
+    loadChildren: () => import('./features/vendas/venda.routes').then((m) => m.VENDA_ROUTES),
+  },
 
   {
     path: 'cliente-cpf',
     canActivate: [authGuard],
     loadChildren: () =>
-      import('./features/cliente-cpf/cliente.routes')
-        .then(m => m.CLIENTE_ROUTES_CPF),
+      import('./features/cliente-cpf/cliente.routes').then((m) => m.CLIENTE_ROUTES_CPF),
   },
 
   {
     path: 'aparelho',
     canActivate: [authGuard],
     loadChildren: () =>
-      import('./features/aparelho/aparelho.routes')
-        .then(m => m.APARELHO_ROUTES),
+      import('./features/aparelho/aparelho.routes').then((m) => m.APARELHO_ROUTES),
   },
 
   {
     path: 'users',
     canActivate: [authGuard],
-    loadChildren: () =>
-      import('./features/users/users.routes')
-        .then(m => m.USERS_ROUTES),
+    loadChildren: () => import('./features/users/users.routes').then((m) => m.USERS_ROUTES),
   },
 
   {
     path: 'ordem-servico',
     canActivate: [authGuard],
     loadChildren: () =>
-      import('./features/ordem-servico/ordem-servico.routes')
-        .then(m => m.ORDEM_SERVICO_ROUTES),
+      import('./features/ordem-servico/ordem-servico.routes').then((m) => m.ORDEM_SERVICO_ROUTES),
   },
 
   /*
@@ -135,5 +101,4 @@ export const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full',
   },
-
 ];
