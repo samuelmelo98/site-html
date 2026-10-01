@@ -2,6 +2,14 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './core/auth/auth.guard';
 
+import {
+  permissionGuard,
+} from '../app/features/security/guards/permission.guard';
+
+import {
+  PERMISSOES,
+} from '../app/features/security/model/permissoes';
+
 export const routes: Routes = [
 
   /*
@@ -24,6 +32,17 @@ export const routes: Routes = [
         .then(m => m.ValidacaoComponent),
   },
 
+  {
+  path: 'acesso-negado',
+
+  loadComponent: () =>
+    import(
+      './features/security/pages/acesso-negado.component'
+    ).then(
+      m => m.AcessoNegadoComponent
+    ),
+},
+
   /*
    * ROTAS AUTENTICADAS
    */
@@ -45,12 +64,24 @@ export const routes: Routes = [
 },
 
   {
-    path: 'cliente',
-    canActivate: [authGuard],
-    loadChildren: () =>
-      import('./features/cliente/cliente.routes')
-        .then(m => m.CLIENTE_ROUTES),
+  path: 'cliente',
+
+  canActivate: [
+    permissionGuard,
+  ],
+
+  data: {
+    permissao:
+      PERMISSOES.CLIENTE.VISUALIZAR,
   },
+
+  loadComponent: () =>
+    import(
+      './features/cliente/pages/list/list.component'
+    ).then(
+      m => m.ListComponent
+    ),
+},
 
   {
   path: 'vendas',

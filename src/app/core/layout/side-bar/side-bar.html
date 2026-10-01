@@ -8,31 +8,47 @@
   </app-user-panel>
 
   <!-- DIVISOR -->
-  <div class="mx-4 border-t border-white/10"></div>
+  <div
+    class="mx-4 border-t border-white/10">
+  </div>
 
   <!-- MENU -->
   <nav class="flex-1 overflow-y-auto px-3 py-3 custom-scroll">
 
-    <div class="text-xs uppercase tracking-wider text-white/50 mb-3 px-2">
+    <div
+      class="text-xs uppercase tracking-wider text-white/50 mb-3 px-2">
+
       Ana
+
     </div>
 
     <!-- DASHBOARD -->
     <a routerLink="/home" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
-      <i class="pi pi-home"></i>
-      <span>Dashboard</span>
+        <i class="pi pi-home"></i>
 
-    </a>
+        <span>
+          Dashboard
+        </span>
+
+      </a>
+
+    }
 
     <!-- DOCUMENTOS -->
     <button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition"
       (click)="documentosOpen = !documentosOpen">
 
-      <div class="flex items-center gap-3">
+      <div
+        class="flex items-center gap-3">
+
         <i class="pi pi-file"></i>
-        <span>Documentos</span>
+
+        <span>
+          Documentos
+        </span>
+
       </div>
 
       <i class="pi" [ngClass]="documentosOpen ? 'pi-chevron-down' : 'pi-chevron-right'">
@@ -40,7 +56,7 @@
 
     </button>
 
-    @if(documentosOpen){
+    @if (documentosOpen) {
 
     <div class="ml-9 mt-1 space-y-1">
 
@@ -60,8 +76,11 @@
     <a routerLink="/usuarios" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
-      <i class="pi pi-users"></i>
-      <span>Usuários</span>
+        <i class="pi pi-users"></i>
+
+        <span>
+          Usuários
+        </span>
 
     </a>
 
@@ -91,10 +110,13 @@
     <a routerLink="/cliente" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
-      <i class="pi pi-users"></i>
-      <span>Clientes</span>
+        <i class="pi pi-users"></i>
 
-    </a>
+        <span>
+          Clientes
+        </span>
+
+      </a>
 
     <!-- ORDENS DE SERVIÇO -->
     <a routerLink="/ordem-servico/abertas" routerLinkActive="bg-white/10 text-cyan-300"
@@ -111,27 +133,43 @@
     <a routerLink="/cliente-cpf" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
-      <i class="pi pi-users"></i>
-      <span>Clientes CPF</span>
+        <i class="pi pi-users"></i>
 
-    </a>
+        <span>
+          Clientes CPF
+        </span>
+
+      </a>
+
+    }
 
     <!-- RELATÓRIOS -->
     <a routerLink="/relatorios" routerLinkActive="bg-white/10 text-cyan-300"
       class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition">
 
-      <i class="pi pi-chart-bar"></i>
-      <span>Relatórios</span>
+        <i class="pi pi-chart-bar"></i>
 
-    </a>
+        <span>
+          Relatórios
+        </span>
+
+      </a>
+
+    }
 
     <!-- ADMIN -->
     <button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/10 transition"
       (click)="adminOpen = !adminOpen">
 
-      <div class="flex items-center gap-3">
+      <div
+        class="flex items-center gap-3">
+
         <i class="pi pi-cog"></i>
-        <span>Administração</span>
+
+        <span>
+          Administração
+        </span>
+
       </div>
 
       <i class="pi" [ngClass]="adminOpen ? 'pi-chevron-down' : 'pi-chevron-right'">
@@ -139,7 +177,7 @@
 
     </button>
 
-    @if(adminOpen){
+    @if (adminOpen) {
 
     <div class="ml-9 mt-1 space-y-1">
 

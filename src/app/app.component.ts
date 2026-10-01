@@ -1,15 +1,25 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { KeycloakService } from './core/auth/keycloak.service';
+import {
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { ShellComponent } from './core/layout/shell/shell.component';
 
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
+import { KeycloakService } from './core/auth/keycloak.service';
+import { ShellComponent } from './core/layout/shell/shell.component';
+
+import { AuthStore } from './features/security/store/auth.store'; 
+
 @Component({
   selector: 'app-root',
+
   standalone: true,
+
   imports: [
     MatCardModule,
     MatToolbarModule,
@@ -17,29 +27,56 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ToastModule,
     ConfirmDialogModule,
   ],
+
   templateUrl: './app.component.html',
+
   styleUrl: './app.component.css',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+
   title = 'frontend-angular';
-  private keycloak = inject(KeycloakService);
 
-  token = this.keycloak.getToken();
+  private readonly keycloak =
+    inject(KeycloakService);
 
-  login() {
+  private readonly authStore =
+    inject(AuthStore);
+
+  ngOnInit(): void {
+
+    if (this.keycloak.isLoggedIn()) {
+
+      this.authStore.carregar();
+
+    }
+
+  }
+
+  login(): void {
+
     this.keycloak.login();
-    console.log(this.keycloak.getToken);
+
   }
 
-  logout() {
+  logout(): void {
+
+    this.authStore.limpar();
+
     this.keycloak.logout();
+
   }
 
-  getToken() {
-    console.log(this.token);
+  getToken(): void {
+
+    console.log(
+      this.keycloak.getToken()
+    );
+
   }
 
-  isLoggedIn() {
+  isLoggedIn(): boolean {
+
     return this.keycloak.isLoggedIn();
+
   }
 }
