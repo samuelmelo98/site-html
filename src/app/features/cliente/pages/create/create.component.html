@@ -1,56 +1,44 @@
 <p-toast></p-toast>
 
 <p-panel>
-
   <h2>Cadastro de Cliente</h2>
 
   <p-divider align="left"></p-divider>
 
   <br />
 
-  <form
-    [formGroup]="form"
-    class="flex flex-col gap-4"
-    (ngSubmit)="salvar()"
-  >
-
+  <form [formGroup]="form" class="flex flex-col gap-4" (ngSubmit)="salvar()">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
       <!-- NOME -->
 
       <div class="flex flex-col gap-2">
-
         <label>
           Nome
           <span class="text-red-500">*</span>
         </label>
 
-        <input
-          pInputText
+        <p-autoComplete
           formControlName="nome"
-          class="w-full"
+          [suggestions]="sugestoesNome"
+          optionLabel="nome"
+          (completeMethod)="buscarSugestoesNome($event)"
+          [minLength]="2"
+          [delay]="250"
+          [forceSelection]="false"
           placeholder="Digite o nome completo"
-          (blur)="formatarNome()"
+          class="w-full"
+          inputStyleClass="w-full"
+          (onBlur)="formatarNome()"
         />
 
-        @if (
-          form.controls.nome.invalid &&
-          form.controls.nome.touched
-        ) {
-
-          <small class="text-red-500">
-            Nome obrigatório
-          </small>
-
+        @if (form.controls.nome.invalid && form.controls.nome.touched) {
+          <small class="text-red-500"> Nome obrigatório </small>
         }
-
       </div>
-
 
       <!-- CPF -->
 
       <div class="flex flex-col gap-2">
-
         <label>
           CPF
           <span class="text-red-500">*</span>
@@ -65,64 +53,27 @@
         >
         </p-inputmask>
 
-
-        @if (
-          form.controls.cpf.errors?.['required'] &&
-          form.controls.cpf.touched
-        ) {
-
-          <small class="text-red-500">
-            CPF obrigatório
-          </small>
-
+        @if (form.controls.cpf.errors?.['required'] && form.controls.cpf.touched) {
+          <small class="text-red-500"> CPF obrigatório </small>
         }
 
-
-        @if (
-          form.controls.cpf.errors?.['pattern'] &&
-          form.controls.cpf.touched
-        ) {
-
-          <small class="text-red-500">
-            Informe um CPF completo
-          </small>
-
+        @if (form.controls.cpf.errors?.['pattern'] && form.controls.cpf.touched) {
+          <small class="text-red-500"> Informe um CPF completo </small>
         }
 
-
-        @if (
-          form.controls.cpf.errors?.['cpfInvalido'] &&
-          form.controls.cpf.touched
-        ) {
-
-          <small class="text-red-500 font-semibold">
-            CPF inválido.
-          </small>
-
+        @if (form.controls.cpf.errors?.['cpfInvalido'] && form.controls.cpf.touched) {
+          <small class="text-red-500 font-semibold"> CPF inválido. </small>
         }
 
-
-        @if (
-          form.controls.cpf.errors?.['cpfExistente'] &&
-          form.controls.cpf.touched
-        ) {
-
-          <small class="text-red-500 font-semibold">
-            Cliente já cadastrado com este CPF
-          </small>
-
+        @if (form.controls.cpf.errors?.['cpfExistente'] && form.controls.cpf.touched) {
+          <small class="text-red-500 font-semibold"> Cliente já cadastrado com este CPF </small>
         }
-
       </div>
-
 
       <!-- EMAIL -->
 
       <div class="flex flex-col gap-2">
-
-        <label>
-          E-mail
-        </label>
+        <label> E-mail </label>
 
         <input
           pInputText
@@ -131,24 +82,14 @@
           placeholder="email@empresa.com.br"
         />
 
-        @if (
-          form.controls.email.errors?.['email'] &&
-          form.controls.email.touched
-        ) {
-
-          <small class="text-red-500">
-            Informe um e-mail válido
-          </small>
-
+        @if (form.controls.email.errors?.['email'] && form.controls.email.touched) {
+          <small class="text-red-500"> Informe um e-mail válido </small>
         }
-
       </div>
-
 
       <!-- TELEFONE -->
 
       <div class="flex flex-col gap-2">
-
         <label>
           Telefone
           <span class="text-red-500">*</span>
@@ -163,51 +104,24 @@
         >
         </p-inputmask>
 
-
-        @if (
-          form.controls.telefone.errors?.['required'] &&
-          form.controls.telefone.touched
-        ) {
-
-          <small class="text-red-500">
-            Telefone obrigatório
-          </small>
-
+        @if (form.controls.telefone.errors?.['required'] && form.controls.telefone.touched) {
+          <small class="text-red-500"> Telefone obrigatório </small>
         }
 
-
-        @if (
-          form.controls.telefone.errors?.['pattern'] &&
-          form.controls.telefone.touched
-        ) {
-
-          <small class="text-red-500">
-            Informe um telefone completo
-          </small>
-
+        @if (form.controls.telefone.errors?.['pattern'] && form.controls.telefone.touched) {
+          <small class="text-red-500"> Informe um telefone completo </small>
         }
-
       </div>
-
     </div>
-
 
     <!-- ENDEREÇO -->
 
     <p-divider align="left">
-
-      <span class="text-blue-800 font-bold text-lg">
-        Endereço
-      </span>
-
+      <span class="text-blue-800 font-bold text-lg"> Endereço </span>
     </p-divider>
 
-
     <div class="flex flex-col gap-2">
-
-      <label>
-        Endereço
-      </label>
+      <label> Endereço </label>
 
       <input
         pInputText
@@ -215,37 +129,21 @@
         class="w-full"
         placeholder="Rua, Avenida, Quadra..."
       />
-
     </div>
 
-
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
       <!-- CIDADE -->
 
       <div class="flex flex-col gap-2">
+        <label> Cidade </label>
 
-        <label>
-          Cidade
-        </label>
-
-        <input
-          pInputText
-          formControlName="cidade"
-          class="w-full"
-          placeholder="Cidade"
-        />
-
+        <input pInputText formControlName="cidade" class="w-full" placeholder="Cidade" />
       </div>
-
 
       <!-- ESTADO -->
 
       <div class="flex flex-col gap-2">
-
-        <label>
-          Estado
-        </label>
+        <label> Estado </label>
 
         <input
           pInputText
@@ -254,93 +152,46 @@
           placeholder="UF"
           maxlength="2"
         />
-
       </div>
-
 
       <!-- CEP -->
 
       <div class="flex flex-col gap-2">
+        <label> CEP </label>
 
-        <label>
-          CEP
-        </label>
-
-        <input
-          pInputText
-          formControlName="cep"
-          class="w-full"
-          placeholder="00000-000"
-        />
-
+        <input pInputText formControlName="cep" class="w-full" placeholder="00000-000" />
       </div>
-
     </div>
-
 
     <!-- CAMPOS INVÁLIDOS -->
 
     @if (form.invalid) {
-
-      <div
-        class="
-          p-3
-          bg-yellow-100
-          border-l-4
-          border-yellow-500
-          text-sm
-        "
-      >
-
-        <strong>
-          Campos inválidos:
-        </strong>
+      <div class="p-3 bg-yellow-100 border-l-4 border-yellow-500 text-sm">
+        <strong> Campos inválidos: </strong>
 
         <ul class="list-disc ml-5 mt-2">
-
           @if (form.controls.nome.invalid) {
-
-            <li>
-              Nome
-            </li>
-
+            <li>Nome</li>
           }
 
           @if (form.controls.cpf.invalid) {
-
-            <li>
-              CPF
-            </li>
-
+            <li>CPF</li>
           }
 
           @if (form.controls.email.invalid) {
-
-            <li>
-              E-mail
-            </li>
-
+            <li>E-mail</li>
           }
 
           @if (form.controls.telefone.invalid) {
-
-            <li>
-              Telefone
-            </li>
-
+            <li>Telefone</li>
           }
-
         </ul>
-
       </div>
-
     }
-
 
     <!-- BOTÕES -->
 
     <div class="flex justify-end gap-2 mt-3">
-
       <p-button
         type="button"
         label="Cancelar"
@@ -349,7 +200,6 @@
         [disabled]="salvando"
       >
       </p-button>
-
 
       <p-button
         type="submit"
@@ -360,9 +210,6 @@
         [loading]="salvando"
       >
       </p-button>
-
     </div>
-
   </form>
-
 </p-panel>
