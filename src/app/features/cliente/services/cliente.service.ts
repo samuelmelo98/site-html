@@ -26,6 +26,7 @@ import { NomeSugestao } from '../model/nome.sugestao';
 })
 export class ClienteService {
   private readonly API = `${environment.apiUrl}/clientes`;
+  private readonly API2 = `${environment.apiUrl}`;
 
   private readonly http = inject(HttpClient);
 
@@ -131,7 +132,7 @@ export class ClienteService {
   }
 
   buscarSugestoesNome(query: string) {
-    return this.http.get<NomeSugestao[]>('/api/autocomplete/nomes', {
+    return this.http.get<NomeSugestao[]>(`${this.API2}/autocomplete/nomes`, {
       params: {
         q: query,
       },
