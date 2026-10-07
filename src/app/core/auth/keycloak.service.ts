@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import Keycloak, { KeycloakInitOptions } from 'keycloak-js';
+import Keycloak from 'keycloak-js';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -10,8 +10,13 @@ export class KeycloakService {
   private apiToken: string | null = null;
 
   init(): Promise<boolean> {
+    // Rotas públicas não devem inicializar o Keycloak
+    if (this.isPublicRoute()) {
+      return Promise.resolve(false);
+    }
+
     if (this.initialized) {
-      return Promise.resolve(true);
+      return Promise.resolve(this.isLoggedIn());
     }
 
     if (!this.keycloak) {
@@ -45,13 +50,14 @@ export class KeycloakService {
 
   logout() {
     this.stopTokenRefresh();
+
     this.keycloak.logout({
       redirectUri: window.location.origin,
     });
   }
 
   isLoggedIn(): boolean {
-    return !!this.keycloak.authenticated;
+    return !!this.keycloak?.authenticated;
   }
 
   getToken(): string | null {
@@ -59,7 +65,9 @@ export class KeycloakService {
   }
 
   getUserProfile() {
-    if (!this.keycloak?.tokenParsed) return null;
+    if (!this.keycloak?.tokenParsed) {
+      return null;
+    }
 
     const token: any = this.keycloak.tokenParsed;
 
@@ -97,6 +105,16 @@ export class KeycloakService {
       clearInterval(this.refreshInterval);
       this.refreshInterval = null;
     }
+  }
+
+  private isPublicRoute(): boolean {
+    const path = window.location.pathname;
+
+    return (
+      path.startsWith('/consulta/os/') ||
+      path.startsWith('/validacao/') ||
+      path === '/acesso-negado'
+    );
   }
 
   setApiToken(token: string) {

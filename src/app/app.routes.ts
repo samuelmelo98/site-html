@@ -17,21 +17,29 @@ export const routes: Routes = [
       import('./features/consulta-ordem-servico/pages/consulta-ordem-servico.component').then(
         (m) => m.ConsultaOrdemServicoComponent,
       ),
+    data: {
+      public: true,
+    },
   },
 
   {
     path: 'validacao/:codigo',
     loadComponent: () =>
       import('./features/validacao/validacao-component').then((m) => m.ValidacaoComponent),
+    data: {
+      public: true,
+    },
   },
 
   {
     path: 'acesso-negado',
-
     loadComponent: () =>
       import('./features/security/pages/acesso-negado.component').then(
         (m) => m.AcessoNegadoComponent,
       ),
+    data: {
+      public: true,
+    },
   },
 
   /*
