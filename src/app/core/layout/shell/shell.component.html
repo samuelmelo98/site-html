@@ -1,34 +1,25 @@
 <app-global-loader />
 
-@if (authStore.carregado()) {
-
+@if (rotaPublica()) {
+  <!--
+    Rotas públicas não dependem de autenticação,
+    AuthStore, Header ou Sidebar.
+  -->
+  <router-outlet> </router-outlet>
+} @else if (authStore.carregado()) {
   <div class="flex h-screen overflow-hidden">
-
     <!-- SIDEBAR -->
-    <app-side-bar
-      [open]="menuOpen">
-    </app-side-bar>
+    <app-side-bar [open]="menuOpen"> </app-side-bar>
 
     <!-- ÁREA PRINCIPAL -->
     <div class="flex flex-col flex-1">
-
       <!-- HEADER -->
-      <app-header
-        [menuOpen]="menuOpen"
-        (toggleMenu)="toggleMenu()">
-      </app-header>
+      <app-header [menuOpen]="menuOpen" (toggleMenu)="toggleMenu()"> </app-header>
 
       <!-- CONTEÚDO -->
-      <main
-        class="flex-1 overflow-auto bg-gray-100 p-6">
-
-        <router-outlet>
-        </router-outlet>
-
+      <main class="flex-1 overflow-auto bg-gray-100 p-6">
+        <router-outlet> </router-outlet>
       </main>
-
     </div>
-
   </div>
-
 }
