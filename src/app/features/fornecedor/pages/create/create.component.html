@@ -1,0 +1,66 @@
+<section class="p-4">
+  <h2>{{ id === null ? 'Novo fornecedor' : 'Editar fornecedor' }}</h2>
+  <p *ngIf="erro" role="alert" class="text-red-500">{{ erro }}</p>
+  <p *ngIf="carregando">Carregando fornecedor...</p>
+  <form *ngIf="!carregando" [formGroup]="form" (ngSubmit)="salvar()">
+    <h3>Identificação</h3>
+    <div class="campos">
+      <label
+        >Tipo de pessoa
+        <select formControlName="tipoPessoa">
+          <option value="PJ">Pessoa jurídica</option>
+          <option value="PF">Pessoa física</option>
+        </select></label
+      >
+      <label>Razão social / Nome * <input formControlName="razaoSocial" maxlength="200" /></label>
+      <label>Nome fantasia <input formControlName="nomeFantasia" maxlength="200" /></label>
+      <label
+        >CPF/CNPJ * <input formControlName="cpfCnpj" inputmode="numeric" maxlength="18"
+      /></label>
+      <label>Inscrição estadual <input formControlName="inscricaoEstadual" maxlength="30" /></label>
+    </div>
+    <p
+      *ngIf="form.controls.razaoSocial.touched && form.controls.razaoSocial.invalid"
+      class="text-red-500"
+    >
+      Informe o nome ou razão social.
+    </p>
+    <p *ngIf="form.controls.cpfCnpj.touched && form.controls.cpfCnpj.invalid" class="text-red-500">
+      Informe CPF/CNPJ.
+    </p>
+    <h3>Contato</h3>
+    <div class="campos">
+      <label>E-mail <input type="email" formControlName="email" /></label>
+      <label>Telefone <input formControlName="telefone" maxlength="20" /></label>
+      <label>WhatsApp <input formControlName="whatsapp" maxlength="20" /></label>
+    </div>
+    <h3>Endereço</h3>
+    <div class="campos">
+      <label>CEP <input formControlName="cep" maxlength="9" /></label>
+      <label>Logradouro <input formControlName="endereco" maxlength="200" /></label>
+      <label>Número <input formControlName="numero" maxlength="20" /></label>
+      <label>Complemento <input formControlName="complemento" maxlength="100" /></label>
+      <label>Bairro <input formControlName="bairro" maxlength="100" /></label>
+      <label>Cidade <input formControlName="cidade" maxlength="100" /></label>
+      <label
+        >UF
+        <select formControlName="estado">
+          <option value="">Selecione</option>
+          <option *ngFor="let uf of ufs" [value]="uf">{{ uf }}</option>
+        </select></label
+      >
+    </div>
+    <h3>Observações</h3>
+    <textarea formControlName="observacao" rows="4"></textarea>
+    <div class="flex gap-2 mt-3">
+      <button
+        pButton
+        type="submit"
+        label="Salvar"
+        icon="pi pi-check"
+        [disabled]="salvando || form.invalid"
+      ></button>
+      <a pButton routerLink="/fornecedores" label="Cancelar"></a>
+    </div>
+  </form>
+</section>

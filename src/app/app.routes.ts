@@ -100,6 +100,13 @@ export const routes: Routes = [
       import('./features/ordem-servico/ordem-servico.routes').then((m) => m.ORDEM_SERVICO_ROUTES),
   },
 
+  {
+    path: 'fornecedores',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/fornecedor/fornecedor.routes').then((m) => m.FORNECEDOR_ROUTES),
+  },
+
   /*
    * ROTA PADRÃO
    */

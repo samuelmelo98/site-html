@@ -1,0 +1,84 @@
+<section class="p-4">
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h2>Fornecedores</h2>
+    <a pButton routerLink="/fornecedores/create" label="Novo fornecedor" icon="pi pi-plus"></a>
+  </div>
+  <div class="flex flex-wrap gap-2 mb-3">
+    <input
+      class="p-inputtext p-component"
+      type="search"
+      aria-label="Buscar fornecedores"
+      placeholder="Nome ou CPF/CNPJ"
+      [(ngModel)]="busca"
+      (keyup.enter)="pesquisar()"
+    />
+    <select
+      class="p-inputtext p-component"
+      aria-label="Situação"
+      [(ngModel)]="filtroAtivo"
+      (change)="pesquisar()"
+    >
+      <option value="">Todos</option>
+      <option value="true">Ativos</option>
+      <option value="false">Inativos</option>
+    </select>
+    <button
+      pButton
+      type="button"
+      label="Pesquisar"
+      icon="pi pi-search"
+      (click)="pesquisar()"
+    ></button>
+  </div>
+  <p *ngIf="erro" role="alert" class="text-red-500">{{ erro }}</p>
+  <p-table
+    [value]="fornecedores"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="tamanho"
+    [first]="pagina * tamanho"
+    [totalRecords]="total"
+    [loading]="carregando"
+    (onLazyLoad)="carregar($event)"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    styleClass="p-datatable-striped"
+  >
+    <ng-template pTemplate="header"
+      ><tr>
+        <th>Nome/Razão social</th>
+        <th>CPF/CNPJ</th>
+        <th>Contato</th>
+        <th>Situação</th>
+        <th>Ações</th>
+      </tr></ng-template
+    >
+    <ng-template pTemplate="body" let-f
+      ><tr>
+        <td>{{ f.razaoSocial }}</td>
+        <td>{{ f.cpfCnpj }}</td>
+        <td>{{ f.telefone || f.email || '-' }}</td>
+        <td>{{ f.ativo ? 'Ativo' : 'Inativo' }}</td>
+        <td class="flex gap-2">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            aria-label="Editar"
+            (click)="editar(f.fornecedorId)"
+          ></button>
+          <button
+            pButton
+            type="button"
+            [icon]="f.ativo ? 'pi pi-ban' : 'pi pi-check'"
+            [attr.aria-label]="f.ativo ? 'Desativar' : 'Ativar'"
+            (click)="alternarStatus(f)"
+          ></button>
+        </td></tr
+    ></ng-template>
+    <ng-template pTemplate="emptymessage"
+      ><tr>
+        <td colspan="5">Nenhum fornecedor encontrado.</td>
+      </tr></ng-template
+    >
+  </p-table>
+</section>
