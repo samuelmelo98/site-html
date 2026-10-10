@@ -10,7 +10,6 @@
   <form [formGroup]="form" class="flex flex-col gap-4" (ngSubmit)="salvar()">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- NOME -->
-
       <div class="flex flex-col gap-2">
         <label>
           Nome
@@ -32,12 +31,11 @@
         />
 
         @if (form.controls.nome.invalid && form.controls.nome.touched) {
-          <small class="text-red-500"> Nome obrigatório </small>
+        <small class="text-red-500">Nome obrigatório</small>
         }
       </div>
 
       <!-- CPF -->
-
       <div class="flex flex-col gap-2">
         <label>
           CPF
@@ -50,30 +48,22 @@
           placeholder="000.000.000-00"
           [autoClear]="false"
           styleClass="w-full"
-        >
-        </p-inputmask>
+        ></p-inputmask>
 
         @if (form.controls.cpf.errors?.['required'] && form.controls.cpf.touched) {
-          <small class="text-red-500"> CPF obrigatório </small>
-        }
-
-        @if (form.controls.cpf.errors?.['pattern'] && form.controls.cpf.touched) {
-          <small class="text-red-500"> Informe um CPF completo </small>
-        }
-
-        @if (form.controls.cpf.errors?.['cpfInvalido'] && form.controls.cpf.touched) {
-          <small class="text-red-500 font-semibold"> CPF inválido. </small>
-        }
-
-        @if (form.controls.cpf.errors?.['cpfExistente'] && form.controls.cpf.touched) {
-          <small class="text-red-500 font-semibold"> Cliente já cadastrado com este CPF </small>
+        <small class="text-red-500">CPF obrigatório</small>
+        } @if (form.controls.cpf.errors?.['pattern'] && form.controls.cpf.touched) {
+        <small class="text-red-500">Informe um CPF completo</small>
+        } @if (form.controls.cpf.errors?.['cpfInvalido'] && form.controls.cpf.touched) {
+        <small class="text-red-500 font-semibold">CPF inválido.</small>
+        } @if (form.controls.cpf.errors?.['cpfExistente'] && form.controls.cpf.touched) {
+        <small class="text-red-500 font-semibold">Cliente já cadastrado com este CPF</small>
         }
       </div>
 
       <!-- EMAIL -->
-
       <div class="flex flex-col gap-2">
-        <label> E-mail </label>
+        <label>E-mail</label>
 
         <input
           pInputText
@@ -83,12 +73,11 @@
         />
 
         @if (form.controls.email.errors?.['email'] && form.controls.email.touched) {
-          <small class="text-red-500"> Informe um e-mail válido </small>
+        <small class="text-red-500">Informe um e-mail válido</small>
         }
       </div>
 
       <!-- TELEFONE -->
-
       <div class="flex flex-col gap-2">
         <label>
           Telefone
@@ -101,27 +90,23 @@
           placeholder="(61) 99999-9999"
           [autoClear]="false"
           styleClass="w-full"
-        >
-        </p-inputmask>
+        ></p-inputmask>
 
         @if (form.controls.telefone.errors?.['required'] && form.controls.telefone.touched) {
-          <small class="text-red-500"> Telefone obrigatório </small>
-        }
-
-        @if (form.controls.telefone.errors?.['pattern'] && form.controls.telefone.touched) {
-          <small class="text-red-500"> Informe um telefone completo </small>
+        <small class="text-red-500">Telefone obrigatório</small>
+        } @if (form.controls.telefone.errors?.['pattern'] && form.controls.telefone.touched) {
+        <small class="text-red-500">Informe um telefone completo</small>
         }
       </div>
     </div>
 
     <!-- ENDEREÇO -->
-
     <p-divider align="left">
-      <span class="text-blue-800 font-bold text-lg"> Endereço </span>
+      <span class="text-blue-800 font-bold text-lg">Endereço</span>
     </p-divider>
 
     <div class="flex flex-col gap-2">
-      <label> Endereço </label>
+      <label>Endereço</label>
 
       <input
         pInputText
@@ -133,18 +118,14 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- CIDADE -->
-
       <div class="flex flex-col gap-2">
-        <label> Cidade </label>
-
+        <label>Cidade</label>
         <input pInputText formControlName="cidade" class="w-full" placeholder="Cidade" />
       </div>
 
       <!-- ESTADO -->
-
       <div class="flex flex-col gap-2">
-        <label> Estado </label>
-
+        <label>Estado</label>
         <input
           pInputText
           formControlName="estado"
@@ -155,42 +136,32 @@
       </div>
 
       <!-- CEP -->
-
       <div class="flex flex-col gap-2">
-        <label> CEP </label>
-
+        <label>CEP</label>
         <input pInputText formControlName="cep" class="w-full" placeholder="00000-000" />
       </div>
     </div>
 
     <!-- CAMPOS INVÁLIDOS -->
-
     @if (form.invalid) {
-      <div class="p-3 bg-yellow-100 border-l-4 border-yellow-500 text-sm">
-        <strong> Campos inválidos: </strong>
+    <div class="p-3 bg-yellow-100 border-l-4 border-yellow-500 text-sm">
+      <strong>Campos inválidos:</strong>
 
-        <ul class="list-disc ml-5 mt-2">
-          @if (form.controls.nome.invalid) {
-            <li>Nome</li>
-          }
-
-          @if (form.controls.cpf.invalid) {
-            <li>CPF</li>
-          }
-
-          @if (form.controls.email.invalid) {
-            <li>E-mail</li>
-          }
-
-          @if (form.controls.telefone.invalid) {
-            <li>Telefone</li>
-          }
-        </ul>
-      </div>
+      <ul class="list-disc ml-5 mt-2">
+        @if (form.controls.nome.invalid) {
+        <li>Nome</li>
+        } @if (form.controls.cpf.invalid) {
+        <li>CPF</li>
+        } @if (form.controls.email.invalid) {
+        <li>E-mail</li>
+        } @if (form.controls.telefone.invalid) {
+        <li>Telefone</li>
+        }
+      </ul>
+    </div>
     }
 
     <!-- BOTÕES -->
-
     <div class="flex justify-end gap-2 mt-3">
       <p-button
         type="button"
@@ -198,8 +169,7 @@
         icon="pi pi-times"
         severity="secondary"
         [disabled]="salvando"
-      >
-      </p-button>
+      ></p-button>
 
       <p-button
         type="submit"
@@ -208,8 +178,7 @@
         severity="success"
         [disabled]="form.invalid || salvando"
         [loading]="salvando"
-      >
-      </p-button>
+      ></p-button>
     </div>
   </form>
 </p-panel>

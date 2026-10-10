@@ -30,7 +30,6 @@ import {
   ClienteForm,
   ClienteFormFactoryService,
 } from '../../services/cliente-form-factory-service';
-
 import { ApiErrorResponse } from '../../model/api-error-response';
 
 import { ToastModule } from 'primeng/toast';
@@ -41,9 +40,7 @@ import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocompl
 
 @Component({
   selector: 'app-create',
-
   standalone: true,
-
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -53,14 +50,10 @@ import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocompl
     InputMaskModule,
     Panel,
     ToastModule,
-    ReactiveFormsModule,
     AutoCompleteModule,
   ],
-
   providers: [MessageService],
-
   templateUrl: './create.component.html',
-
   styleUrl: './create.component.css',
 })
 export class CreateComponent {
@@ -76,43 +69,40 @@ export class CreateComponent {
   private readonly formFactory = inject(ClienteFormFactoryService);
 
   private readonly router = inject(Router);
-
   readonly form: ClienteForm = this.formFactory.create();
-
   sugestoesNome: NomeSugestao[] = [];
-
   salvando = false;
 
   /**
-   * Formata o nome digitado.
-   *
-   * Exemplo:
-   *
-   * samuel anderson melo silva
-   *
-   * Resultado:
-   *
-   * Samuel Anderson Melo Silva
+   * O AutoComplete pode retornar texto digitado ou um objeto NomeSugestao.
+   * Antes de validar e enviar ao backend, convertemos o valor para string.
    */
+
   formatarNome(): void {
     const control = this.form.controls.nome;
-
-    const valor = control.value?.trim().replace(/\s+/g, ' ');
-
-    if (!valor) {
-      return;
-    }
-
+    const valor = this.extrairNome(control.value);
     const nomeFormatado = valor
+      .trim()
+      .replace(/\s+/g, ' ')
       .toLocaleLowerCase('pt-BR')
       .split(' ')
       .filter(Boolean)
       .map((palavra) => palavra.charAt(0).toLocaleUpperCase('pt-BR') + palavra.slice(1))
       .join(' ');
+    // Valor sempre será uma string, mesmo depois de escolher uma sugestão.
+    // setValue também recalcula os validadores do controle.
+    control.setValue(nomeFormatado, { emitEvent: false });
+  }
 
-    control.setValue(nomeFormatado, {
-      emitEvent: false,
-    });
+  private extrairNome(valor: unknown): string {
+    if (typeof valor === 'string') {
+      return valor;
+    }
+    if (valor !== null && typeof valor === 'object' && 'nome' in valor) {
+      const nome = valor.nome;
+      return typeof nome === 'string' ? nome : '';
+    }
+    return '';
   }
 
   salvar(): void {
@@ -122,34 +112,28 @@ export class CreateComponent {
     if (this.salvando) {
       return;
     }
-
     /*
      * Garante o nome formatado
      * antes da validação/envio.
      */
     this.formatarNome();
-
     /*
      * Validação do formulário.
      */
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-
       this.messageService.add({
         severity: 'warn',
         summary: 'Atenção',
         detail: 'Preencha os campos obrigatórios corretamente.',
         life: 5000,
       });
-
       return;
     }
-
     /*
      * Cria o payload original.
      */
     const payloadOriginal = this.formFactory.toPayload(this.form);
-
     /*
      * Remove máscaras antes de
      * enviar ao backend.
@@ -168,17 +152,13 @@ export class CreateComponent {
      */
     const payload = {
       ...payloadOriginal,
-
       cpf: payloadOriginal.cpf?.replace(/\D/g, '') ?? '',
-
       telefone: payloadOriginal.telefone?.replace(/\D/g, '') ?? '',
     };
-
     /*
      * Referência do campo CPF.
      */
     const cpfControl = this.form.controls.cpf;
-
     /*
      * Remove erros anteriores
      * retornados pelo backend.
@@ -187,16 +167,11 @@ export class CreateComponent {
       const erros = {
         ...cpfControl.errors,
       };
-
       delete erros['cpfExistente'];
-
       delete erros['cpfInvalido'];
-
       cpfControl.setErrors(Object.keys(erros).length > 0 ? erros : null);
     }
-
     this.salvando = true;
-
     /*
      * Primeiro verifica se o CPF
      * já está cadastrado.
@@ -213,22 +188,15 @@ export class CreateComponent {
               ...cpfControl.errors,
               cpfExistente: true,
             });
-
             cpfControl.markAsTouched();
-
             this.messageService.add({
               severity: 'warn',
-
               summary: 'Cliente já cadastrado',
-
               detail: 'Já existe um cliente cadastrado com este CPF.',
-
               life: 5000,
             });
-
             return EMPTY;
           }
-
           /*
            * CPF não cadastrado.
            *
@@ -238,7 +206,6 @@ export class CreateComponent {
            */
           return this.clienteService.salvar(payload);
         }),
-
         tap((cliente) => {
           /*
            * Garante que o backend
@@ -247,37 +214,27 @@ export class CreateComponent {
           if (!cliente || !cliente.clienteId) {
             throw new Error('Cliente cadastrado, mas o backend não retornou clienteId.');
           }
-
           const clienteId = cliente.clienteId;
-
           console.log('Cliente criado:', cliente);
-
           this.messageService.add({
             severity: 'success',
-
             summary: 'Sucesso',
-
             detail: 'Cliente cadastrado com sucesso.',
-
             life: 4000,
           });
-
           /*
            * Informa outros componentes
            * que o cliente foi salvo.
            */
           this.salvo.emit();
-
           /*
            * Direciona para o cadastro
            * de aparelho do cliente.
            */
           void this.router.navigate(['/aparelho', 'create', clienteId]);
         }),
-
         catchError((error: HttpErrorResponse | Error) => {
           console.error('Erro ao cadastrar cliente:', error);
-
           /*
            * Erros HTTP retornados
            * pelo backend.
@@ -299,7 +256,6 @@ export class CreateComponent {
                 error,
                 'Não foi possível cadastrar o cliente.',
               );
-
               /*
                * Se o erro estiver
                * relacionado ao CPF,
@@ -310,10 +266,8 @@ export class CreateComponent {
                   ...cpfControl.errors,
                   cpfInvalido: true,
                 });
-
                 cpfControl.markAsTouched();
               }
-
               /*
                * Mesmo padrão do Edit:
                *
@@ -321,10 +275,8 @@ export class CreateComponent {
                * padrão = error.
                */
               this.exibirErroApi(error, 'Dados inválidos', 'Não foi possível cadastrar o cliente.');
-
               return EMPTY;
             }
-
             /*
              * 409 - CPF duplicado.
              */
@@ -333,28 +285,22 @@ export class CreateComponent {
                 ...cpfControl.errors,
                 cpfExistente: true,
               });
-
               cpfControl.markAsTouched();
-
               this.exibirErroApi(
                 error,
                 'Cliente já cadastrado',
                 'Já existe um cliente cadastrado com este CPF.',
                 'warn',
               );
-
               return EMPTY;
             }
-
             /*
              * 401 - Sessão expirada.
              */
             if (error.status === 401) {
               this.exibirErroApi(error, 'Sessão expirada', 'Entre novamente para continuar.');
-
               return EMPTY;
             }
-
             /*
              * 403 - Sem permissão.
              */
@@ -364,10 +310,8 @@ export class CreateComponent {
                 'Acesso negado',
                 'Você não tem permissão para cadastrar clientes.',
               );
-
               return EMPTY;
             }
-
             /*
              * Outros erros HTTP.
              */
@@ -376,10 +320,8 @@ export class CreateComponent {
               'Erro ao cadastrar cliente',
               'Não foi possível cadastrar o cliente.',
             );
-
             return EMPTY;
           }
-
           /*
            * Cliente foi cadastrado,
            * mas o backend não retornou
@@ -388,38 +330,27 @@ export class CreateComponent {
           if (error instanceof Error && error.message.includes('clienteId')) {
             this.messageService.add({
               severity: 'error',
-
               summary: 'Erro ao redirecionar',
-
               detail:
                 'O cliente foi cadastrado, mas não foi possível identificar o ID retornado pelo servidor.',
-
               life: 5000,
             });
-
             return EMPTY;
           }
-
           /*
            * Erro inesperado do front.
            */
           this.messageService.add({
             severity: 'error',
-
             summary: 'Erro',
-
             detail: 'Não foi possível cadastrar o cliente.',
-
             life: 5000,
           });
-
           return EMPTY;
         }),
-
         finalize(() => {
           this.salvando = false;
         }),
-
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
@@ -429,33 +360,28 @@ export class CreateComponent {
    * Extrai a mensagem real
    * retornada pelo backend.
    */
+
   private obterDetalheErro(error: HttpErrorResponse, fallback: string): string {
     const body = error.error;
-
     /*
      * Backend retornou texto.
      */
     if (typeof body === 'string') {
       const mensagem = body.trim();
-
       return mensagem || fallback;
     }
-
     /*
      * Backend retornou JSON.
      */
     if (body && typeof body === 'object') {
       const apiError = body as ApiErrorResponse;
-
       if (apiError.detail?.trim()) {
         return apiError.detail.trim();
       }
-
       if (apiError.message?.trim()) {
         return apiError.message.trim();
       }
     }
-
     return fallback;
   }
 
@@ -475,6 +401,7 @@ export class CreateComponent {
    *   resposta String
    *   fallback
    */
+
   private exibirErroApi(
     error: HttpErrorResponse,
     summaryFallback: string,
@@ -482,11 +409,8 @@ export class CreateComponent {
     severity: 'error' | 'warn' = 'error',
   ): void {
     const body = error.error;
-
     let summary = summaryFallback;
-
     let detail = detailFallback;
-
     /*
      * Backend retornou texto puro.
      *
@@ -496,12 +420,10 @@ export class CreateComponent {
      */
     if (typeof body === 'string') {
       const mensagem = body.trim();
-
       if (mensagem) {
         detail = mensagem;
       }
     }
-
     /*
      * Backend retornou JSON.
      *
@@ -514,18 +436,15 @@ export class CreateComponent {
      */
     if (body && typeof body === 'object') {
       const apiError = body as ApiErrorResponse;
-
       if (apiError.title?.trim()) {
         summary = apiError.title.trim();
       }
-
       if (apiError.detail?.trim()) {
         detail = apiError.detail.trim();
       } else if (apiError.message?.trim()) {
         detail = apiError.message.trim();
       }
     }
-
     /*
      * Usa o Toast global
      * da aplicação.
@@ -540,18 +459,14 @@ export class CreateComponent {
 
   buscarSugestoesNome(event: AutoCompleteCompleteEvent): void {
     const query = event.query?.trim();
-
     if (!query || query.length < 2) {
       this.sugestoesNome = [];
-
       return;
     }
-
     this.clienteService.buscarSugestoesNome(query).subscribe({
       next: (resultado) => {
         this.sugestoesNome = resultado;
       },
-
       error: () => {
         this.sugestoesNome = [];
       },
