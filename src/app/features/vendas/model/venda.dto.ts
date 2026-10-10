@@ -1,7 +1,6 @@
-export type StatusVenda =
-  | 'ABERTA'
-  | 'FINALIZADA'
-  | 'CANCELADA';
+export type StatusVenda = 'ABERTA' | 'FINALIZADA' | 'CANCELADA';
+
+export type FormaPagamento = 'DINHEIRO' | 'PIX' | 'CARTAO_CREDITO' | 'CARTAO_DEBITO';
 
 export interface VendaItemRequestDTO {
   descricao: string;
@@ -12,6 +11,7 @@ export interface VendaItemRequestDTO {
 
 export interface VendaRequestDTO {
   clienteId: number | null;
+  formaPagamento: FormaPagamento;
   desconto: number;
   observacao: string | null;
   itens: VendaItemRequestDTO[];
@@ -33,6 +33,7 @@ export interface VendaResponseDTO {
   clienteNome: string | null;
   dataVenda: string;
   status: StatusVenda;
+  formaPagamento: FormaPagamento | null;
   valorSubtotal: number;
   descontoItens: number;
   desconto: number;
@@ -47,6 +48,7 @@ export interface VendaDetalheDTO {
   clienteNome: string | null;
   dataVenda: string;
   status: StatusVenda;
+  formaPagamento: FormaPagamento | null;
   valorSubtotal: number;
   descontoItens: number;
   desconto: number;
@@ -66,4 +68,11 @@ export interface PageResponse<T> {
   first: boolean;
   last: boolean;
   empty: boolean;
+}
+
+export interface ClienteOpcaoDTO {
+  clienteId: number;
+  nome: string;
+  cpf: string | null;
+  telefone: string | null;
 }

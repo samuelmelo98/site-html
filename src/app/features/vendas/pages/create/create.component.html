@@ -1,21 +1,12 @@
 <div class="pagina-venda">
-
   <div class="cabecalho-venda">
-
     <div>
-      <span class="subtitulo">
-        Comercial
-      </span>
-
+      <span class="subtitulo"> Comercial </span>
       <h1>
         {{ titulo() }}
       </h1>
-
-      <p>
-        Registre os itens e valores da venda.
-      </p>
+      <p>Registre os itens e valores da venda.</p>
     </div>
-
     <p-button
       label="Voltar"
       icon="pi pi-arrow-left"
@@ -23,608 +14,326 @@
       [outlined]="true"
       (onClick)="voltar()"
     ></p-button>
-
   </div>
-
-
   @if (erro()) {
-
-    <div
-      class="
-        mb-4
-        rounded-lg
-        border
-        border-red-200
-        bg-red-50
-        p-4
-        text-sm
-        text-red-700
-      "
-      role="alert"
-    >
-      {{ erro() }}
-    </div>
-
-  }
-
-
-  @if (carregando()) {
-
-    <div class="estado-carregamento">
-
-      <p-progressSpinner
-        strokeWidth="4"
-        ariaLabel="Carregando venda"
-      ></p-progressSpinner>
-
-      <span>
-        Carregando dados da venda...
-      </span>
-
-    </div>
-
+  <div
+    class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+    role="alert"
+  >
+    {{ erro() }}
+  </div>
+  } @if (carregando()) {
+  <div class="estado-carregamento">
+    <p-progressSpinner strokeWidth="4" ariaLabel="Carregando venda"></p-progressSpinner>
+    <span> Carregando dados da venda... </span>
+  </div>
   } @else {
-
-    <form
-      [formGroup]="form"
-      (ngSubmit)="salvar()"
-    >
-
-      <!-- CLIENTE -->
-      <section class="card-venda">
-
-        <div class="card-titulo">
-
+  <form [formGroup]="form" (ngSubmit)="salvar()">
+    <!-- CLIENTE -->
+    <section class="card-venda">
+      <div class="card-titulo">
+        <div>
+          <span class="card-icone">
+            <i class="pi pi-user"></i>
+          </span>
           <div>
-
-            <span class="card-icone">
-              <i class="pi pi-user"></i>
-            </span>
-
-            <div>
-              <h2>
-                Cliente
-              </h2>
-
-              <p>
-                Opcional para vendas de balcão.
-              </p>
-            </div>
-
+            <h2>Cliente</h2>
+            <p>Opcional para vendas de balcão.</p>
           </div>
-
         </div>
-
-
-        <div class="campo cliente-autocomplete">
-
-          <label for="cliente">
-            Cliente
-          </label>
-
-          <p-autocomplete
-            inputId="cliente"
-            [formControl]="clienteSelecionadoControl"
-            [suggestions]="clientesFiltrados()"
-            (completeMethod)="filtrarClientes($event)"
-            optionLabel="nome"
-            placeholder="Digite o nome do cliente..."
-            [dropdown]="true"
-            [showClear]="true"
-            [forceSelection]="true"
-            emptyMessage="Nenhum cliente encontrado"
-            (onSelect)="selecionarCliente($event.value)"
-            (onClear)="limparCliente()"
-          >
-
-            <ng-template
-              #item
-              let-cliente
-            >
-
-              <div class="cliente-opcao">
-
-                <div class="cliente-opcao-icone">
-                  <i class="pi pi-user"></i>
-                </div>
-
-                <div class="cliente-opcao-dados">
-
-                  <strong>
-                    {{ cliente.nome }}
-                  </strong>
-
-                  <div class="cliente-opcao-meta">
-
-                    @if (cliente.cpf) {
-                      <span>
-                        CPF: {{ cliente.cpf }}
-                      </span>
-                    }
-
-                    <span>
-                      ID: {{ cliente.clienteId }}
-                    </span>
-
-                  </div>
-
-                </div>
-
+      </div>
+      <div class="campo cliente-autocomplete">
+        <label for="cliente"> Cliente </label>
+        <p-autocomplete
+          inputId="cliente"
+          [formControl]="clienteSelecionadoControl"
+          [suggestions]="clientesFiltrados()"
+          (completeMethod)="filtrarClientes($event)"
+          optionLabel="nome"
+          placeholder="Digite o nome do cliente..."
+          [dropdown]="true"
+          [showClear]="true"
+          [forceSelection]="true"
+          emptyMessage="Nenhum cliente encontrado"
+          (onSelect)="selecionarCliente($event.value)"
+          (onClear)="limparCliente()"
+        >
+          <ng-template #item let-cliente>
+            <div class="cliente-opcao">
+              <div class="cliente-opcao-icone">
+                <i class="pi pi-user"></i>
               </div>
-
-            </ng-template>
-
-          </p-autocomplete>
-
-        </div>
-
-
-        @if (carregandoClientes()) {
-
-          <div
-            class="
-              mt-2
-              flex
-              items-center
-              gap-2
-              text-sm
-              text-gray-500
-            "
-          >
-            <i class="pi pi-spin pi-spinner"></i>
-
-            <span>
-              Carregando clientes cadastrados...
-            </span>
-          </div>
-
-        } @else if (
-          clienteSelecionadoControl.value;
-          as cliente
-        ) {
-
-          <div class="cliente-selecionado">
-
-            <div class="cliente-selecionado-principal">
-
-              <span class="cliente-check">
-                <i class="pi pi-check"></i>
-              </span>
-
-              <div>
-                <span class="label">
-                  Cliente selecionado
-                </span>
-
+              <div class="cliente-opcao-dados">
                 <strong>
                   {{ cliente.nome }}
                 </strong>
-              </div>
-
-            </div>
-
-
-            <div class="cliente-dados">
-
-              <span>
-                ID: {{ cliente.clienteId }}
-              </span>
-
-              @if (cliente.cpf) {
-                <span>
-                  CPF: {{ cliente.cpf }}
-                </span>
-              }
-
-              @if (cliente.telefone) {
-                <span>
-                  Telefone: {{ cliente.telefone }}
-                </span>
-              }
-
-            </div>
-
-          </div>
-
-        } @else if (erroClientes()) {
-
-          <p class="texto-erro">
-            {{ erroClientes() }}
-          </p>
-
-        } @else {
-
-          <p class="texto-auxiliar">
-            Nenhum cliente selecionado.
-            A venda será registrada como
-            <strong>
-              venda de balcão
-            </strong>.
-          </p>
-
-        }
-
-      </section>
-
-
-      <!-- ITENS -->
-      <section class="card-venda">
-
-        <div class="card-titulo">
-
-          <div>
-
-            <span class="card-icone">
-              <i class="pi pi-shopping-cart"></i>
-            </span>
-
-            <div>
-              <h2>
-                Itens
-              </h2>
-
-              <p>
-                Adicione os produtos ou serviços vendidos.
-              </p>
-            </div>
-
-          </div>
-
-
-          <p-button
-            type="button"
-            label="Adicionar item"
-            icon="pi pi-plus"
-            severity="secondary"
-            [outlined]="true"
-            [disabled]="salvando()"
-            (onClick)="adicionarItem()"
-          ></p-button>
-
-        </div>
-
-
-        <div
-          formArrayName="itens"
-          class="lista-itens"
-        >
-
-          @for (
-            item of itens.controls;
-            track item;
-            let i = $index
-          ) {
-
-            <div
-              class="item-venda"
-              [formGroupName]="i"
-            >
-
-              <div class="item-cabecalho">
-
-                <strong>
-                  Item {{ i + 1 }}
-                </strong>
-
-                <p-button
-                  type="button"
-                  icon="pi pi-trash"
-                  severity="danger"
-                  rounded
-                  text
-                  ariaLabel="Remover item"
-                  [disabled]="
-                    itens.length <= 1 ||
-                    salvando()
-                  "
-                  (onClick)="removerItem(i)"
-                ></p-button>
-
-              </div>
-
-
-              <div class="grid-item">
-
-                <div class="campo descricao">
-
-                  <label>
-                    Descrição *
-                  </label>
-
-                  <input
-                    pInputText
-                    formControlName="descricao"
-                    maxlength="255"
-                    placeholder="Ex.: Carregador USB-C 25W"
-                  />
-
-                  @if (
-                    campoInvalido(
-                      item.controls.descricao
-                    )
-                  ) {
-                    <small class="texto-erro">
-                      Informe a descrição.
-                    </small>
+                <div class="cliente-opcao-meta">
+                  @if (cliente.cpf) {
+                  <span> CPF: {{ cliente.cpf }} </span>
                   }
-
+                  <span> ID: {{ cliente.clienteId }} </span>
                 </div>
-
-
-                <div class="campo">
-
-                  <label>
-                    Quantidade *
-                  </label>
-
-                  <p-inputNumber
-                    formControlName="quantidade"
-                    [min]="0.01"
-                    [minFractionDigits]="0"
-                    [maxFractionDigits]="2"
-                    mode="decimal"
-                  ></p-inputNumber>
-
-                  @if (
-                    campoInvalido(
-                      item.controls.quantidade
-                    )
-                  ) {
-                    <small class="texto-erro">
-                      Informe uma quantidade válida.
-                    </small>
-                  }
-
-                </div>
-
-
-                <div class="campo">
-
-                  <label>
-                    Valor unitário *
-                  </label>
-
-                  <p-inputNumber
-                    formControlName="valorUnitario"
-                    mode="currency"
-                    currency="BRL"
-                    locale="pt-BR"
-                    [min]="0"
-                  ></p-inputNumber>
-
-                  @if (
-                    campoInvalido(
-                      item.controls.valorUnitario
-                    )
-                  ) {
-                    <small class="texto-erro">
-                      Informe um valor válido.
-                    </small>
-                  }
-
-                </div>
-
-
-                <div class="campo">
-
-                  <label>
-                    Desconto
-                  </label>
-
-                  <p-inputNumber
-                    formControlName="desconto"
-                    mode="currency"
-                    currency="BRL"
-                    locale="pt-BR"
-                    [min]="0"
-                  ></p-inputNumber>
-
-                  @if (
-                    campoInvalido(
-                      item.controls.desconto
-                    )
-                  ) {
-                    <small class="texto-erro">
-                      Informe um desconto válido.
-                    </small>
-                  }
-
-                </div>
-
-
-                <div class="total-item">
-
-                  <span>
-                    Total do item
-                  </span>
-
-                  <strong>
-                    {{
-                      valorTotalItem(i)
-                        | currency:'BRL':'symbol':'1.2-2':'pt-BR'
-                    }}
-                  </strong>
-
-                </div>
-
               </div>
-
             </div>
-
-          }
-
-        </div>
-
-      </section>
-
-
-      <div class="grid-final">
-
-        <!-- OBSERVAÇÕES -->
-        <section class="card-venda">
-
-          <div class="card-titulo">
-
-            <div>
-
-              <span class="card-icone">
-                <i class="pi pi-file-edit"></i>
-              </span>
-
-              <div>
-                <h2>
-                  Observações
-                </h2>
-
-                <p>
-                  Informações adicionais da venda.
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <textarea
-            pTextarea
-            formControlName="observacao"
-            rows="6"
-            maxlength="2000"
-            class="w-full"
-            placeholder="Observações da venda..."
-          ></textarea>
-
-        </section>
-
-
-        <!-- RESUMO -->
-        <section class="card-venda resumo">
-
-          <div class="card-titulo">
-
-            <div>
-
-              <span class="card-icone">
-                <i class="pi pi-calculator"></i>
-              </span>
-
-              <div>
-                <h2>
-                  Resumo
-                </h2>
-
-                <p>
-                  Conferência antes de salvar.
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div class="resumo-linha">
-
-            <span>
-              Subtotal
-            </span>
-
-            <strong>
-              {{
-                subtotal()
-                  | currency:'BRL':'symbol':'1.2-2':'pt-BR'
-              }}
-            </strong>
-
-          </div>
-
-
-          <div class="resumo-linha">
-
-            <span>
-              Descontos dos itens
-            </span>
-
-            <strong>
-              -
-              {{
-                descontoItens()
-                  | currency:'BRL':'symbol':'1.2-2':'pt-BR'
-              }}
-            </strong>
-
-          </div>
-
-
-          <div class="campo desconto-geral">
-
-            <label>
-              Desconto geral
-            </label>
-
-            <p-inputNumber
-              formControlName="desconto"
-              mode="currency"
-              currency="BRL"
-              locale="pt-BR"
-              [min]="0"
-            ></p-inputNumber>
-
-          </div>
-
-
-          <div class="resumo-total">
-
-            <span>
-              Total da venda
-            </span>
-
-            <strong>
-              {{
-                total()
-                  | currency:'BRL':'symbol':'1.2-2':'pt-BR'
-              }}
-            </strong>
-
-          </div>
-
-        </section>
-
+          </ng-template>
+        </p-autocomplete>
       </div>
-
-
-      <!-- AÇÕES -->
-      <div class="acoes-form">
-
+      @if (carregandoClientes()) {
+      <div class="mt-2 flex items-center gap-2 text-sm text-gray-500">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span> Carregando clientes cadastrados... </span>
+      </div>
+      } @else if ( clienteSelecionadoControl.value; as cliente ) {
+      <div class="cliente-selecionado">
+        <div class="cliente-selecionado-principal">
+          <span class="cliente-check">
+            <i class="pi pi-check"></i>
+          </span>
+          <div>
+            <span class="label"> Cliente selecionado </span>
+            <strong>
+              {{ cliente.nome }}
+            </strong>
+          </div>
+        </div>
+        <div class="cliente-dados">
+          <span> ID: {{ cliente.clienteId }} </span>
+          @if (cliente.cpf) {
+          <span> CPF: {{ cliente.cpf }} </span>
+          } @if (cliente.telefone) {
+          <span> Telefone: {{ cliente.telefone }} </span>
+          }
+        </div>
+      </div>
+      } @else if (erroClientes()) {
+      <p class="texto-erro">
+        {{ erroClientes() }}
+      </p>
+      } @else {
+      <p class="texto-auxiliar">
+        Nenhum cliente selecionado. A venda será registrada como
+        <strong> venda de balcão </strong>.
+      </p>
+      }
+    </section>
+    <!-- ITENS -->
+    <section class="card-venda">
+      <div class="card-titulo">
+        <div>
+          <span class="card-icone">
+            <i class="pi pi-shopping-cart"></i>
+          </span>
+          <div>
+            <h2>Itens</h2>
+            <p>Adicione os produtos ou serviços vendidos.</p>
+          </div>
+        </div>
         <p-button
           type="button"
-          label="Cancelar"
+          label="Adicionar item"
+          icon="pi pi-plus"
           severity="secondary"
           [outlined]="true"
           [disabled]="salvando()"
-          (onClick)="voltar()"
+          (onClick)="adicionarItem()"
         ></p-button>
-
-        <p-button
-          type="submit"
-          [label]="
-            modoEdicao()
-              ? 'Salvar alterações'
-              : 'Registrar venda'
-          "
-          icon="pi pi-check"
-          [loading]="salvando()"
-          [disabled]="
-            carregando() ||
-            carregandoClientes()
-          "
-        ></p-button>
-
+      </div>
+      <div formArrayName="itens" class="lista-itens">
+        @for ( item of itens.controls; track item; let i = $index ) {
+        <div class="item-venda" [formGroupName]="i">
+          <div class="item-cabecalho">
+            <strong> Item {{ i + 1 }} </strong>
+            <p-button
+              type="button"
+              icon="pi pi-trash"
+              severity="danger"
+              rounded
+              text
+              ariaLabel="Remover item"
+              [disabled]="itens.length <= 1 || salvando()"
+              (onClick)="removerItem(i)"
+            ></p-button>
+          </div>
+          <div class="grid-item">
+            <div class="campo descricao">
+              <label> Descrição * </label>
+              <input
+                pInputText
+                formControlName="descricao"
+                maxlength="255"
+                placeholder="Ex.: Carregador USB-C 25W"
+              />
+              @if ( campoInvalido( item.controls.descricao ) ) {
+              <small class="texto-erro"> Informe a descrição. </small>
+              }
+            </div>
+            <div class="campo">
+              <label> Quantidade * </label>
+              <p-inputNumber
+                formControlName="quantidade"
+                [min]="0.01"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                mode="decimal"
+              ></p-inputNumber>
+              @if ( campoInvalido( item.controls.quantidade ) ) {
+              <small class="texto-erro"> Informe uma quantidade válida. </small>
+              }
+            </div>
+            <div class="campo">
+              <label> Valor unitário * </label>
+              <p-inputNumber
+                formControlName="valorUnitario"
+                mode="currency"
+                currency="BRL"
+                locale="pt-BR"
+                [min]="0"
+              ></p-inputNumber>
+              @if ( campoInvalido( item.controls.valorUnitario ) ) {
+              <small class="texto-erro"> Informe um valor válido. </small>
+              }
+            </div>
+            <div class="campo">
+              <label> Desconto </label>
+              <p-inputNumber
+                formControlName="desconto"
+                mode="currency"
+                currency="BRL"
+                locale="pt-BR"
+                [min]="0"
+              ></p-inputNumber>
+              @if ( campoInvalido( item.controls.desconto ) ) {
+              <small class="texto-erro"> Informe um desconto válido. </small>
+              }
+            </div>
+            <div class="total-item">
+              <span> Total do item </span>
+              <strong>
+                {{ valorTotalItem(i) | currency : 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+              </strong>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </section>
+    <!-- FORMA DE PAGAMENTO -->
+    <section class="card-venda">
+      <div class="card-titulo">
+        <div>
+          <span class="card-icone">
+            <i class="pi pi-wallet"></i>
+          </span>
+          <div>
+            <h2>Pagamento</h2>
+            <p>Selecione como a venda será paga.</p>
+          </div>
+        </div>
       </div>
 
-    </form>
+      <div class="campo">
+        <label for="formaPagamento">Forma de pagamento *</label>
+        <p-select
+          inputId="formaPagamento"
+          formControlName="formaPagamento"
+          [options]="formasPagamento"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione a forma de pagamento"
+          [showClear]="true"
+          class="w-full"
+        ></p-select>
+        @if (campoInvalido(form.controls.formaPagamento)) {
+        <small class="texto-erro">Informe a forma de pagamento.</small>
+        }
+      </div>
+    </section>
 
+    <div class="grid-final">
+      <!-- OBSERVAÇÕES -->
+      <section class="card-venda">
+        <div class="card-titulo">
+          <div>
+            <span class="card-icone">
+              <i class="pi pi-file-edit"></i>
+            </span>
+            <div>
+              <h2>Observações</h2>
+              <p>Informações adicionais da venda.</p>
+            </div>
+          </div>
+        </div>
+        <textarea
+          pTextarea
+          formControlName="observacao"
+          rows="6"
+          maxlength="2000"
+          class="w-full"
+          placeholder="Observações da venda..."
+        ></textarea>
+      </section>
+      <!-- RESUMO -->
+      <section class="card-venda resumo">
+        <div class="card-titulo">
+          <div>
+            <span class="card-icone">
+              <i class="pi pi-calculator"></i>
+            </span>
+            <div>
+              <h2>Resumo</h2>
+              <p>Conferência antes de salvar.</p>
+            </div>
+          </div>
+        </div>
+        <div class="resumo-linha">
+          <span> Subtotal </span>
+          <strong>
+            {{ subtotal() | currency : 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+          </strong>
+        </div>
+        <div class="resumo-linha">
+          <span> Descontos dos itens </span>
+          <strong>
+            -
+            {{ descontoItens() | currency : 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+          </strong>
+        </div>
+        <div class="campo desconto-geral">
+          <label> Desconto geral </label>
+          <p-inputNumber
+            formControlName="desconto"
+            mode="currency"
+            currency="BRL"
+            locale="pt-BR"
+            [min]="0"
+          ></p-inputNumber>
+        </div>
+        <div class="resumo-total">
+          <span> Total da venda </span>
+          <strong>
+            {{ total() | currency : 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+          </strong>
+        </div>
+      </section>
+    </div>
+    <!-- AÇÕES -->
+    <div class="acoes-form">
+      <p-button
+        type="button"
+        label="Cancelar"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="salvando()"
+        (onClick)="voltar()"
+      ></p-button>
+      <p-button
+        type="submit"
+        [label]="modoEdicao() ? 'Salvar alterações' : 'Registrar venda'"
+        icon="pi pi-check"
+        [loading]="salvando()"
+        [disabled]="carregando() || carregandoClientes()"
+      ></p-button>
+    </div>
+  </form>
   }
-
 </div>
