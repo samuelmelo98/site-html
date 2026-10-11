@@ -1,43 +1,18 @@
-import {
-  CurrencyPipe,
-  DatePipe,
-} from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 
-import {
-  HttpErrorResponse,
-} from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import {
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 
-import {
-  takeUntilDestroyed,
-} from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import {
-  FormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import {
-  finalize,
-  Observable,
-} from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 
-import {
-  ButtonModule,
-} from 'primeng/button';
+import { ButtonModule } from 'primeng/button';
 
-import {
-  ProgressSpinnerModule,
-} from 'primeng/progressspinner';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import {
   FormaPagamento,
@@ -45,22 +20,13 @@ import {
   RelatorioSemanalTecnicoItemDTO,
 } from '../../model/relatorio-semanal-tecnico.dto';
 
-import {
-  RelatorioSemanalTecnicoService,
-} from '../../services/relatorio-semanal-tecnico.service';
+import { RelatorioSemanalTecnicoService } from '../../services/relatorio-semanal-tecnico.service';
 
-import {
-  TecnicoService,
-} from '../../../ordem-servico/services/tecnico.service';
+import { TecnicoService } from '../../../ordem-servico/services/tecnico.service';
 
-import {
-  TecnicoDTO,
-} from '../../../ordem-servico/model/tecnico.dto';
+import { TecnicoDTO } from '../../../ordem-servico/model/tecnico.dto';
 
-type ModoConsulta =
-  | 'ULTIMA_SEMANA'
-  | 'SEMANA_ATUAL'
-  | 'PERIODO';
+type ModoConsulta = 'ULTIMA_SEMANA' | 'SEMANA_ATUAL' | 'PERIODO';
 
 interface PeriodoConsulta {
   inicio: string;
@@ -70,276 +36,134 @@ interface PeriodoConsulta {
 @Component({
   selector: 'app-relatorio-semanal',
   standalone: true,
-  imports: [
-    DatePipe,
-    CurrencyPipe,
-    ReactiveFormsModule,
-    ButtonModule,
-    ProgressSpinnerModule,
-  ],
+  imports: [DatePipe, CurrencyPipe, ReactiveFormsModule, ButtonModule, ProgressSpinnerModule],
   templateUrl: './relatorio-semanal.component.html',
   styleUrl: './relatorio-semanal.component.css',
 })
-export class RelatorioSemanalComponent
-  implements OnInit {
+export class RelatorioSemanalComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly destroyRef =
-    inject(DestroyRef);
+  private readonly formBuilder = inject(FormBuilder);
 
-  private readonly formBuilder =
-    inject(FormBuilder);
+  private readonly service = inject(RelatorioSemanalTecnicoService);
 
-  private readonly service =
-    inject(RelatorioSemanalTecnicoService);
+  private readonly tecnicoService = inject(TecnicoService);
 
-  private readonly tecnicoService =
-    inject(TecnicoService);
+  readonly imprimindo = signal(false);
 
+  private readonly consultaParaImpressao = signal<{
+    inicio: string;
+    fim: string;
+    tecnicoId: number | null;
+  } | null>(null);
 
-  readonly carregando =
-    signal(false);
+  readonly carregando = signal(false);
 
-  readonly carregandoTecnicos =
-    signal(false);
+  readonly carregandoTecnicos = signal(false);
 
-  readonly erro =
-    signal('');
+  readonly erro = signal('');
 
-  readonly relatorios =
-    signal<RelatorioSemanalTecnicoDTO[]>([]);
+  readonly relatorios = signal<RelatorioSemanalTecnicoDTO[]>([]);
 
-  readonly tecnicos =
-    signal<TecnicoDTO[]>([]);
+  readonly tecnicos = signal<TecnicoDTO[]>([]);
 
-  readonly tecnicoSelecionadoId =
-    signal<number | null>(
-      null,
-    );
+  readonly tecnicoSelecionadoId = signal<number | null>(null);
 
-  readonly periodoConsultado =
-    signal<PeriodoConsulta | null>(
-      null,
-    );
+  readonly periodoConsultado = signal<PeriodoConsulta | null>(null);
 
-  readonly modoConsulta =
-    signal<ModoConsulta>(
-      'ULTIMA_SEMANA',
-    );
+  readonly modoConsulta = signal<ModoConsulta>('ULTIMA_SEMANA');
 
+  readonly formPeriodo = this.formBuilder.nonNullable.group({
+    inicio: ['', [Validators.required]],
 
-  readonly formPeriodo =
-    this.formBuilder.nonNullable.group({
+    fim: ['', [Validators.required]],
+  });
 
-      inicio: [
-        '',
-        [
-          Validators.required,
-        ],
-      ],
+  readonly quantidadeTecnicos = computed(() => this.relatorios().length);
 
-      fim: [
-        '',
-        [
-          Validators.required,
-        ],
-      ],
+  readonly quantidadeAparelhos = computed(() =>
+    this.relatorios().reduce((total, relatorio) => total + relatorio.aparelhos.length, 0),
+  );
 
-    });
+  readonly totalOrdensServico = computed(() =>
+    this.relatorios().reduce((total, relatorio) => total + relatorio.totalOrdensServico, 0),
+  );
 
+  readonly totalMateriais = computed(() =>
+    this.relatorios().reduce((total, relatorio) => total + relatorio.totalMateriais, 0),
+  );
 
-  readonly quantidadeTecnicos =
-    computed(
-      () => this.relatorios().length,
-    );
-
-  readonly quantidadeAparelhos =
-    computed(
-      () =>
-        this.relatorios()
-          .reduce(
-            (
-              total,
-              relatorio,
-            ) =>
-              total +
-              relatorio.aparelhos.length,
-            0,
-          ),
-    );
-
-  readonly totalOrdensServico =
-    computed(
-      () =>
-        this.relatorios()
-          .reduce(
-            (
-              total,
-              relatorio,
-            ) =>
-              total +
-              relatorio.totalOrdensServico,
-            0,
-          ),
-    );
-
-  readonly totalMateriais =
-    computed(
-      () =>
-        this.relatorios()
-          .reduce(
-            (
-              total,
-              relatorio,
-            ) =>
-              total +
-              relatorio.totalMateriais,
-            0,
-          ),
-    );
-
-  readonly totalTecnicos =
-    computed(
-      () =>
-        this.relatorios()
-          .reduce(
-            (
-              total,
-              relatorio,
-            ) =>
-              total +
-              relatorio.valorTecnico,
-            0,
-          ),
-    );
-
+  readonly totalTecnicos = computed(() =>
+    this.relatorios().reduce((total, relatorio) => total + relatorio.valorTecnico, 0),
+  );
 
   ngOnInit(): void {
-
     this.carregarTecnicos();
 
     this.carregarUltimaSemana();
   }
 
+  selecionarTecnico(event: Event): void {
+    const elemento = event.target as HTMLSelectElement;
 
-  selecionarTecnico(
-    event: Event,
-  ): void {
-
-    const elemento =
-      event.target as HTMLSelectElement;
-
-    const valor =
-      elemento.value;
+    const valor = elemento.value;
 
     if (!valor) {
-
-      this.tecnicoSelecionadoId.set(
-        null,
-      );
+      this.tecnicoSelecionadoId.set(null);
 
       return;
     }
 
-    const tecnicoId =
-      Number(valor);
+    const tecnicoId = Number(valor);
 
-    if (
-      !Number.isSafeInteger(tecnicoId) ||
-      tecnicoId <= 0
-    ) {
-
-      this.tecnicoSelecionadoId.set(
-        null,
-      );
+    if (!Number.isSafeInteger(tecnicoId) || tecnicoId <= 0) {
+      this.tecnicoSelecionadoId.set(null);
 
       return;
     }
 
-    this.tecnicoSelecionadoId.set(
-      tecnicoId,
-    );
+    this.tecnicoSelecionadoId.set(tecnicoId);
   }
-
 
   carregarUltimaSemana(): void {
+    const periodo = this.calcularUltimaSemanaCompleta();
 
-    const periodo =
-      this.calcularUltimaSemanaCompleta();
+    this.modoConsulta.set('ULTIMA_SEMANA');
 
-    this.modoConsulta.set(
-      'ULTIMA_SEMANA',
-    );
+    this.aplicarPeriodoNoFormulario(periodo);
 
-    this.aplicarPeriodoNoFormulario(
-      periodo,
-    );
-
-    this.executarConsulta(
-      this.service.buscarSemanal(
-        this.tecnicoSelecionadoId(),
-      ),
-      periodo,
-    );
+    this.executarConsulta(this.service.buscarSemanal(this.tecnicoSelecionadoId()), periodo);
   }
-
 
   carregarSemanaAtual(): void {
+    const periodo = this.calcularSemanaAtual();
 
-    const periodo =
-      this.calcularSemanaAtual();
+    this.modoConsulta.set('SEMANA_ATUAL');
 
-    this.modoConsulta.set(
-      'SEMANA_ATUAL',
-    );
-
-    this.aplicarPeriodoNoFormulario(
-      periodo,
-    );
+    this.aplicarPeriodoNoFormulario(periodo);
 
     this.executarConsulta(
-      this.service.buscarPorPeriodo(
-        periodo.inicio,
-        periodo.fim,
-        this.tecnicoSelecionadoId(),
-      ),
+      this.service.buscarPorPeriodo(periodo.inicio, periodo.fim, this.tecnicoSelecionadoId()),
       periodo,
     );
   }
 
-
   consultarPeriodo(): void {
-
-    if (
-      this.formPeriodo.invalid
-    ) {
-
-      this.formPeriodo
-        .markAllAsTouched();
+    if (this.formPeriodo.invalid) {
+      this.formPeriodo.markAllAsTouched();
 
       return;
     }
 
-    const {
-      inicio,
-      fim,
-    } =
-      this.formPeriodo
-        .getRawValue();
+    const { inicio, fim } = this.formPeriodo.getRawValue();
 
-    if (
-      fim < inicio
-    ) {
-
-      this.erro.set(
-        'A data final não pode ser anterior à data inicial.',
-      );
+    if (fim < inicio) {
+      this.erro.set('A data final não pode ser anterior à data inicial.');
 
       return;
     }
 
-    this.modoConsulta.set(
-      'PERIODO',
-    );
+    this.modoConsulta.set('PERIODO');
 
     const periodo: PeriodoConsulta = {
       inicio,
@@ -347,378 +171,235 @@ export class RelatorioSemanalComponent
     };
 
     this.executarConsulta(
-      this.service.buscarPorPeriodo(
-        inicio,
-        fim,
-        this.tecnicoSelecionadoId(),
-      ),
+      this.service.buscarPorPeriodo(inicio, fim, this.tecnicoSelecionadoId()),
       periodo,
     );
   }
 
-
   atualizar(): void {
-
-    switch (
-      this.modoConsulta()
-    ) {
-
+    switch (this.modoConsulta()) {
       case 'ULTIMA_SEMANA':
-
         this.carregarUltimaSemana();
 
         return;
 
       case 'SEMANA_ATUAL':
-
         this.carregarSemanaAtual();
 
         return;
 
       case 'PERIODO':
-
         this.consultarPeriodo();
 
         return;
     }
   }
 
-
   imprimir(): void {
+    const consulta = this.consultaParaImpressao();
+    if (!consulta || this.carregando() || this.imprimindo() || !this.relatorios().length) return;
 
-    window.print();
+    // Abre durante o clique, antes da requisição, para evitar bloqueio de pop-up.
+    const janela = window.open('', '_blank');
+    if (!janela) {
+      this.erro.set('Permita pop-ups para abrir o relatório de impressão.');
+      return;
+    }
+    janela.opener = null;
+    janela.document.title = 'Preparando relatório';
+    janela.document.body.textContent = 'Preparando relatório para impressão...';
+    this.imprimindo.set(true);
+
+    this.service
+      .gerarDocumento(consulta.inicio, consulta.fim, consulta.tecnicoId)
+      .pipe(
+        finalize(() => this.imprimindo.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (html) => {
+          if (janela.closed) return;
+          janela.document.open();
+          janela.document.write(html);
+          janela.document.close();
+          // Template autocontido: nenhuma fonte, imagem ou CSS externo.
+          janela.requestAnimationFrame(() => {
+            janela.requestAnimationFrame(() => {
+              if (janela.closed) return;
+              janela.focus();
+              janela.print();
+            });
+          });
+        },
+        error: () => {
+          if (!janela.closed) janela.close();
+          this.erro.set(
+            'Não foi possível gerar o documento. Verifique o template ativo e tente novamente.',
+          );
+        },
+      });
   }
 
-
-  descricaoAparelho(
-    item: RelatorioSemanalTecnicoItemDTO,
-  ): string {
-
-    const descricao = [
-      item.modeloComercial,
-      item.modelo,
-    ]
-      .map(
-        valor =>
-          valor?.trim(),
-      )
-      .filter(
-        (
-          valor,
-        ): valor is string =>
-          Boolean(valor),
-      )
+  descricaoAparelho(item: RelatorioSemanalTecnicoItemDTO): string {
+    const descricao = [item.modeloComercial, item.modelo]
+      .map((valor) => valor?.trim())
+      .filter((valor): valor is string => Boolean(valor))
       .join(' - ');
 
-    return (
-      descricao ||
-      `Aparelho #${item.aparelhoId}`
-    );
+    return descricao || `Aparelho #${item.aparelhoId}`;
   }
 
-
-  nomeFormaPagamento(
-    forma: FormaPagamento,
-  ): string {
-
-    switch (
-      forma
-    ) {
-
+  nomeFormaPagamento(forma: FormaPagamento): string {
+    switch (forma) {
       case 'DINHEIRO':
-
         return 'Dinheiro';
 
       case 'PIX':
-
         return 'PIX';
 
       case 'CARTAO_DEBITO':
-
         return 'Cartão de débito';
 
       case 'CARTAO_CREDITO':
-
         return 'Cartão de crédito';
 
       case 'TRANSFERENCIA':
-
         return 'Transferência';
 
       default:
-
         return forma;
     }
   }
 
-
   private carregarTecnicos(): void {
-
-    this.carregandoTecnicos.set(
-      true,
-    );
+    this.carregandoTecnicos.set(true);
 
     this.tecnicoService
       .listar()
       .pipe(
+        finalize(() => this.carregandoTecnicos.set(false)),
 
-        finalize(() =>
-          this.carregandoTecnicos.set(
-            false,
-          ),
-        ),
-
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
-
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-
-        next: tecnicos => {
-
-          const lista =
-            tecnicos ?? [];
+        next: (tecnicos) => {
+          const lista = tecnicos ?? [];
 
           this.tecnicos.set(
-            [...lista]
-              .sort(
-                (
-                  a,
-                  b,
-                ) =>
-                  (
-                    a.nome ?? ''
-                  )
-                    .localeCompare(
-                      b.nome ?? '',
-                      'pt-BR',
-                    ),
-              ),
+            [...lista].sort((a, b) => (a.nome ?? '').localeCompare(b.nome ?? '', 'pt-BR')),
           );
         },
 
-        error: (
-          erro: HttpErrorResponse,
-        ) => {
-
-          console.error(
-            'Erro ao carregar técnicos:',
-            erro,
-          );
-
+        error: (erro: HttpErrorResponse) => {
+          console.error('Erro ao carregar técnicos:', erro);
         },
-
       });
   }
 
-
   private executarConsulta(
-    requisicao:
-      Observable<
-        RelatorioSemanalTecnicoDTO[]
-      >,
+    requisicao: Observable<RelatorioSemanalTecnicoDTO[]>,
     periodo: PeriodoConsulta,
   ): void {
+    const tecnicoConsultadoId = this.tecnicoSelecionadoId();
+    this.consultaParaImpressao.set(null);
 
-    this.carregando.set(
-      true,
-    );
+    this.carregando.set(true);
 
-    this.erro.set(
-      '',
-    );
+    this.erro.set('');
 
-    this.periodoConsultado.set(
-      periodo,
-    );
+    this.periodoConsultado.set(periodo);
 
     requisicao
       .pipe(
+        finalize(() => this.carregando.set(false)),
 
-        finalize(() =>
-          this.carregando.set(
-            false,
-          ),
-        ),
-
-        takeUntilDestroyed(
-          this.destroyRef,
-        ),
-
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
+        next: (relatorios) => {
+          this.relatorios.set(relatorios ?? []);
 
-        next: relatorios => {
-
-          this.relatorios.set(
-            relatorios ?? [],
-          );
-
+          // O período devolvido pela API é a referência, inclusive aos domingos.
+          const primeiro = relatorios?.[0];
+          const periodoEfetivo = primeiro
+            ? { inicio: primeiro.inicio, fim: primeiro.fim }
+            : periodo;
+          this.periodoConsultado.set(periodoEfetivo);
+          this.consultaParaImpressao.set({
+            ...periodoEfetivo,
+            tecnicoId: tecnicoConsultadoId,
+          });
         },
 
-        error: (
-          erro: HttpErrorResponse,
-        ) => {
+        error: (erro: HttpErrorResponse) => {
+          console.error('Erro ao carregar relatório:', erro);
 
-          console.error(
-            'Erro ao carregar relatório:',
-            erro,
-          );
-
-          this.relatorios.set(
-            [],
-          );
+          this.relatorios.set([]);
 
           this.erro.set(
-            erro.error?.detail ??
-            erro.error?.message ??
-            'Não foi possível carregar o relatório.',
+            erro.error?.detail ?? erro.error?.message ?? 'Não foi possível carregar o relatório.',
           );
-
         },
-
       });
   }
 
-
-  private aplicarPeriodoNoFormulario(
-    periodo: PeriodoConsulta,
-  ): void {
-
+  private aplicarPeriodoNoFormulario(periodo: PeriodoConsulta): void {
     this.formPeriodo.setValue({
       inicio: periodo.inicio,
       fim: periodo.fim,
     });
   }
 
+  private calcularUltimaSemanaCompleta(): PeriodoConsulta {
+    const segundaAtual = this.calcularSegundaFeira(new Date());
 
-  private calcularUltimaSemanaCompleta():
-    PeriodoConsulta {
+    const inicio = new Date(segundaAtual);
 
-    const segundaAtual =
-      this.calcularSegundaFeira(
-        new Date(),
-      );
+    inicio.setDate(inicio.getDate() - 7);
 
-    const inicio =
-      new Date(
-        segundaAtual,
-      );
+    const fim = new Date(inicio);
 
-    inicio.setDate(
-      inicio.getDate() - 7,
-    );
-
-    const fim =
-      new Date(
-        inicio,
-      );
-
-    fim.setDate(
-      fim.getDate() + 5,
-    );
+    fim.setDate(fim.getDate() + 5);
 
     return {
-      inicio:
-        this.formatarDataISO(
-          inicio,
-        ),
-      fim:
-        this.formatarDataISO(
-          fim,
-        ),
+      inicio: this.formatarDataISO(inicio),
+      fim: this.formatarDataISO(fim),
     };
   }
 
+  private calcularSemanaAtual(): PeriodoConsulta {
+    const inicio = this.calcularSegundaFeira(new Date());
 
-  private calcularSemanaAtual():
-    PeriodoConsulta {
+    const fim = new Date(inicio);
 
-    const inicio =
-      this.calcularSegundaFeira(
-        new Date(),
-      );
-
-    const fim =
-      new Date(
-        inicio,
-      );
-
-    fim.setDate(
-      fim.getDate() + 5,
-    );
+    fim.setDate(fim.getDate() + 5);
 
     return {
-      inicio:
-        this.formatarDataISO(
-          inicio,
-        ),
-      fim:
-        this.formatarDataISO(
-          fim,
-        ),
+      inicio: this.formatarDataISO(inicio),
+      fim: this.formatarDataISO(fim),
     };
   }
 
+  private calcularSegundaFeira(data: Date): Date {
+    const resultado = new Date(data);
 
-  private calcularSegundaFeira(
-    data: Date,
-  ): Date {
+    resultado.setHours(0, 0, 0, 0);
 
-    const resultado =
-      new Date(
-        data,
-      );
+    const diaSemana = resultado.getDay();
 
-    resultado.setHours(
-      0,
-      0,
-      0,
-      0,
-    );
+    const diasDesdeSegunda = (diaSemana + 6) % 7;
 
-    const diaSemana =
-      resultado.getDay();
-
-    const diasDesdeSegunda =
-      (
-        diaSemana + 6
-      ) % 7;
-
-    resultado.setDate(
-      resultado.getDate() -
-      diasDesdeSegunda,
-    );
+    resultado.setDate(resultado.getDate() - diasDesdeSegunda);
 
     return resultado;
   }
 
+  private formatarDataISO(data: Date): string {
+    const ano = data.getFullYear();
 
-  private formatarDataISO(
-    data: Date,
-  ): string {
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
 
-    const ano =
-      data.getFullYear();
-
-    const mes =
-      String(
-        data.getMonth() + 1,
-      )
-        .padStart(
-          2,
-          '0',
-        );
-
-    const dia =
-      String(
-        data.getDate(),
-      )
-        .padStart(
-          2,
-          '0',
-        );
+    const dia = String(data.getDate()).padStart(2, '0');
 
     return `${ano}-${mes}-${dia}`;
   }

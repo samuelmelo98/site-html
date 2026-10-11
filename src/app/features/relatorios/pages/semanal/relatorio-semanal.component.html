@@ -1,136 +1,85 @@
 <div class="pagina-relatorio">
-
   <!-- CABEÇALHO -->
   <div class="cabecalho-pagina no-print">
-
     <div>
-      <span class="subtitulo">
-        Relatórios
-      </span>
+      <span class="subtitulo"> Relatórios </span>
 
-      <h1>
-        Relatório semanal por técnico
-      </h1>
+      <h1>Relatório semanal por técnico</h1>
 
       <p>
-        Consulte aparelhos entregues por período
-        e imprima o fechamento individual de cada técnico.
+        Consulte aparelhos entregues por período e imprima o fechamento individual de cada técnico.
       </p>
     </div>
 
     <div class="cabecalho-acoes">
-
       <p-button
         label="Atualizar"
         icon="pi pi-refresh"
         severity="secondary"
         [outlined]="true"
         [loading]="carregando()"
-        (onClick)="atualizar()">
+        (onClick)="atualizar()"
+      >
       </p-button>
 
       <p-button
         label="Imprimir relatório"
+        [loading]="imprimindo()"
         icon="pi pi-print"
-        [disabled]="
-          carregando() ||
-          relatorios().length === 0
-        "
-        (onClick)="imprimir()">
+        [disabled]="carregando() || imprimindo() || relatorios().length === 0"
+        (onClick)="imprimir()"
+      >
       </p-button>
-
     </div>
-
   </div>
-
 
   <!-- FILTRO -->
   <section class="filtro-periodo no-print">
-
-    <form
-      [formGroup]="formPeriodo"
-      (ngSubmit)="consultarPeriodo()"
-      class="filtro-periodo-form">
-
+    <form [formGroup]="formPeriodo" (ngSubmit)="consultarPeriodo()" class="filtro-periodo-form">
       <div class="campo-tecnico">
-
-        <label for="tecnico">
-          Técnico
-        </label>
+        <label for="tecnico"> Técnico </label>
 
         <select
           id="tecnico"
-          [disabled]="
-            carregando() ||
-            carregandoTecnicos()
-          "
-          (change)="selecionarTecnico($event)">
+          [disabled]="carregando() || carregandoTecnicos()"
+          (change)="selecionarTecnico($event)"
+        >
+          <option value="">Todos os técnicos</option>
 
-          <option value="">
-            Todos os técnicos
-          </option>
-
-          @for (
-            tecnico of tecnicos();
-            track tecnico.id
-          ) {
-
-            <option
-              [value]="tecnico.id">
-
+          @for (tecnico of tecnicos(); track tecnico.id) {
+            <option [value]="tecnico.id">
               {{ tecnico.nome }}
 
               @if (tecnico.email) {
                 - {{ tecnico.email }}
               }
-
             </option>
-
           }
-
         </select>
-
       </div>
 
       <div class="campo-periodo">
+        <label for="inicio"> Data inicial </label>
 
-        <label for="inicio">
-          Data inicial
-        </label>
-
-        <input
-          id="inicio"
-          type="date"
-          formControlName="inicio">
-
+        <input id="inicio" type="date" formControlName="inicio" />
       </div>
 
       <div class="campo-periodo">
+        <label for="fim"> Data final </label>
 
-        <label for="fim">
-          Data final
-        </label>
-
-        <input
-          id="fim"
-          type="date"
-          formControlName="fim">
-
+        <input id="fim" type="date" formControlName="fim" />
       </div>
 
       <div class="filtro-acoes">
-
         <p-button
           type="button"
           label="Última semana"
           icon="pi pi-calendar-minus"
           severity="secondary"
-          [outlined]="
-            modoConsulta() !==
-            'ULTIMA_SEMANA'
-          "
+          [outlined]="modoConsulta() !== 'ULTIMA_SEMANA'"
           [disabled]="carregando()"
-          (onClick)="carregarUltimaSemana()">
+          (onClick)="carregarUltimaSemana()"
+        >
         </p-button>
 
         <p-button
@@ -138,12 +87,10 @@
           label="Semana atual"
           icon="pi pi-calendar"
           severity="secondary"
-          [outlined]="
-            modoConsulta() !==
-            'SEMANA_ATUAL'
-          "
+          [outlined]="modoConsulta() !== 'SEMANA_ATUAL'"
           [disabled]="carregando()"
-          (onClick)="carregarSemanaAtual()">
+          (onClick)="carregarSemanaAtual()"
+        >
         </p-button>
 
         <p-button
@@ -151,667 +98,300 @@
           label="Consultar"
           icon="pi pi-search"
           [loading]="carregando()"
-          [disabled]="
-            carregando() ||
-            formPeriodo.invalid
-          ">
+          [disabled]="carregando() || formPeriodo.invalid"
+        >
         </p-button>
-
       </div>
-
     </form>
-
   </section>
 
-
   @if (carregando()) {
-
     <div class="estado">
+      <p-progressSpinner strokeWidth="4" ariaLabel="Carregando relatório"> </p-progressSpinner>
 
-      <p-progressSpinner
-        strokeWidth="4"
-        ariaLabel="Carregando relatório">
-      </p-progressSpinner>
-
-      <span>
-        Carregando relatório...
-      </span>
-
+      <span> Carregando relatório... </span>
     </div>
-
   } @else if (erro()) {
-
-    <div
-      class="estado estado-erro"
-      role="alert">
-
+    <div class="estado estado-erro" role="alert">
       <i class="pi pi-exclamation-circle"></i>
 
       <div>
-
-        <strong>
-          Não foi possível carregar o relatório
-        </strong>
+        <strong> Não foi possível carregar o relatório </strong>
 
         <span>
           {{ erro() }}
         </span>
-
       </div>
-
     </div>
-
   } @else if (relatorios().length === 0) {
-
     <div class="estado estado-vazio">
-
       <i class="pi pi-inbox"></i>
 
       <div>
+        <strong> Nenhuma entrega encontrada </strong>
 
-        <strong>
-          Nenhuma entrega encontrada
-        </strong>
-
-        @if (
-          periodoConsultado();
-          as periodo
-        ) {
-
+        @if (periodoConsultado(); as periodo) {
           <span>
             Não existem aparelhos entregues entre
-            {{ periodo.inicio | date:'dd/MM/yyyy' }}
+            {{ periodo.inicio | date: 'dd/MM/yyyy' }}
             e
-            {{ periodo.fim | date:'dd/MM/yyyy' }}.
+            {{ periodo.fim | date: 'dd/MM/yyyy' }}.
           </span>
-
         } @else {
-
-          <span>
-            Não existem aparelhos entregues
-            no período consultado.
-          </span>
-
+          <span> Não existem aparelhos entregues no período consultado. </span>
         }
-
       </div>
-
     </div>
-
   } @else {
-
-
     <!-- RESUMO GERAL -->
     <section class="resumo-geral no-print">
-
-      @if (
-        periodoConsultado();
-        as periodo
-      ) {
-
+      @if (periodoConsultado(); as periodo) {
         <div class="resumo-card">
-
-          <span>
-            Período
-          </span>
+          <span> Período </span>
 
           <strong>
-            {{
-              periodo.inicio
-                | date:'dd/MM/yyyy'
-            }}
+            {{ periodo.inicio | date: 'dd/MM/yyyy' }}
             a
-            {{
-              periodo.fim
-                | date:'dd/MM/yyyy'
-            }}
+            {{ periodo.fim | date: 'dd/MM/yyyy' }}
           </strong>
-
         </div>
-
       }
 
-
       <div class="resumo-card">
-
-        <span>
-          Técnicos
-        </span>
+        <span> Técnicos </span>
 
         <strong>
           {{ quantidadeTecnicos() }}
         </strong>
-
       </div>
 
-
       <div class="resumo-card">
-
-        <span>
-          Aparelhos entregues
-        </span>
+        <span> Aparelhos entregues </span>
 
         <strong>
           {{ quantidadeAparelhos() }}
         </strong>
-
       </div>
-
 
       <div class="resumo-card">
-
-        <span>
-          Total das OS
-        </span>
+        <span> Total das OS </span>
 
         <strong>
-          {{
-            totalOrdensServico()
-              | currency:
-                'BRL':
-                'symbol':
-                '1.2-2':
-                'pt-BR'
-          }}
+          {{ totalOrdensServico() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
         </strong>
-
       </div>
-
 
       <div class="resumo-card">
-
-        <span>
-          Total de materiais
-        </span>
+        <span> Total de materiais </span>
 
         <strong>
-          {{
-            totalMateriais()
-              | currency:
-                'BRL':
-                'symbol':
-                '1.2-2':
-                'pt-BR'
-          }}
+          {{ totalMateriais() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
         </strong>
-
       </div>
-
 
       <div class="resumo-card destaque">
-
-        <span>
-          Total dos técnicos
-        </span>
+        <span> Total dos técnicos </span>
 
         <strong>
-          {{
-            totalTecnicos()
-              | currency:
-                'BRL':
-                'symbol':
-                '1.2-2':
-                'pt-BR'
-          }}
+          {{ totalTecnicos() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
         </strong>
-
       </div>
-
     </section>
 
-
     <!-- UM RELATÓRIO PARA CADA TÉCNICO -->
-    @for (
-      relatorio of relatorios();
-      track relatorio.tecnicoId
-    ) {
-
+    @for (relatorio of relatorios(); track relatorio.tecnicoId) {
       <section class="relatorio-tecnico">
-
-
         <!-- CABEÇALHO DO RELATÓRIO -->
         <div class="cabecalho-relatorio">
-
           <div>
+            <span class="empresa"> String Tecnologia </span>
 
-            <span class="empresa">
-              String Tecnologia
-            </span>
-
-            <h2>
-              Relatório de aparelhos entregues
-            </h2>
-
+            <h2>Relatório de aparelhos entregues</h2>
           </div>
-
 
           <div class="periodo-relatorio">
-
-            <span>
-              Período
-            </span>
+            <span> Período </span>
 
             <strong>
-              {{
-                relatorio.inicio
-                  | date:'dd/MM/yyyy'
-              }}
+              {{ relatorio.inicio | date: 'dd/MM/yyyy' }}
               a
-              {{
-                relatorio.fim
-                  | date:'dd/MM/yyyy'
-              }}
+              {{ relatorio.fim | date: 'dd/MM/yyyy' }}
             </strong>
-
           </div>
-
         </div>
-
 
         <!-- TÉCNICO -->
         <div class="dados-tecnico">
-
           <div>
-
-            <span>
-              Técnico
-            </span>
+            <span> Técnico </span>
 
             <strong>
               {{ relatorio.tecnicoNome }}
             </strong>
-
           </div>
 
-
           <div>
-
-            <span>
-              ID
-            </span>
+            <span> ID </span>
 
             <strong>
               {{ relatorio.tecnicoId }}
             </strong>
-
           </div>
-
 
           <div>
-
-            <span>
-              E-mail
-            </span>
+            <span> E-mail </span>
 
             <strong>
-              {{
-                relatorio.tecnicoEmail ||
-                '-'
-              }}
+              {{ relatorio.tecnicoEmail || '-' }}
             </strong>
-
           </div>
-
         </div>
-
 
         <!-- ITENS -->
         <div class="tabela-wrapper">
-
           <table class="tabela-relatorio">
-
             <thead>
-
               <tr>
+                <th>OS</th>
 
-                <th>
-                  OS
-                </th>
+                <th>Cliente</th>
 
-                <th>
-                  Cliente
-                </th>
+                <th>Aparelho</th>
 
-                <th>
-                  Aparelho
-                </th>
+                <th>Entrega</th>
 
-                <th>
-                  Entrega
-                </th>
+                <th class="numero">Valor OS</th>
 
-                <th class="numero">
-                  Valor OS
-                </th>
+                <th class="numero">Material</th>
 
-                <th class="numero">
-                  Material
-                </th>
-
-                <th>
-                  Pagamento
-                </th>
-
+                <th>Pagamento</th>
               </tr>
-
             </thead>
 
-
             <tbody>
-
-              @for (
-                item of relatorio.aparelhos;
-                track item.ordemServicoId
-              ) {
-
+              @for (item of relatorio.aparelhos; track item.ordemServicoId) {
                 <tr>
-
                   <td>
-
                     <strong>
-                      {{
-                        item.numeroOrdemServico
-                      }}
+                      {{ item.numeroOrdemServico }}
                     </strong>
-
                   </td>
-
 
                   <td>
                     {{ item.clienteNome }}
                   </td>
 
-
                   <td>
-
                     <strong>
-                      {{
-                        descricaoAparelho(
-                          item
-                        )
-                      }}
+                      {{ descricaoAparelho(item) }}
                     </strong>
 
-                    @if (
-                      item.numeroSerie
-                    ) {
-
+                    @if (item.numeroSerie) {
                       <small>
                         Série:
                         {{ item.numeroSerie }}
                       </small>
-
                     }
-
                   </td>
-
 
                   <td>
-                    {{
-                      item.dataEntrega
-                        | date:
-                          'dd/MM/yyyy HH:mm'
-                    }}
+                    {{ item.dataEntrega | date: 'dd/MM/yyyy HH:mm' }}
                   </td>
-
 
                   <td class="numero">
-                    {{
-                      item.valorOrdemServico
-                        | currency:
-                          'BRL':
-                          'symbol':
-                          '1.2-2':
-                          'pt-BR'
-                    }}
+                    {{ item.valorOrdemServico | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
                   </td>
-
 
                   <td class="numero">
-                    {{
-                      item.valorMaterial
-                        | currency:
-                          'BRL':
-                          'symbol':
-                          '1.2-2':
-                          'pt-BR'
-                    }}
+                    {{ item.valorMaterial | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
                   </td>
-
 
                   <td>
-
-                    @if (
-                      item.pagamentos.length > 0
-                    ) {
-
+                    @if (item.pagamentos.length > 0) {
                       <div class="pagamentos">
-
-                        @for (
-                          pagamento
-                          of item.pagamentos;
-                          track $index
-                        ) {
-
+                        @for (pagamento of item.pagamentos; track $index) {
                           <div class="pagamento">
-
                             <span>
-                              {{
-                                nomeFormaPagamento(
-                                  pagamento
-                                    .formaPagamento
-                                )
-                              }}
+                              {{ nomeFormaPagamento(pagamento.formaPagamento) }}
                             </span>
 
                             <strong>
-                              {{
-                                pagamento.valor
-                                  | currency:
-                                    'BRL':
-                                    'symbol':
-                                    '1.2-2':
-                                    'pt-BR'
-                              }}
+                              {{ pagamento.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
                             </strong>
 
                             @if (
-                              pagamento
-                                .formaPagamento ===
-                                  'CARTAO_CREDITO'
-                              &&
+                              pagamento.formaPagamento === 'CARTAO_CREDITO' &&
                               pagamento.parcelas > 1
                             ) {
-
-                              <small>
-                                {{
-                                  pagamento.parcelas
-                                }}x
-                              </small>
-
+                              <small> {{ pagamento.parcelas }}x </small>
                             }
-
                           </div>
-
                         }
-
                       </div>
-
                     } @else {
-
-                      <span class="sem-pagamento">
-                        -
-                      </span>
-
+                      <span class="sem-pagamento"> - </span>
                     }
-
                   </td>
-
                 </tr>
-
               }
-
             </tbody>
-
           </table>
-
         </div>
-
 
         <!-- TOTAIS -->
         <div class="totais-relatorio">
-
           <div class="total-item">
-
-            <span>
-              Total dos aparelhos
-            </span>
+            <span> Total dos aparelhos </span>
 
             <strong>
-              {{
-                relatorio
-                  .totalOrdensServico
-                  | currency:
-                    'BRL':
-                    'symbol':
-                    '1.2-2':
-                    'pt-BR'
-              }}
+              {{ relatorio.totalOrdensServico | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
             </strong>
-
           </div>
 
-
-          <div class="total-operador">
-            -
-          </div>
-
+          <div class="total-operador">-</div>
 
           <div class="total-item">
-
-            <span>
-              Total de materiais
-            </span>
+            <span> Total de materiais </span>
 
             <strong>
-              {{
-                relatorio
-                  .totalMateriais
-                  | currency:
-                    'BRL':
-                    'symbol':
-                    '1.2-2':
-                    'pt-BR'
-              }}
+              {{ relatorio.totalMateriais | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
             </strong>
-
           </div>
 
-
-          <div class="total-operador">
-            =
-          </div>
-
+          <div class="total-operador">=</div>
 
           <div class="total-item">
-
-            <span>
-              Valor líquido
-            </span>
+            <span> Valor líquido </span>
 
             <strong>
-              {{
-                relatorio
-                  .valorLiquido
-                  | currency:
-                    'BRL':
-                    'symbol':
-                    '1.2-2':
-                    'pt-BR'
-              }}
+              {{ relatorio.valorLiquido | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
             </strong>
-
           </div>
 
-
-          <div class="total-operador">
-            ÷ 2 =
-          </div>
-
+          <div class="total-operador">÷ 2 =</div>
 
           <div class="total-item total-tecnico">
-
-            <span>
-              Valor do técnico
-            </span>
+            <span> Valor do técnico </span>
 
             <strong>
-              {{
-                relatorio
-                  .valorTecnico
-                  | currency:
-                    'BRL':
-                    'symbol':
-                    '1.2-2':
-                    'pt-BR'
-              }}
+              {{ relatorio.valorTecnico | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
             </strong>
-
           </div>
-
         </div>
-
 
         <div class="formula-relatorio">
-
-          <span>
-            Cálculo:
-          </span>
+          <span> Cálculo: </span>
 
           <strong>
-
             (
-            {{
-              relatorio
-                .totalOrdensServico
-                | currency:
-                  'BRL':
-                  'symbol':
-                  '1.2-2':
-                  'pt-BR'
-            }}
+            {{ relatorio.totalOrdensServico | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
             -
-            {{
-              relatorio
-                .totalMateriais
-                | currency:
-                  'BRL':
-                  'symbol':
-                  '1.2-2':
-                  'pt-BR'
-            }}
-            )
-            ÷ 2
-            =
-            {{
-              relatorio
-                .valorTecnico
-                | currency:
-                  'BRL':
-                  'symbol':
-                  '1.2-2':
-                  'pt-BR'
-            }}
-
+            {{ relatorio.totalMateriais | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+            ) ÷ 2 =
+            {{ relatorio.valorTecnico | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
           </strong>
-
         </div>
-
-
       </section>
-
     }
-
   }
-
 </div>
