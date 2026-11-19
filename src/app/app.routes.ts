@@ -109,4 +109,23 @@ export const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full',
   },
+
+  /*
+   * ADMINISTRAÇÃO - TEMPLATES DE DOCUMENTOS
+   */
+
+  {
+    path: 'admin/documento-templates',
+
+    canActivate: [authGuard, permissionGuard],
+
+    data: {
+      permissoes: [PERMISSOES.DOCUMENTO_TEMPLATE.VISUALIZAR],
+    },
+
+    loadComponent: () =>
+      import('./features/editor-templates/documento-template-editor.component').then(
+        (m) => m.DocumentoTemplateEditorComponent,
+      ),
+  },
 ];
