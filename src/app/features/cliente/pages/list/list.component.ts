@@ -92,7 +92,7 @@ export class ListComponent {
         next: (res) => {
           this.dados2 = res.content;
 
-          this.total = res.totalElements;
+          this.total = res.page.totalElements;
 
           this.loading = false;
         },

@@ -1,0 +1,27 @@
+:host { display:block; color:#192333; }
+.pagina { padding:24px; max-width:1800px; margin:auto; }
+.topo, .toolbar, .painel-titulo { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+h1 { margin:0; font-size:25px; } p { margin:5px 0; color:#64748b; }
+.selo { background:#edf4ff; color:#2054a0; padding:8px 12px; border-radius:20px; }
+.toolbar { flex-wrap:wrap; padding:18px 0; justify-content:flex-start; }
+label { display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:650; }
+select,input,button { border:1px solid #cbd5e1; padding:10px; border-radius:8px; background:#fff; color:#172b4d; }
+button { cursor:pointer; font-weight:700; }
+button:disabled { cursor:not-allowed; opacity:.5; }
+button.primario { background:#155eef; color:white; border-color:#155eef; }
+.painel-duplo { display:grid; grid-template-columns:minmax(0,1fr) minmax(350px,1fr); gap:16px; }
+.editor,.visualizacao { border:1px solid #e2e8f0; border-radius:12px; min-width:0; overflow:hidden; }
+.painel-titulo { padding:14px 16px; border-bottom:1px solid #e2e8f0; }
+.painel-titulo span { color:#64748b; font-size:12px; }
+.descricao { margin:12px 14px; }
+textarea { display:block; width:calc(100% - 28px); margin:14px; height:64vh; min-height:400px;
+  border:1px solid #cbd5e1; border-radius:8px; padding:14px; box-sizing:border-box;
+  font:13px/1.55 Consolas, monospace; tab-size:2; resize:vertical; }
+.canvas { min-height:72vh; overflow:auto; background:#eef1f6; padding:22px; text-align:center; }
+iframe { border:0; display:block; max-width:none; height:72vh; min-height:550px;
+  margin:0 auto; background:white; box-shadow:0 3px 25px #0002; }
+.vazio { color:#64748b; padding:24px; }
+.ajuda { padding:0 14px 12px; font-size:12px; }
+.erro { background:#fff0f0; color:#af2020; padding:12px; border-radius:8px; }
+.aviso { background:#effaf2; color:#176c3f; padding:12px; border-radius:8px; }
+@media(max-width:1050px){ .painel-duplo{grid-template-columns:1fr;} }

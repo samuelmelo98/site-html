@@ -24,28 +24,28 @@
           <form [formGroup]="form" (ngSubmit)="consultar()">
             <p class="orientacao">
               Para acessar os dados da ordem de serviço, informe os
-              <strong> 2 últimos dígitos do CPF </strong>
+              <strong> 4 últimos dígitos do CPF </strong>
               cadastrado.
             </p>
 
             <div class="campo">
-              <label for="ultimosDigitosCpf"> Últimos 2 dígitos do CPF </label>
+              <label for="ultimosDigitosCpf"> Últimos 4 dígitos do CPF </label>
 
               <input
                 id="ultimosDigitosCpf"
                 type="text"
                 pInputText
                 formControlName="ultimosDigitosCpf"
-                maxlength="2"
+                maxlength="4"
                 inputmode="numeric"
                 autocomplete="off"
-                placeholder="00"
+                placeholder="0000"
               />
 
               @if (
                 form.controls.ultimosDigitosCpf.invalid && form.controls.ultimosDigitosCpf.touched
               ) {
-                <small class="erro-campo"> Informe exatamente 2 números. </small>
+                <small class="erro-campo"> Informe exatamente 4 números. </small>
               }
             </div>
 

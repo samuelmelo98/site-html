@@ -1,0 +1,57 @@
+<section class="pagina">
+  <header class="topo">
+    <div>
+      <h1>Editor de templates</h1>
+      <p>Edite, valide e publique documentos sem alterar o código.</p>
+    </div>
+    <span class="selo">{{ slug }} · v{{ versao }}</span>
+  </header>
+
+  <div class="toolbar">
+    <label>Versão
+      <select [ngModel]="versao" (ngModelChange)="carregar(+$event)">
+        <option *ngFor="let v of versoes" [ngValue]="v.version">
+          Versão {{ v.version }} {{ v.active ? '· ativa' : '' }}
+        </option>
+      </select>
+    </label>
+    <label>Venda de teste (ID)
+      <input type="number" min="1" step="1" [(ngModel)]="vendaId" placeholder="Ex.: 123" />
+    </label>
+    <label>Largura do preview
+      <select [(ngModel)]="largura">
+        <option value="80mm">Bobina 80 mm</option>
+        <option value="210mm">A4 (simulação)</option>
+      </select>
+    </label>
+    <button type="button" (click)="visualizar()" [disabled]="carregando">Gerar preview</button>
+    <button class="primario" type="button" (click)="publicar()" [disabled]="carregando || !previewHtml">Publicar versão</button>
+  </div>
+
+  <p class="erro" role="alert" *ngIf="erro">{{ erro }}</p>
+  <p class="aviso" role="status" *ngIf="aviso">{{ aviso }}</p>
+
+  <div class="painel-duplo">
+    <div class="editor">
+      <div class="painel-titulo"><strong>HTML + CSS + Mustache</strong><span *ngIf="alterado">Alterações não publicadas</span></div>
+      <label class="descricao">Descrição da versão
+        <input [(ngModel)]="descricao" (ngModelChange)="editar()" maxlength="250" />
+      </label>
+      <textarea aria-label="Código do template" spellcheck="false"
+                [(ngModel)]="html" (ngModelChange)="editar()"></textarea>
+      <p class="ajuda">Variáveis: <code>{{ '{{' }}empresa.nome{{ '}}' }}</code>,
+        <code>{{ '{{' }}venda.numero{{ '}}' }}</code>,
+        <code>{{ '{{' }}venda.dataVenda{{ '}}' }}</code>,
+        <code>{{ '{{' }}#venda.itens{{ '}}' }}</code> ... <code>{{ '{{' }}/venda.itens{{ '}}' }}</code></p>
+    </div>
+    <div class="visualizacao">
+      <div class="painel-titulo"><strong>Pré-visualização</strong><span>Renderizado no servidor</span></div>
+      <div class="canvas">
+        <iframe title="Pré-visualização segura do comprovante" sandbox=""
+                [style.width]="largura" [attr.srcdoc]="previewHtml"></iframe>
+        <div class="vazio" *ngIf="!previewHtml">Informe uma venda finalizada e clique em Gerar preview.</div>
+      </div>
+      <p class="ajuda">O preview não salva mudanças. Scripts e formulários ficam bloqueados pelo sandbox.</p>
+    </div>
+  </div>
+</section>

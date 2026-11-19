@@ -9,3 +9,13 @@ export interface Page<T> {
 
   number: number;
 }
+
+export interface PageResponse<T> {
+  content: T[];
+  page: {
+    size: number;
+    number: number;
+    totalElements: number;
+    totalPages: number;
+  };
+}

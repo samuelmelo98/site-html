@@ -10,7 +10,7 @@ import { Observable, catchError, map, of, shareReplay } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 // 🔹 Shared
-import { Page } from '../../../shared/search-generic/models/page.model';
+import { Page, PageResponse } from '../../../shared/search-generic/models/page.model';
 
 // 🔹 Feature
 import { Cliente } from '../model/cliente-listar.dto';
@@ -40,14 +40,14 @@ export class ClienteService {
     sortField: string,
     sortOrder: string,
     filtro?: string,
-  ): Observable<Page<any>> {
+  ): Observable<PageResponse<any>> {
     let params = `page=${page}` + `&size=${size}` + `&sort=${sortField},${sortOrder}`;
 
     if (filtro) {
       params += `&search=${encodeURIComponent(filtro)}`;
     }
 
-    return this.http.get<Page<any>>(`${this.API}?${params}`);
+    return this.http.get<PageResponse<Cliente>>(`${this.API}?${params}`);
   }
 
   buscarPorId(clienteId: number): Observable<Cliente> {
